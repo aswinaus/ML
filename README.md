@@ -63,7 +63,9 @@ So, the output "rawFeatures" vector for this document would be [0, 1, 3, 1, 1]. 
 **Why use the Hashing Trick?**
 
 **Scalability:** It avoids building a large vocabulary dictionary, which can be very memory-intensive when dealing with millions of documents and a vast number of unique words.
+
 **Speed:** Hashing is generally a very fast operation.
+
 **Fixed Size:** The output vector size is fixed (numFeatures), regardless of the number of unique words in the entire dataset.
 
 The main drawback is the possibility of hash collisions, where different words map to the same index. This can slightly reduce the model's ability to distinguish between words, but with a sufficiently large numFeatures (like the 1000 you used), the impact is usually minimal for many tasks.
