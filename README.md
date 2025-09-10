@@ -47,11 +47,17 @@ The HashingTF transformer will:
 Let's illustrate with our example words and hypothetical hash values and indices (remembering numFeatures=5):
 
 "the": hash -> 12, index -> 12 % 5 = 2. Vector: [0, 0, 1, 0, 0]
+
 "cat": hash -> 7, index -> 7 % 5 = 2. Vector: [0, 0, 2, 0, 0] (Collision! "the" and "cat" hashed to the same index)
+
 "sat": hash -> 9, index -> 9 % 5 = 4. Vector: [0, 0, 2, 0, 1]
+
 "on": hash -> 3, index -> 3 % 5 = 3. Vector: [0, 0, 2, 1, 1]
+
 "the": hash -> 12, index -> 12 % 5 = 2. Vector: [0, 0, 3, 1, 1]
+
 "mat": hash -> 11, index -> 11 % 5 = 1. Vector: [0, 1, 3, 1, 1]
+
 So, the output "rawFeatures" vector for this document would be [0, 1, 3, 1, 1]. This vector represents the frequency of words in the document grouped into 5 bins based on their hash values.
 
 **Why use the Hashing Trick?**
