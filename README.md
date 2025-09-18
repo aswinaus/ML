@@ -33,6 +33,23 @@ Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+**Why Use Spark DataFrames vs Just Python.**
+
+**Scalability**
+| Feature                          | Spark DataFrame               | Python Only                      |
+| -------------------------------- | ----------------------------- | -------------------------------- |
+| Multi-core/multi-node processing | ✅ Yes (distributed computing) | ❌ No (limited to single machine) |
+| Handles 10M+ documents?          | ✅ Easily                      | ⚠️ Risk of OOM / slowness        |
+| Retry/fault tolerance            | ✅ Built-in                    | ❌ Must handle manually           |
+
+**Data Integration and Pipelines**
+| Feature                          | Spark DataFrame               | Python Only                      |
+| -------------------------------- | ----------------------------- | -------------------------------- |
+| Multi-core/multi-node processing | ✅ Yes (distributed computing) | ❌ No (limited to single machine) |
+| Handles 10M+ documents?          | ✅ Easily                      | ⚠️ Risk of OOM / slowness        |
+| Retry/fault tolerance            | ✅ Built-in                    | ❌ Must handle manually           |
+
+
 **HashingTF explained** : 
 
 Explain the HashingTF step with an example to make it clearer.
