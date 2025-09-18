@@ -50,8 +50,7 @@ Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
 | Retry/fault tolerance            | ✅ Built-in                    | ❌ Must handle manually           |
 
 
-**Core Advantages of Apache Spark (Beyond Just Distribution)
-**
+**Core Advantages of Apache Spark (Beyond Just Distribution)**
 | Feature                                 | Why It Matters                                                                                               |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | ⚡ **Distributed Computing**             | Yes, it's the biggest one. Enables processing of **gigabytes to petabytes** of data across a cluster.        |
