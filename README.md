@@ -50,6 +50,18 @@ Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
 | Retry/fault tolerance            | ✅ Built-in                    | ❌ Must handle manually           |
 
 
+**Core Advantages of Apache Spark (Beyond Just Distribution)
+**
+| Feature                                 | Why It Matters                                                                                               |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| ⚡ **Distributed Computing**             | Yes, it's the biggest one. Enables processing of **gigabytes to petabytes** of data across a cluster.        |
+| 🧱 **Unified Data Processing Engine**   | Supports **batch**, **streaming**, **SQL**, **ML**, **graph**, and **structured data** — all in one engine.  |
+| 🧠 **In-memory Processing**             | Faster than MapReduce because it keeps intermediate data in memory (vs writing to disk).                     |
+| 📈 **Optimized for Big Data Workflows** | Built-in fault tolerance, DAG optimization, task scheduling, and caching.                                    |
+| 📊 **Rich SQL Support**                 | Spark SQL lets you run **SQL queries on big data**, with full ANSI compliance and integration with BI tools. |
+| 🔄 **Easy Integration**                 | Reads/writes from: Azure Data Lake Storage                                                                                           |
+
+
 **HashingTF explained** : 
 
 Explain the HashingTF step with an example to make it clearer.
