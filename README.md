@@ -5,8 +5,8 @@ Notebook : https://github.com/aswinaus/ML/blob/main/ADLS_Databricks_ApacheSpark.
 
 <img width="831" height="417" alt="image" src="https://github.com/user-attachments/assets/f3fa2972-b16e-45f7-990a-0b858a9bbda7" />
 
-The Classification Model Training explicitly uses distributed XGBoost within Databricks, leveraging multiple nodes in the cluster for scalable training.
-Distributed XGBoost training in Databricks is performed using PySpark with parameters like num_workers to specify parallelism.
+The Classification Model Training explicitly uses distributed XGBoost , leveraging multiple nodes in the cluster for scalable training.
+Distributed XGBoost training in Databricks can performed using PySpark with parameters like num_workers to specify parallelism.
 This enables efficient handling of large sharepoint data and faster model training times.
 
 Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
