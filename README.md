@@ -68,6 +68,15 @@ Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
 4) Store structured output into Delta Lake or SQL
 5) Entire pipeline is parallel, fault-tolerant, scalable
 
+| Databricks                           |
+| ------------------------------------ |
+| ✅ Fully managed and autoscaling     |
+| ✅ Integrated with ADLS, Key Vault    |
+| ✅ Built-in job scheduler & alerts    |
+| ✅ Built-in lineage, logs, dashboards |
+| ✅ Collaborative notebooks + repos    |
+
+
 **HashingTF explained** : 
 
 Explain the HashingTF step with an example to make it clearer.
