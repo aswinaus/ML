@@ -61,6 +61,13 @@ Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
 | 🔄 **Easy Integration**                 | Reads/writes from: Azure Data Lake Storage                                                                                           |
 
 
+**With Spark:**
+1) Load all file paths into a DataFrame
+2) Distribute text extraction + cleaning
+3) Run mapPartitions to batch + classify via LLM
+4) Store structured output into Delta Lake or SQL
+5) Entire pipeline is parallel, fault-tolerant, scalable
+
 **HashingTF explained** : 
 
 Explain the HashingTF step with an example to make it clearer.
