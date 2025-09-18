@@ -21,6 +21,16 @@ Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
 - Apache Spark running inside Synapse or Databricks uses Hadoop Azure filesystem connectors to read and write data from ADLS/Blob storage.
 - Hadoop components (like YARN as resource manager in HDInsight) enable cluster resource management for Spark jobs.
 
+**Key Challenges at Scale (Millions of Lines)**
+
+| Challenge                      | What It Means                                           | How to Solve It                                             |
+| ------------------------------ | ------------------------------------------------------- | ----------------------------------------------------------- |
+| **LLM API Rate Limits**        | You can't call the API millions of times per minute     | Use batching, backoff, and parallelization                  |
+| **Token Limits per Prompt**    | Each LLM (e.g., GPT-4) has a max token limit (\~128k)   | Limit number/size of docs per batch                         |
+| **Memory & Collection Limits** | `.collect()` pulls all data to driver (can crash Spark) | Avoid `.collect()`; use `mapPartitions`, `foreachPartition` |
+| **Long Job Runtime**           | Serial execution would be slow for millions of rows     | Use Spark’s distributed processing with UDFs or partitions  |
+| **Error Handling**             | LLM API calls can fail (timeouts, overuse)              | Add retries, logging, and failover logic                    |
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 **HashingTF explained** : 
