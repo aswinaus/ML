@@ -76,6 +76,16 @@ Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
 | ✅ Built-in lineage, logs, dashboards |
 | ✅ Collaborative notebooks + repos    |
 
+Strategy to handle documents with images
+
+Reads .docx, .pdf, .xlsx files from ADLS.
+Extracts embedded images
+Saves images to ADLS
+Optionally preprocesses the images (resize / convert / compress)
+Send each image to Azure AI Vision via REST
+Store the JSON results into a Delta table.
+or Azure SQL.
+
 
 **HashingTF explained** : 
 
