@@ -94,6 +94,28 @@ Embeddings	Use OpenAI for best quality, or fallback to Hugging Face multilingual
 Vector storage	Use hybrid indexes (keyword + vector) in Azure Search to reduce recall latency
 GPU cost	Run summarization/classification in Databricks jobs with low-cost instances, and cache intermediate outputs (e.g., summaries)
 
+**Based on summarizing a 200,000-word document via chunking**
+
+| Model             | Max Input Tokens | Cost per 1K tokens (input + output)\*    | Approx Chunks for 200K words | Summarization Cost (est.) | Notes                              |
+| ----------------- | ---------------- | ---------------------------------------- | ---------------------------- | ------------------------- | ---------------------------------- |
+| **GPT-4o**        | 128,000          | \$5.00 / 1M input + \$15.00 / 1M output  | \~12–15 chunks               | ✅ **\$3–\$6**             | Best quality + efficiency          |
+| **GPT-4 Turbo**   | 128,000          | Same as GPT-4o                           | \~12–15 chunks               | ✅ \~\$3–\$6               | Similar to GPT-4o, slightly slower |
+| **GPT-4**         | 32,768           | \$30.00 / 1M input + \$60.00 / 1M output | \~40–50 chunks               | ❌ **\$20–\$40**           | High-quality but expensive         |
+| **GPT-3.5 Turbo** | 16,384           | \$0.50 / 1M input + \$1.50 / 1M output   | \~80–100 chunks              | ✅ **\$2–\$4**             | Fast + cheap, lower quality        |
+| **Davinci-003**   | 4,096            | \$0.02 / 1K tokens                       | \~350–400 chunks             | ❌ **\$10–\$20+**          | Legacy model, not efficient        |
+
+**Assumptions:**
+Each chunk is ~2,000–4,000 words (≈3,000 tokens)
+You summarize each chunk to ~300 tokens
+Total output is ~10,000 tokens per document
+Costs include both input + output tokens
+
+| Metric                                  | Estimate                                   |
+| --------------------------------------- | ------------------------------------------ |
+| 1 word ≈ 1.3–1.5 tokens                 | ⚠️ Approximate                             |
+| 20 million words ≈ 28–30 million tokens | Let's use **30M tokens** as input estimate |
+
+
 **HashingTF explained** : 
 
 Explain the HashingTF step with an example to make it clearer.
