@@ -76,7 +76,7 @@ Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
 | ✅ Built-in lineage, logs, dashboards |
 | ✅ Collaborative notebooks + repos    |
 
-Strategy to handle documents with images
+**Strategy to handle documents with images**
 
 Reads .docx, .pdf, .xlsx files from ADLS.
 Extracts embedded images
@@ -86,6 +86,13 @@ Send each image to Azure AI Vision via REST
 Store the JSON results into a Delta table.
 or Azure SQL.
 
+**Cost Optimization Tips**
+Area	Suggestions
+Azure Document Intelligence	Batch process large documents to reduce API calls; avoid unneeded models (tables, signatures, etc.)
+Azure OpenAI summarization / classification	Limit token size by summarizing first; or use extractive techniques + LLM on demand
+Embeddings	Use OpenAI for best quality, or fallback to Hugging Face multilingual embeddings (e.g., sentence-transformers/paraphrase-multilingual-mpnet-base-v2)
+Vector storage	Use hybrid indexes (keyword + vector) in Azure Search to reduce recall latency
+GPU cost	Run summarization/classification in Databricks jobs with low-cost instances, and cache intermediate outputs (e.g., summaries)
 
 **HashingTF explained** : 
 
