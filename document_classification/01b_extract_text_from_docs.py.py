@@ -51,7 +51,7 @@ for key, val in configs.items():
 #configuring spark parallelism
 #**Parallelism**: Instead of single-node Python loops for clarity. For more scale, convert the work to Spark parallelism: read the list of file paths to a DataFrame and `mapPartitions` / `foreachPartition` or use UDFs to parallelize extraction and calls.
 
-spark.conf.set("spark.sql.shuffle.partitions", "200")
+spark.conf.set("spark.sql.shuffle.partitions", "400")
 spark.conf.set("spark.databricks.io.cache.enabled", "true")
 
 #todo
@@ -64,8 +64,15 @@ account="docclassifierstoragecct"
 container_raw   = "raw"
 container_stage = "stage"
 container_redacted = "redacted"
-
+container_processed="docclassifiercontainer"
 abfss = lambda container, path="": f"abfss://{container}@{account}.dfs.core.windows.net/{path}"
+
+
+import base64, json, os
+
+DI_ENDPOINT = "https://documentsclassifier.cognitiveservices.azure.com/" #dbutils.secrets.get("kv-scope","di_endpoint")  # e.g., https://<res>.cognitiveservices.azure.com
+DI_KEY      = ""# dbutils.secrets.get("kv-scope","di_key")
+DI_MODEL_ID = "prebuilt-document"  # or your custom model
 
 # system folders
 PATH_DOCS_IN   = abfss(container_raw,   "incoming/docs/")     # .pdf/.docx/.xlsx will be stored here
@@ -135,7 +142,12 @@ def extract_text(row):
         return extract_text_from_eml(content), "eml"
     if path.endswith(".msg"):
         return extract_text_from_msg(content), "msg"
-
+    if path.endswith((".pdf", ".docx", ".xlsx", ".pptx")):
+        try:
+            text = analyze_doc(content)
+            return text, "docintelligence"
+        except Exception as e:
+            return f"[ERROR calling Document Intelligence API: {e}]", "docintelligence_error"
     return "[UNSUPPORTED FILE TYPE FOR TASK 1B]", "unsupported"
 
 # ===========================================================
@@ -151,26 +163,66 @@ def map_partition(it):
         text, stype = extract_text(r)
         #text, stype = extract_text(bytes(r["content"]))
         yield {"path": r.path, "text": text, "source_type": stype}
-
+#defining the schema for the dataframe
 schema = T.StructType([
     T.StructField("path", T.StringType()),
     T.StructField("text", T.StringType()),
     T.StructField("source_type", T.StringType())
 ])
-
+print("Number of Partitions ",files.rdd.getNumPartitions())
 rdd = files.rdd.mapPartitions(map_partition)
+# create dataframe with the schema
+# The schema is used to ensure that the DataFrame(JSON) columns have the correct names and types.
 df_text = spark.createDataFrame(rdd, schema)
-
+# repartition DataFrame before writing (e.g., 200 partitions)
+# if partition is too small right of task scheduling overhead increases meaning spark has to launch 200 tasks for very tiny chunks of data which will slow down the job. and if its too large then out-of-memory(OOM) may occur. Typiacally between 100 and 200 partitions is a good starting point.
+# example 100GB data then 100GB/200=0.5GB per partition which is 512 MB risk of OOM.
+df_text = df_text.repartition(16)
 # ===========================================================
 # 4) Write results to ADLS
 # ===========================================================
 #This ensures the folder_name column is available for partitioning when writing the output and writes the output to the folder by the file name.
 df_text = df_text.withColumn(
-    "output_",
+    "folder_name",
     regexp_extract("path", r"/([^/]+)\.[^/.]+$", 1)
 )
 
 (df_text.write
  .mode("overwrite")
  .partitionBy("folder_name")
- .json(PATH_TEXT_OUT))
+ .parquet(PATH_TEXT_OUT)) # For PII redaction and embedding. Later conver to JSON format as needed.
+
+# Collect the paths to process on the driver
+paths_to_move = df_text.select("path").distinct().collect()
+
+# This order guarantees that only files which have been processed and written are moved to the processed container.
+for row in paths_to_move:
+    src_path = row["path"]
+    # Convert abfss:// to dbfs:/mnt/ if you have mounted, or use abfss:// directly if not
+    # Here, we replace the container and folder in the path string
+    dst_path = src_path.replace(
+        f"/{container_raw}/incoming/docs/",
+        f"/{container_processed}/processed/docs/"
+    )
+    dbutils.fs.mv(src_path, dst_path)
+
+# COMMAND ----------
+
+headers = {"Ocp-Apim-Subscription-Key": DI_KEY, "Content-Type": "application/json"}
+
+docs = (spark.read.format("binaryFile").load(PATH_DOCS_IN)
+        .select("path","content","length"))
+
+def analyze_doc(row):
+    url = f"{DI_ENDPOINT}/formrecognizer/documentModels/{DI_MODEL_ID}:analyze?api-version=2024-02-29-preview"
+    payload = {"base64Source": base64.b64encode(bytes(row["content"])).decode("utf-8")}
+    result = post_json(url, headers, payload)
+    return {"path": row["path"], "json": json.dumps(result)}
+
+rdd = docs.rdd.mapPartitions(lambda it: map_partitions_api(
+    ({"path": r["path"], "content": bytes(r["content"])} for r in it),
+    analyze_doc
+))
+
+out = spark.createDataFrame(rdd)
+(out.write.mode("overwrite").json(PATH_JSON_OUT + "docintelligence/"))
