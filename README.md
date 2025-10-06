@@ -182,18 +182,30 @@ The driver as the “orchestrator”.
 
 
 **In short The driver:**
+
 Parses the command
+
 Determines the input file locations
+
 Splits the files into chunks (partitions)
+
 Plans a DAG (Directed Acyclic Graph) of tasks
+
 Sends those tasks to the workers
 
+
 **Spark Worker Nodes (Executors) — The Muscle**
+
 The worker nodes (also called executors) are responsible for:
+
 Reading the actual document data from storage
+
 Executing transformations and computations on each data partition
+
 Caching or persisting data in memory/disk if needed
+
 Writing results back to storage (e.g., Delta Lake or Parquet)
+
 Think of workers as “distributed data processors”.
 
 **Direct Acyclic Graph of Tasks**
