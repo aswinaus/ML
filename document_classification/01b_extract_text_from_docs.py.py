@@ -97,12 +97,12 @@ DOCUMENTINTEL_MODEL_ID = "prebuilt-document"  # or your custom model
 
 # --- Azure Configurations ---
 AZURE_OPENAI_EMBEDDING_ENDPOINT = "https://tpapp.openai.azure.com/openai/deployments/text-embedding-3-large/embeddings?api-version=2024-02-01"
-AZURE_OPENAI_API_KEY = "3005f00bea4248d9814b230e62ecf057"
+AZURE_OPENAI_API_KEY = ""
 AZURE_SEARCH_ENDPOINT = "https://docsclassifieraisearch.search.windows.net"
 AZURE_SEARCH_KEY = ""
 AZURE_SEARCH_INDEX = "mydocs-knowledgeharvester-index"
 
-AZURE_OPENAI_API_KEY = "3005f00bea4248d9814b230e62ecf057"
+AZURE_OPENAI_API_KEY = ""
 AZURE_OPENAI_ENDPOINT = "https://YOUR-AZURE-OPENAI-ENDPOINT.openai.azure.com/"
 AZURE_OPENAI_DEPLOYMENT = "gpt-4o-mini"
 AZURE_OPENAI_API_VERSION="2024-12-01-preview"
@@ -868,7 +868,7 @@ AZURE_SEARCH_KEY      = ""
 AZURE_SEARCH_INDEX    = "mydocs-knowledgeharvester-index"
 
 AZURE_OPENAI_ENDPOINT = "https://tpapp.openai.azure.com/"
-AZURE_OPENAI_KEY      = "3005f00bea4248d9814b230e62ecf057"
+AZURE_OPENAI_KEY      = ""
 AZURE_OPENAI_API_VER  = "2024-08-01-preview"
 AZURE_OPENAI_MODEL    = "gpt-4o-mini"
 AZURE_EMBED_MODEL     = "text-embedding-3-large"
