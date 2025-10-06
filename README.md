@@ -260,11 +260,15 @@ Think of them as:
 
 
 How They Interact (Example)
+
 Imagine to run a Databricks Job that ingests PDFs:
 
 df = spark.read.text("/mnt/data/*.pdf")
+
 df = df.repartition(10)
+
 df.write.parquet("/mnt/clean/pdf/")
+
 
 Here is what happens:
 
