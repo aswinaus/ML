@@ -210,7 +210,7 @@ Think of it as:
 "Run this workflow using Spark or Python"
 
 **2. Spark Driver (Job Coordinator)**
-When your Databricks Job runs Spark code (like reading a DataFrame), the Spark engine spins up a driver.
+When your Databricks Job runs Spark code (like reading a DataFrame), the Spark engine spins up a driver node.
 The driver is responsible for:
 Parsing the code
 Building the logical plan (DAG)
@@ -237,8 +237,8 @@ Think of them as:
        ▼
 [ Spark Executors (Workers) ]
 
-How They Interact (Example)
 
+How They Interact (Example)
 Imagine to run a Databricks Job that ingests PDFs:
 
 df = spark.read.text("/mnt/data/*.pdf")
@@ -253,6 +253,7 @@ Here is what happens:
 | **Spark Driver**    | Parses code, builds DAG, creates 10 read/write tasks           |
 | **Spark Executors** | 10 executors read files, process them, and write Parquet files |
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 **HashingTF explained** : 
 
