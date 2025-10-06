@@ -275,8 +275,8 @@ Here is what happens:
 | Layer               | What It Does                                                   |
 | ------------------- | -------------------------------------------------------------- |
 | **Databricks Job**  | Launches your script or notebook on a cluster                  |
-| **Spark Driver**    | Parses code, builds DAG, creates 10 read/write tasks           |
-| **Spark Executors** | 10 executors read files, process them, and write Parquet files |
+| **Spark Driver Node**    | Parses code, builds DAG, creates 10 read/write tasks           |
+| **Spark Worker Node (Executors)** | 10 executors read files, process them, and write Parquet files |
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
