@@ -163,14 +163,23 @@ Through the Databricks UI, you can define:
 That way heavy ingestion steps scale out concurrently across clusters and the later processing stays ordered.
 
 **Spark Driver Node vs Worker Nodes During Ingestion**
+
 Spark Driver Node — The Brain
+
 The driver node is responsible for:
+
 Running your notebook/job code
+
 Creating the SparkSession
+
 Breaking code into logical stages and tasks
+
 Sending tasks to the workers (executors)
+
 Tracking progress and collecting results
+
 The driver as the “orchestrator”.
+
 
 **In short The driver:**
 Parses the command
