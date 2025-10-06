@@ -116,6 +116,144 @@ Costs include both input + output tokens
 | 20 million words ≈ 28–30 million tokens | Let's use **30M tokens** as input estimate |
 
 
+Ingestion steps (01–05) dont depend on each other can be run as parallel in Databricks Jobs.
+
+               ┌────────────────────┐
+               │01_ingest_word_docs │
+               └────────────────────┘
+               ┌────────────────────┐
+               │02_ingest_xlsx_docs │
+               └────────────────────┘
+               ┌────────────────────┐
+               │03_ingest_pptx_docs │
+               └────────────────────┘
+               ┌────────────────────┐
+               │04_ingest_pdf_docs  │
+               └────────────────────┘
+               ┌────────────────────┐
+               │05_ingest_msg_csv   │
+               └────────────────────┘
+                          │
+                          ▼
+               ┌────────────────────┐
+               │06_redact_pii       │
+               └────────────────────┘
+                          │
+                          ▼
+               ┌────────────────────┐
+               │07_embeddings       │
+               └────────────────────┘
+                          │
+                          ▼
+               ┌────────────────────┐
+               │08_push_to_ai_search│
+               └────────────────────┘
+                          │
+                          ▼
+               ┌────────────────────┐
+               │09_agent_query      │
+               └────────────────────┘
+
+Through the Databricks UI, you can define:
+
+01–05 = parallel tasks
+
+06–09 = sequential tasks
+
+That way heavy ingestion steps scale out concurrently across clusters and the later processing stays ordered.
+
+**Spark Driver Node vs Worker Nodes During Ingestion**
+Spark Driver Node — The Brain
+The driver node is responsible for:
+Running your notebook/job code
+Creating the SparkSession
+Breaking code into logical stages and tasks
+Sending tasks to the workers (executors)
+Tracking progress and collecting results
+The driver as the “orchestrator”.
+
+**In short The driver:**
+Parses the command
+Determines the input file locations
+Splits the files into chunks (partitions)
+Plans a DAG (Directed Acyclic Graph) of tasks
+Sends those tasks to the workers
+
+**Spark Worker Nodes (Executors) — The Muscle**
+The worker nodes (also called executors) are responsible for:
+Reading the actual document data from storage
+Executing transformations and computations on each data partition
+Caching or persisting data in memory/disk if needed
+Writing results back to storage (e.g., Delta Lake or Parquet)
+Think of workers as “distributed data processors”.
+
+**Direct Acyclic Graph of Tasks**
+
+
+| Stage     | What It Does                                                               | Runs As      | Type of Spark Job                    |
+| --------- | -------------------------------------------------------------------------- | ------------ | ------------------------------------ |
+| **01–05** | Parallel document ingestion by file type (Word, Excel, PDF, PPTX, MSG/CSV) | Python Tasks | Heavy I/O Spark read/write jobs      |
+| **06**    | PII redaction using Spark NLP or UDFs                                      | Python Task  | Transformation Spark job             |
+| **07**    | Convert clean text parquet → embeddings                                    | Python Task  | Distributed Spark job with API calls |
+| **08**    | Push embeddings to Azure AI Search vector DB                               | Python Task  | Spark job with HTTP batch calls      |
+| **09**    | Agent code to query Azure AI Search (retrieval + GPT enrichment)           | Python Task  | Light Spark/Driver job               |
+
+
+**1. Databricks Job (Orchestrator / Launcher)**
+A Databricks Job is the top-level execution unit — it can run:
+A notebook
+A Python script
+A JAR or wheel
+Define the tasks, dependencies, clusters, and parameters here.
+Each task in the job triggers a Spark job if Spark is used inside it.
+Think of it as:
+"Run this workflow using Spark or Python"
+
+**2. Spark Driver (Job Coordinator)**
+When your Databricks Job runs Spark code (like reading a DataFrame), the Spark engine spins up a driver.
+The driver is responsible for:
+Parsing the code
+Building the logical plan (DAG)
+Scheduling tasks
+Tracking task progress and collecting results
+It runs inside the cluster on a designated node.
+Think of it as:
+"Control tower of the Spark job"
+
+**3. Spark Workers (Executors) (Task Runners)**
+The worker nodes (executors) are where the actual data processing happens:
+Reading and writing data
+Executing .map(), .filter(), .groupBy() etc.
+Writing Parquet files
+Multiple executors can run in parallel on different nodes in your Databricks cluster.
+Think of them as:
+"Data crunchers doing the real work in parallel"
+
+[ Databricks Job ]
+       |
+       ▼
+[ Spark Driver ]
+       |
+       ▼
+[ Spark Executors (Workers) ]
+
+How They Interact (Example)
+
+Imagine to run a Databricks Job that ingests PDFs:
+
+df = spark.read.text("/mnt/data/*.pdf")
+df = df.repartition(10)
+df.write.parquet("/mnt/clean/pdf/")
+
+Here is what happens:
+
+| Layer               | What It Does                                                   |
+| ------------------- | -------------------------------------------------------------- |
+| **Databricks Job**  | Launches your script or notebook on a cluster                  |
+| **Spark Driver**    | Parses code, builds DAG, creates 10 read/write tasks           |
+| **Spark Executors** | 10 executors read files, process them, and write Parquet files |
+
+
 **HashingTF explained** : 
 
 Explain the HashingTF step with an example to make it clearer.
