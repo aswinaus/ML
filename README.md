@@ -220,9 +220,13 @@ Think of workers as “distributed data processors”.
 | --------- | -------------------------------------------------------------------------- | ------------ | ------------------------------------ |
 | **01–05** | Parallel document ingestion by file type (Word, Excel, PDF, PPTX, MSG/CSV) | Python Tasks | Heavy I/O Spark read/write jobs      |
 | **06**    | PII redaction using Spark NLP or UDFs                                      | Python Task  | Transformation Spark job             |
-| **07**    | Convert clean text parquet → embeddings                                    | Python Task  | Distributed Spark job with API calls |
-| **08**    | Push embeddings to Azure AI Search vector DB                               | Python Task  | Spark job with HTTP batch calls      |
-| **09**    | Agent code to query Azure AI Search (retrieval + GPT enrichment)           | Python Task  | Light Spark/Driver job               |
+| **07**    | Convert clean text parquet                                                 | Python Task  | Distributed Spark job with API calls |
+| **08**    | Convert clean text parquet → embeddings                                    | Python Task  | Distributed semantic classification  |
+|           |                                                                            |              | of large volumes of multilingual     |
+|           |                                                                            |              | documents using E5 model in          |
+|           |                                                                            |              | Databricks on Azure.                 |
+| **09**    | Push embeddings to Azure AI Search vector DB                               | Python Task  | Spark job with HTTP batch calls      |
+| **10**    | Agent code to query Azure AI Search (retrieval + GPT enrichment)           | Python Task  | Light Spark/Driver job               |
 
 
 **1. Databricks Job (Orchestrator / Launcher)**
