@@ -163,7 +163,7 @@ Through the Databricks UI, you can define:
 
 01–05 = parallel tasks
 
-06–09 = sequential tasks
+06–10 = sequential tasks
 
 That way heavy ingestion steps scale out concurrently across clusters and the later processing stays ordered.
 
