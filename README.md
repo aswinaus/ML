@@ -140,17 +140,23 @@ Ingestion steps (01–05) dont depend on each other can be run as parallel in Da
                           │
                           ▼
                ┌────────────────────┐
-               │07_embeddings       │
+               │07_local_E5_model   |
+               │    classificaiton  |
                └────────────────────┘
                           │
                           ▼
                ┌────────────────────┐
-               │08_push_to_ai_search│
+               │08_embeddings       │
                └────────────────────┘
                           │
                           ▼
                ┌────────────────────┐
-               │09_agent_query      │
+               │09_push_to_ai_search│
+               └────────────────────┘
+                          │
+                          ▼
+               ┌────────────────────┐
+               │10_agent_query      │
                └────────────────────┘
 
 Through the Databricks UI, you can define:
