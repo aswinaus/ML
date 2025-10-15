@@ -2238,10 +2238,13 @@ AZURE_EMBED_MODEL     = "text-embedding-3-large"
 # =====================================================
 # IMPORTS
 # =====================================================
+# =====================================================
+# IMPORTS
+# =====================================================
 from azure.search.documents import SearchClient
 from azure.core.credentials import AzureKeyCredential
 from openai import AzureOpenAI
-import textwrap
+import textwrap, json
 
 # =====================================================
 # CLIENTS
@@ -2259,99 +2262,147 @@ aoai = AzureOpenAI(
 )
 
 # =====================================================
-# AGENT FUNCTION
+# ITERATIVE TAX-EXPERT AGENT (STRUCTURED OUTPUT)
 # =====================================================
-def tax_expert_agent(query: str, top_k: int = 5) -> str:
+def tax_expert_agent_iterative_structured(query: str, top_k: int = 5, max_rounds: int = 2) -> str:
     """
-    1️ Creates embedding for the query
-    2️ Performs hybrid retrieval from Azure AI Search
-    3️ Uses GPT-4o-mini to rerank and synthesize an answer
+    Iterative Tax Expert Agent:
+      1. Retrieves top_k documents from Azure AI Search
+      2. Synthesizes structured JSON output (tax memorandum schema)
+      3. Self-evaluates and refines if the answer is incomplete
     """
 
-    # -------------------------------------------------
-    # STEP 1: Get embedding
-    # -------------------------------------------------
-    embedding = aoai.embeddings.create(
-        model=AZURE_EMBED_MODEL,
-        input=query
-    ).data[0].embedding
+    def retrieve_and_answer(q: str) -> str:
+        # --- Step 1: Create embedding ---
+        try:
+            emb_response = aoai.embeddings.create(
+                model=AZURE_EMBED_MODEL,
+                input=q
+            )
+            if not emb_response or not emb_response.data:
+                raise ValueError("Embedding API returned no data")
+            embedding = emb_response.data[0].embedding
+        except Exception as e:
+            raise RuntimeError(f"❌ Failed to generate embedding: {e}")
 
-    # -------------------------------------------------
-    # STEP 2: Hybrid retrieval
-    # -------------------------------------------------
-    results = search_client.search(
-        search_text=query,
-        vector_queries=[{
-            "kind": "vector",
-            "vector": embedding,
-            "fields": "embedding",    # ✅ correct field name
-            "k": top_k
-        }],
-        top=top_k,
-        query_type="simple"
-    )
+        # --- Step 2: Hybrid retrieval ---
+        results = search_client.search(
+            search_text=q,
+            vector_queries=[{
+                "kind": "vector",
+                "vector": embedding,
+                "fields": "embedding",
+                "k": top_k
+            }],
+            top=top_k,
+            query_type="simple"
+        )
+        docs = list(results)
+        if not docs:
+            return "Knowledge not found in repository. No web search attempted."
 
-    docs = list(results)
-    if not docs:
-        return "Knowledge not found in repository. No web search attempted."
+        # --- Step 3: Build context from retrieved docs ---
+        passages = []
+        for i, d in enumerate(docs, start=1):
+            raw_content = d.get("redacted_text") or d.get("content")
+            content = raw_content if isinstance(raw_content, str) else ""
+            src_id = d.get("id", f"Doc-{i}")
+            passages.append(f"Document {i} (Source_ID: {src_id}):\n{content[:4000]}")
+        joined_context = "\n\n".join(passages)
 
-    # -------------------------------------------------
-    # STEP 3: Prepare retrieved context for reranking
-    # -------------------------------------------------
-    passages = []
-    for i, d in enumerate(docs, start=1):
-        passages.append(f"Document {i}:\n{d.get('content', '')[:2000]}")
+        # --- Step 4: Prompt using neutral metadata schema ---
+        prompt = f"""
+You are a Tax Expert Assistant trained on professional memoranda, case analyses, and technical guidance documents.
+You must reason from the provided excerpts to produce a structured, elaborate internal-style output.
 
-    joined_context = "\n\n".join(passages)
-
-    # -------------------------------------------------
-    # STEP 4: Build structured prompt for reranking + synthesis
-    # -------------------------------------------------
-    prompt = f"""
-You are a highly professional and courteous **Tax Expert Assistant**.
-Use only the knowledge base excerpts provided. Be precise, factual and precise.
-
-If the answer cannot be derived from the knowledge base, say exactly:
-"Knowledge not found in repository. No web search attempted."
-
-User Problem Statement:
+User Query:
 {query}
 
 Knowledge Base Excerpts (retrieved documents):
 {joined_context}
 
-Now:
-1. Rerank the above documents based on their factual relevance to the question.
-2. Synthesize a clear, concise and polite response.
+Follow these rules carefully:
+1. Think like a professional tax advisor writing an internal memorandum.
+2. Provide detailed, narrative answers for the fields "Client_issue", "Expert_analysis", and "References".
+3. Use neutral, factual tone — no speculation, no personal or client identifiers.
+4. Preserve technical precision and tax terminology (e.g., motive test, asset test, subject-to-tax test, participation exemption).
+5. Use multi-paragraph or bullet-point structure where necessary.
+6. Relate facts to specific legal provisions or case law when available.
+7. Do not invent facts not grounded in the documents.
 
-Format the final output exactly as:
+Output a single JSON object in this exact schema:
 
-Problem Statement:
-Solution:
-Additional Information:
+{{
+  "Asset": "Description of key asset(s) or participation(s)",
+  "Tax_type": "Tax domain (e.g., Corporate income tax, Withholding tax, VAT)",
+  "Tax_topic": "Precise topic (e.g., Article 13 Participation Exemption)",
+  "Tax_years": "Comma-separated list of years (e.g., 2023, 2024) or 'Unknown'",
+  "Countries": "Comma-separated list of relevant jurisdictions or 'Unknown'",
+  "Date": "Date of document if available, else 'Unknown'",
+  "Authors": "Comma-separated list of authors or entities if available, else 'Unnamed'",
+  "Source_ID": "Document identifier if available, else 'Unknown'",
+  "Client_issue": "Multi-paragraph description of the factual scenario, activities, and context — written in formal tax memo style.",
+  "Expert_analysis": "Detailed explanation of the analytical reasoning, conclusions, and recommendations in structured format.",
+  "References": "Multi-line list of relevant legal articles, rulings, commentaries, and other technical sources.",
+  "Confidence Score": "High | Medium | Low"
+}}
 
-Solution can be summarized as bullet points if needed with high level of details as needed.
-Never reveal any PII information which identifies any individual.
-    """
+Rules:
+- Be factual and concise.
+- Use 'Unknown' for missing values.
+- Include author or contributor names only if explicitly mentioned in document metadata.
+- Do not include or infer any personal or confidential identifiers.
+"""
 
-    # -------------------------------------------------
-    # STEP 5: Generate response with GPT-4o-mini
-    # -------------------------------------------------
-    completion = aoai.chat.completions.create(
-        model=AZURE_OPENAI_MODEL,
-        messages=[
-            {"role": "system", "content": "You are a polite and factual Tax Expert Assistant."},
-            {"role": "user", "content": textwrap.dedent(prompt)}
-        ],
-        temperature=0.2,
-        max_tokens=800
-    )
+        completion = aoai.chat.completions.create(
+            model=AZURE_OPENAI_MODEL,
+            messages=[
+                {"role": "system", "content": "You are a precise Tax Expert Assistant."},
+                {"role": "user", "content": textwrap.dedent(prompt)}
+            ],
+            temperature=0.2,
+            max_tokens=2000
+        )
+        return completion.choices[0].message.content.strip()
 
-    return completion.choices[0].message.content.strip()
+    # ------------------ Reasoning Loop ------------------
+    current_query = query
+    for round_idx in range(max_rounds):
+        answer = retrieve_and_answer(current_query)
+        if "Knowledge not found" in answer:
+            return answer
 
+        # --- Judge completeness ---
+        judge_prompt = f"""\
+Evaluate the JSON below for factual completeness.
+If it contains coherent values for Tax_type, Countries, and Expert_analysis, reply "ACCURATE".
+Else reply "INACCURATE".
+If a Source_ID field exists in the document metadata, use it directly.
+Otherwise, infer a generic identifier (e.g., TAXDOC-<country>-<year>-<sequence>).
+Never use encoded URLs or file paths.
 
+Answer:
+{answer}
+"""
+        verdict = aoai.chat.completions.create(
+            model=AZURE_OPENAI_MODEL,
+            messages=[{"role": "user", "content": textwrap.dedent(judge_prompt)}],
+            temperature=0
+        ).choices[0].message.content.strip().upper()
 
-# COMMAND ----------
+        if "ACCURATE" in verdict or round_idx == max_rounds - 1:
+            return answer
 
-response = tax_expert_agent("Netherlands?")
-print(response)
+        # --- Reformulate query for next iteration ---
+        refine_prompt = f"""\
+Rephrase the following question to improve retrieval precision in the tax domain.
+Original query: {current_query}
+Return only the improved query text.
+"""
+        current_query = aoai.chat.completions.create(
+            model=AZURE_OPENAI_MODEL,
+            messages=[{"role": "user", "content": textwrap.dedent(refine_prompt)}],
+            temperature=0.3
+        ).choices[0].message.content.strip()
+
+    return answer  # fallback
