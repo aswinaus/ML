@@ -225,8 +225,8 @@ Think of workers as “distributed data processors”.
 |           |                                                                            |              | documents using E5 model in          |
 |           |                                                                            |              | Databricks on Azure.                 |
 | **08**    | Convert Classified content to embeddings                                   | Python Task  | Spark job text-embedding-3-large     |
-| **09**    | Push embeddings to Azure AI Search vector DB                               | Python Task  | Spark job with HTTP batch calls      |
-| **10**    | Agent code to query Azure AI Search (retrieval +  enrichment) **Optional** | Python Task  | Light Spark/Driver job               |
+| **09**    | Pull - Text to Embeddings Azure AI Search vector DB                        | AI Search    | Automatic data pull scheduled 20 mins|
+| **10**    | **Optional** Agent code to query Azure AI Search (retrieval +  enrichment) | Python Task  | Light Spark/Driver job               |
 
 
 **1. Databricks Job (Orchestrator / Launcher)**
