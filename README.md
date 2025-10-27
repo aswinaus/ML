@@ -100,28 +100,35 @@ Learns nonlinear decision boundaries between classes.
 Doesn’t compute vector similarity — it outputs class scores.
 
 **How They Differ Mathematically**
-Concept	Embedding Similarity	Fine-Tuned Classifier
-Output	Vector (e.g., 768-D)	Logits (4-D for 4 classes)
-Metric	Cosine similarity	Softmax + argmax
-Training	Unsupervised	Supervised (fine-tuned)
-Interpretability	General similarity	Categorical probability
-Thresholding	Manual (e.g., 0.8)	Confidence-based (prob > 0.5)
-Use cases	Semantic search, clustering	Explicit classification
-Speed	Needs multiple reference comparisons	One forward pass
+| Concept          | Embedding Similarity                 | Fine-Tuned Classifier         |
+| ---------------- | ------------------------------------ | ----------------------------- |
+| Output           | Vector (e.g., 768-D)                 | Logits (4-D for 4 classes)    |
+| Metric           | Cosine similarity                    | Softmax + argmax              |
+| Training         | Unsupervised                         | Supervised (fine-tuned)       |
+| Interpretability | General similarity                   | Categorical probability       |
+| Thresholding     | Manual (e.g., 0.8)                   | Confidence-based (prob > 0.5) |
+| Use cases        | Semantic search, clustering          | Explicit classification       |
+| Speed            | Needs multiple reference comparisons | One forward pass              |
+
 
 **Intuitive Analogy**
-Analogy	Embedding Model	Classifier Model
-How it behaves	Measures “how close” two meanings are in general space	Decides “which bucket this text belongs to”
-Example	“Are these two texts semantically alike?”	“Is this text a problem, solution, topic, or year?”
-Mental model	Semantic map of the world	Decision boundary separating categories
+| Analogy        | Embedding Model                                        | Classifier Model                                    |
+| -------------- | ------------------------------------------------------ | --------------------------------------------------- |
+| How it behaves | Measures “how close” two meanings are in general space | Decides “which bucket this text belongs to”         |
+| Example        | “Are these two texts semantically alike?”              | “Is this text a problem, solution, topic, or year?” |
+| Mental model   | Semantic **map** of the world                          | Decision **boundary** separating categories         |
+
 
 **Practical Impact in our Case**
-Aspect	Old (Cosine)	New (Classifier)
-Endpoint	multilingual_e5_base_service	finetuned_model_inference
-Output shape	768-dim embeddings	4-class logits
-Evaluation	Similarity threshold	Softmax probability
-Code	cosine_similarity()	softmax → argmax()
-Use case	Clustering, retrieval	Direct labeling in pipeline
+
+| Aspect       | Old (Cosine)                   | New (Classifier)            |
+| ------------ | ------------------------------ | --------------------------- |
+| Endpoint     | `multilingual_e5_base_service` | `finetuned_model_inference` |
+| Output shape | 768-dim embeddings             | 4-class logits              |
+| Evaluation   | Similarity threshold           | Softmax probability         |
+| Code         | `cosine_similarity()`          | `softmax → argmax()`        |
+| Use case     | Clustering, retrieval          | Direct labeling in pipeline |
+
 
 Notebook : https://github.com/aswinaus/ML/blob/main/ADLS_Databricks_ApacheSpark.ipynb
 <img width="831" height="417" alt="image" src="https://github.com/user-attachments/assets/f3fa2972-b16e-45f7-990a-0b858a9bbda7" />
