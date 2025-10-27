@@ -1,5 +1,128 @@
 # Maching Learning
 Machine Learning experiment tracking, model checkpointing
+
+
+**Core conceptual difference between how embedding similarity models (like your original intfloat/multilingual-e5-base) and fine-tuned classification models (like finetuned_model_inference) work.**
+
+Embedding + Cosine Similarity Logic (What we had)
+** Goal: measure semantic closeness between any two pieces of text, without explicit labels.**
+
+🔹 Mechanism
+
+The model (e.g., intfloat/multilingual-e5-base) converts text into a high-dimensional vector → an embedding (e.g., 768-D float vector).
+
+
+"tax problem about dividends" → [0.11, -0.02, 0.33, ..., 0.87]
+
+We store or compute embeddings for reference prompts (“problem”, “solution”, etc.).
+
+For a new text, compute its embedding, then take cosine similarity with each reference:
+sim = dot(a,b) / (||a|| * ||b||)
+
+Values range from -1 (opposite meaning) to 1 (same meaning).
+
+The class with the highest similarity above a threshold (e.g., 0.8) is chosen.
+
+🔹 Example
+Label	Reference Text	Cosine Similarity
+
+problem	"This describes a tax problem"	0.91
+
+solution	"This gives a solution"	0.60
+
+topic	"This discusses participation exemption"	0.55
+
+year	"This refers to tax year"	0.12
+
+
+→ Classified as Tax Problem
+**Characteristics**
+Works without supervision — no need for labeled data.
+
+You can compare any text to any other text (universal).
+
+But classification is approximate; it relies on semantic proximity, not learned decision boundaries.
+
+Sensitive to the prompt wording of reference texts.
+
+2️⃣ Fine-Tuned Classifier Logic (What we have now after supervised fine tuning on labelled dataset)
+
+
+**Goal:** predict explicit class probabilities learned from labeled examples (problem, solution, topic, year).
+
+**
+🔹 Mechanism
+**
+Start from a pretrained model (like E5) and add a classification head (a small linear layer mapping embeddings → logits for 4 classes).
+
+
+Fine-tune on labeled pairs:
+
+"This describes a tax problem …" → label=problem
+
+"This provides a tax solution …" → label=solution
+
+After training, the model directly outputs class logits — one scalar per label:
+
+
+logits = [-0.8, 1.3, 0.2, -0.7]
+
+
+Apply softmax to convert logits → probabilities:
+
+
+probs = [0.10, 0.68, 0.16, 0.06]
+
+The class with the highest probability is the predicted label.
+
+🔹 Example
+
+Label	Probability
+
+problem	0.10
+
+solution	0.68
+
+topic	0.16
+
+year	0.06
+
+→ Classified as Tax Solution
+
+🔹 Characteristics
+
+Supervised — learns from labeled examples.
+
+Directly optimized to minimize misclassification.
+
+Learns nonlinear decision boundaries between classes.
+
+Doesn’t compute vector similarity — it outputs class scores.
+
+**How They Differ Mathematically**
+Concept	Embedding Similarity	Fine-Tuned Classifier
+Output	Vector (e.g., 768-D)	Logits (4-D for 4 classes)
+Metric	Cosine similarity	Softmax + argmax
+Training	Unsupervised	Supervised (fine-tuned)
+Interpretability	General similarity	Categorical probability
+Thresholding	Manual (e.g., 0.8)	Confidence-based (prob > 0.5)
+Use cases	Semantic search, clustering	Explicit classification
+Speed	Needs multiple reference comparisons	One forward pass
+
+**Intuitive Analogy**
+Analogy	Embedding Model	Classifier Model
+How it behaves	Measures “how close” two meanings are in general space	Decides “which bucket this text belongs to”
+Example	“Are these two texts semantically alike?”	“Is this text a problem, solution, topic, or year?”
+Mental model	Semantic map of the world	Decision boundary separating categories
+
+**Practical Impact in our Case**
+Aspect	Old (Cosine)	New (Classifier)
+Endpoint	multilingual_e5_base_service	finetuned_model_inference
+Output shape	768-dim embeddings	4-class logits
+Evaluation	Similarity threshold	Softmax probability
+Code	cosine_similarity()	softmax → argmax()
+Use case	Clustering, retrieval	Direct labeling in pipeline
+
 Notebook : https://github.com/aswinaus/ML/blob/main/ADLS_Databricks_ApacheSpark.ipynb
 <img width="831" height="417" alt="image" src="https://github.com/user-attachments/assets/f3fa2972-b16e-45f7-990a-0b858a9bbda7" />
 
