@@ -5,7 +5,9 @@ Machine Learning experiment tracking, model checkpointing
 **Training and Fine Tuning**
 
 from sklearn.metrics import accuracy_score, f1_score
+
 from datasets import load_dataset
+
 import numpy as np
 
 def compute_metrics(eval_pred):
@@ -15,38 +17,13 @@ def compute_metrics(eval_pred):
         "accuracy": accuracy_score(labels, preds),
         "f1_macro": f1_score(labels, preds, average="macro")
     }
+    
 
 
 **Add evaluation + early stopping**
 
-training_args = TrainingArguments(
-    output_dir="/dbfs/tmp/e5_finetuned_tax_classifier",
-    num_train_epochs=5,                  # increase a bit
-    per_device_train_batch_size=8,
-    learning_rate=2e-5,
-    weight_decay=0.01,
-    warmup_ratio=0.06,
-    logging_steps=10,
-    evaluation_strategy="steps",
-    eval_steps=50,                       # evaluate regularly
-    save_steps=50,
-    save_total_limit=2,
-    load_best_model_at_end=True,
-    metric_for_best_model="f1_macro",
-    greater_is_better=True,
-    report_to="none"
-)
+<img width="838" height="695" alt="image" src="https://github.com/user-attachments/assets/4fff10b3-4172-4c40-9d49-0d8eda14db21" />
 
-from transformers import EarlyStoppingCallback
-trainer = Trainer(
-    model=model,
-    args=training_args,
-    train_dataset=tokenized_train,
-    eval_dataset=tokenized_val,          # <-- add a small validation split
-    tokenizer=tokenizer,
-    compute_metrics=compute_metrics,
-    callbacks=[EarlyStoppingCallback(early_stopping_patience=3)]
-)
 
 **Make a small validation set (e.g., 10–20%):**
 
