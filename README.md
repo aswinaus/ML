@@ -22,7 +22,9 @@ def compute_metrics(eval_pred):
 
 **Add evaluation + early stopping**
 
-<img width="838" height="695" alt="image" src="https://github.com/user-attachments/assets/4fff10b3-4172-4c40-9d49-0d8eda14db21" />
+<img width="990" height="853" alt="image" src="https://github.com/user-attachments/assets/60a33364-5319-4a7d-a544-7b263627f04f" />
+
+<img width="1022" height="151" alt="image" src="https://github.com/user-attachments/assets/7185fec8-e121-4327-a46d-09405add3e6e" />
 
 
 **Make a small validation set (e.g., 10–20%):**
