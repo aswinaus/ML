@@ -419,7 +419,9 @@ Think of workers as “distributed data processors”.
 |           |                                                                            |              | Databricks on Azure.                 |
 | **08**    | Convert Classified content to embeddings                                   | Python Task  | Spark job text-embedding-3-large     |
 | **09**    | Pull - Text to Embeddings Azure AI Search vector DB                        | AI Search    | Automatic data pull scheduled 20 mins|
-| **10**    | **Optional** Agent code to query Azure AI Search (retrieval +  enrichment) | Python Task  | Light Spark/Driver job               |
+| **10**    | Agent code to query Azure AI Search (retrieval +  enrichment)              | Python Task  | Light Spark/Driver job               |
+| **11**    | Expose the Azure AI KH Search Index through API                            | Azure Python | AI Search + GPT4.0 finetuned         | 
+|           |                                                                            | Function     |                                      |
 
 
 **1. Databricks Job (Orchestrator / Launcher)**
