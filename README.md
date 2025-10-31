@@ -18,8 +18,6 @@ def compute_metrics(eval_pred):
         "f1_macro": f1_score(labels, preds, average="macro")
     }
     
-
-
 **Add evaluation + early stopping**
 
 <img width="990" height="853" alt="image" src="https://github.com/user-attachments/assets/60a33364-5319-4a7d-a544-7b263627f04f" />
