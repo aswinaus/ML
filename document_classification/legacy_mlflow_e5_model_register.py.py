@@ -27,8 +27,8 @@ import mlflow.transformers
 
 from transformers import AutoTokenizer, AutoModel
 
-model_name = "intfloat/multilingual-e5-base"
-local_path = "/tmp/hf_models/multilingual_e5_base"
+#model_name = "intfloat/e5_finetuned_tax_classifier"
+local_path = "/dbfs/tmp/e5_finetuned_tax_classifier"
 if not os.path.exists(os.path.dirname(local_path)):
     os.makedirs(os.path.dirname(local_path), exist_ok=True)
 
@@ -46,8 +46,8 @@ model.save_pretrained(local_path)
 mlflow.set_registry_uri("databricks")  # legacy workspace registry
 
 mlflow.transformers.log_model(
-    transformers_model=local_path,        # path to local Hugging Face model directory
+    transformers_model=local_path,        # path to local e5 finetuned model directory
     artifact_path="multilingual_e5_base", # name for the logged artifact
     registered_model_name="multilingual_e5_base_workspace", # registry name
-    task="feature-extraction"             # ✅ REQUIRED when using a local checkpoint
+    task="feature-extraction"             # REQUIRED when using a local checkpoint
 )
