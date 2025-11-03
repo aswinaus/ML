@@ -408,20 +408,20 @@ Think of workers as “distributed data processors”.
 **Direct Acyclic Graph of Tasks**
 
 
-| Stage     | What It Does                                                               | Runs As      | Type of Spark Job                    |
-| --------- | -------------------------------------------------------------------------- | ------------ | ------------------------------------ |
-| **01–05** | Parallel document ingestion by file type ( PDF, MSG)                       | Python Tasks | Heavy I/O Spark read/write jobs      |
-|           |                                                                            |              | Distributed Spark job with API calls |             
-| **06**    | PII redaction using Presidio detects and redacts PII Spark Job             | Python Task  | Transformation Spark job             |
-| **07**    | Local E5 Model Classification                                              | Python Task  | Distributed semantic classification  |
-|           |                                                                            |              | of large volumes of multilingual     |
-|           |                                                                            |              | documents using E5 model in          |
-|           |                                                                            |              | Databricks on Azure.                 |
-| **08**    | Convert Classified content to embeddings                                   | Python Task  | Spark job text-embedding-3-large     |
-| **09**    | Pull - Text to Embeddings Azure AI Search vector DB                        | AI Search    | Automatic data pull scheduled 20 mins|
-| **10**    | Agent code to query Azure AI Search (retrieval +  enrichment)              | Python Task  | Light Spark/Driver job               |
-| **11**    | Expose the Azure AI KH Search Index through API                            | Azure Python | AI Search + GPT4.0 finetuned         | 
-|           |                                                                            | Function     |                                      |
+| Stage     | What It Does                                                               | Runs As      | Type of Spark Job                     |
+| --------- | -------------------------------------------------------------------------- | ------------ | ------------------------------------  |
+| **01–05** | Parallel document ingestion by file type ( PDF, MSG)                       | Python Tasks | Heavy I/O Spark read/write jobs       |
+|           |                                                                            |              | Distributed Spark job with API calls  |             
+| **06**    | PII redaction using Presidio detects and redacts PII Spark Job             | Python Task  | Transformation Spark job              |
+| **07**    | Local E5 Model Classification                                              | Python Task  | Distributed semantic classification   |
+|           |                                                                            |              | of large volumes of multilingual      |
+|           |                                                                            |              | documents through local language model|
+|           |                                                                            |              | Databricks(Training/Serving/Inference)|
+| **08**    | Convert Classified content to embeddings                                   | Python Task  | Spark job text-embedding-3-large      |
+| **09**    | Pull - Text to Embeddings Azure AI Search vector DB                        | AI Search    | Automatic data pull scheduled 20 mins |
+| **10**    | Agent code to query Azure AI Search (retrieval +  enrichment)              | Python Task  | Light Spark/Driver job                |
+| **11**    | Expose the Azure AI KH Search Index through API                            | Azure Python | AI Search + GPT4.0 finetuned          | 
+|           |                                                                            | Function     |                                       |
 
 
 **1. Databricks Job (Orchestrator / Launcher)**
