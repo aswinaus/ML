@@ -410,7 +410,7 @@ Think of workers as “distributed data processors”.
 
 | Stage     | What It Does                                                               | Runs As      | Type of Spark Job                    |
 | --------- | -------------------------------------------------------------------------- | ------------ | ------------------------------------ |
-| **01–05** | Parallel document ingestion by file type (Word, Excel, PDF, PPTX, MSG/CSV) | Python Tasks | Heavy I/O Spark read/write jobs      |
+| **01–05** | Parallel document ingestion by file type ( PDF, MSG)                       | Python Tasks | Heavy I/O Spark read/write jobs      |
 |           |                                                                            |              | Distributed Spark job with API calls |             
 | **06**    | PII redaction using Presidio detects and redacts PII Spark Job             | Python Task  | Transformation Spark job             |
 | **07**    | Local E5 Model Classification                                              | Python Task  | Distributed semantic classification  |
