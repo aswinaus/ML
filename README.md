@@ -2,9 +2,9 @@
 Machine Learning experiment tracking, model checkpointing
 
 
-**Calculating the f1_macro score - Training and Fine Tuning**
+**Calculating the f1_macro score - Training and Supervised Fine Tuning for a Classification Problem**
 
-F1-macro is an evaluation metric it is often monitored during supervised fine-tuning (SFT) to measure how well the e5 encoder model is learning to classify. The F1 score is the harmonic mean of precision and recall for a class. When fine tuning a model the training objective is cross-entropy loss specifically in this case where we have multiple independent labels like problem, solution, tax type, tax topic and tax year the correct one is Binary Cross-Entropy(BCE) also can be called as Sigmoid + BCE loss which is the standard for multi-lable classificaiton and this  from where the gradient is computed and F1-macro metric is computed after each epoch (or batch) as a validation metric, not a loss like in RL where a reward signal directly drives optimization (e.g. in RLHF or GRPO), F1-macro is only used for monitoring and model selection — it doesn’t produce gradients.. It tells if the model is improving across all classes fairly.
+In a Supuervised Fine Tunning model specifically in a Classification problem the F1-macro is an evaluation metric it is often monitored during supervised fine-tuning (SFT) to measure how well the encoder model is learning to classify. The F1 score is the harmonic mean of precision and recall for a class. When fine tuning a model the training objective is cross-entropy loss specifically in this case where we have multiple independent labels like problem, solution, tax type, tax topic and tax year the correct one is Binary Cross-Entropy(BCE) also can be called as Sigmoid + BCE loss which is the standard for multi-lable classificaiton and this is from where the gradient is computed and F1_macro metric is computed after each epoch (or batch) as a validation metric not as a loss like in RL where a reward signal directly drives optimization (e.g. in RLHF or GRPO), F1-macro is only used for monitoring and model selection - it does not produce gradients. It tells if the model is improving across all classes fairly.
 
 | Stage                       | Metric used                           |
 | --------------------------- | ------------------------------------- |
@@ -34,12 +34,66 @@ Each label has its own independent sigmoid, so the model can output:
 | `tax_topic_TransferPricing` | 0/1             | 0.74           |
 | `tax_year_2023`             | 0/1             | 0.55           |
 
+As when compare softmax with CrossEntropy for  a single-label scenario
 
-**F1-macro is an evaluation metric code**
+| Component          | Description                   | Softmax                     | Sigmoid                           |
+| ------------------ | ----------------------------- | --------------------------- | ----------------------------------- |
+| **Loss**           | Training objective            | CrossEntropy (single-label) | **BCEWithLogitsLoss (multi-label)** |
+| **Activation**     | Output layer                  | Softmax                     | **Sigmoid (per label)**             |
+| **Metric**         | Eval metric                   | argmax → F1                 | **sigmoid + threshold → F1_macro**  |
+| **Regularization** | Weight decay + early stopping | OK                        | OK                                |
+
+
+Example : Suppose a document both describes a tax problem and provides a solution. Softmax forces probabilities to sum = 1.0 -> the model must choose only one label (here “tax_problem”) even though “tax_solution” is also correct as shown in the table below where Softmax forces the probabilities to sum 1.0 meaning the model must choose only one label bere which is tax_problem even though tax_solution is also correct.
+
+| Label        | True | Model (softmax probs) |
+| ------------ | ---- | --------------------- |
+| tax_problem  |  1  | 0.55                  |
+| tax_solution | 1  | 0.40                  |
+| tax_type     | 0    | 0.03                  |
+| tax_topic    | 0    | 0.01                  |
+| year         | 0    | 0.01                  |
+
+In the case of Multi-Label where a document can contain a tax problem or solution or other calss we will need Sigmoid with BinaryCrossEntropy to allow multiple labels to be "on" simultaneously so that Sigmoid gives independent probabilities in this case multiple outputs can be 1 simultaneously.
+
+| Label        | True | Model (sigmoid probs) | Pred (> 0.5) |
+| ------------ | ---- | --------------------- | ------------ |
+| tax_problem  | 1  | 0.85                  | 1          |
+| tax_solution | 1  | 0.74                  | 1          |
+| tax_type     | 0    | 0.10                  | 0            |
+| tax_topic    | 0    | 0.05                  | 0            |
+| year         | 0    | 0.08                  | 0            |
+
+Why Sigmoid with BinaryCrossEntropy classification is robust
+
+| Property           | Softmax + Cross-Entropy  | Sigmoid + BCE                        |
+| ------------------ | ------------------------ | ------------------------------------ |
+| Mutual exclusivity | Forces exactly one class | Allows any combination               |
+| Probabilities      | Sum = 1                  | Each label independent (0–1)         |
+| Loss               | CrossEntropyLoss         | BCEWithLogitsLoss (includes sigmoid) |
+| Appropriate for    | One label per sample     | Multiple possible labels per sample  |
+
+With BCE each of five output neurons behaves like a binary detector for its label.
+
+Sigmoid + BCE setup is ideal with each output neuron makes an independent yes/no decision allowing multiple labels to be active for the same document.
+
+Visuallization of how multi-label document classifier works internally
+
+<img width="596" height="553" alt="image" src="https://github.com/user-attachments/assets/bd5edd07-8fe5-4cae-ae75-fe2f298fd549" />
+
+A realistic neural network diagram with output neuron applies Sigmoid activation producing independent probabilities (e.g., 0.87, 0.90, 0.73, 0.12, 0.58) for each of the labels and these probabilities are compared against ground truth labels using Binary Cross-Entropy (BCE) summed over all outputs.
+
+<img width="710" height="700" alt="image" src="https://github.com/user-attachments/assets/55980f89-2a1b-44ab-ae55-2a9a73293e3e" />
+
+With a more detailed explanation
+
+<img width="1255" height="806" alt="image" src="https://github.com/user-attachments/assets/ab32b2c7-a6ee-440a-a276-99a226da56db" />
+
+**F1-macro evaluation metric code**
 
 <img width="596" height="263" alt="image" src="https://github.com/user-attachments/assets/a3cc9ed1-ad94-4116-b816-daee9a426291" />
 
-**Add evaluation + early stopping**
+**Training with F1 macro for evaluation + utilize the early stopping as regularization technique**
 
 <img width="990" height="853" alt="image" src="https://github.com/user-attachments/assets/60a33364-5319-4a7d-a544-7b263627f04f" />
 
