@@ -54,7 +54,7 @@ Example : Suppose a document both describes a tax problem and provides a solutio
 | tax_topic    | 0    | 0.01                  |
 | year         | 0    | 0.01                  |
 
-In the case of Multi-Label where a document can contain a tax problem or solution or other calss we will need Sigmoid with BinaryCrossEntropy to allow multiple labels to be "on" simultaneously so that Sigmoid gives independent probabilities in this case multiple outputs can be 1 simultaneously.
+In the case of Multi-Label where a document can contain a tax problem or solution or other class we will need Sigmoid with BinaryCrossEntropy to allow multiple labels to be "on" simultaneously so that Sigmoid gives independent probabilities in this case multiple outputs can be 1 simultaneously.
 
 | Label        | True | Model (sigmoid probs) | Pred (> 0.5) |
 | ------------ | ---- | --------------------- | ------------ |
