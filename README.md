@@ -2,28 +2,48 @@
 Machine Learning experiment tracking, model checkpointing
 
 
-**Calculating the f1macro score - Training and Fine Tuning**
+**Calculating the f1_macro score - Training and Fine Tuning**
 
-from sklearn.metrics import accuracy_score, f1_score
+F1-macro is an evaluation metric it is often monitored during supervised fine-tuning (SFT) to measure how well the e5 encoder model is learning to classify. The F1 score is the harmonic mean of precision and recall for a class. When fine tuning a model the training objective is cross-entropy loss specifically in this case where we have multiple independent labels like problem, solution, tax type, tax topic and tax year the correct one is Binary Cross-Entropy(BCE) also can be called as Sigmoid + BCE loss which is the standard for multi-lable classificaiton and this  from where the gradient is computed and F1-macro metric is computed after each epoch (or batch) as a validation metric, not a loss like in RL where a reward signal directly drives optimization (e.g. in RLHF or GRPO), F1-macro is only used for monitoring and model selection — it doesn’t produce gradients.. It tells if the model is improving across all classes fairly.
 
-from datasets import load_dataset
+| Stage                       | Metric used                           |
+| --------------------------- | ------------------------------------- |
+| **Training / Back-propagation**     | Cross-Entropy (for classification)    |
+| **Validation / Evaluation** | F1-macro, Accuracy, Precision and Recall |
 
-import numpy as np
+In short
 
-def compute_metrics(eval_pred):
-    logits, labels = eval_pred
-    preds = np.argmax(logits, axis=-1)
-    return {
-        "accuracy": accuracy_score(labels, preds),
-        "f1_macro": f1_score(labels, preds, average="macro")
-    }
-    
+| Type                            | Example                                                                                                       | Loss Function                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| **Single-label classification** | Each document has *only one* label (e.g., “Tax Type = Corporate”)                                             | **Softmax + Cross-Entropy**        |
+| **Multi-label classification**  | Each document can have *multiple* labels (e.g., “has_problem=1, has_solution=1, tax_topic=‘TransferPricing’”) | **Sigmoid + Binary Cross-Entropy** |
+
+How BCE works for tax classifier
+
+For each label (output neuron), we compute:
+
+<img width="983" height="226" alt="image" src="https://github.com/user-attachments/assets/468f6aca-957b-4794-8a20-cb909d27183e" />
+
+Each label has its own independent sigmoid, so the model can output:
+
+| Label                       | Meaning         | Example Output |
+| --------------------------- | --------------- | -------------- |
+| `has_problem`               | 0/1             | 0.89           |
+| `has_solution`              | 0/1             | 0.65           |
+| `tax_type_Corporate`        | one-hot (multi) | 0.80           |
+| `tax_topic_TransferPricing` | 0/1             | 0.74           |
+| `tax_year_2023`             | 0/1             | 0.55           |
+
+
+**F1-macro is an evaluation metric code**
+
+<img width="596" height="263" alt="image" src="https://github.com/user-attachments/assets/a3cc9ed1-ad94-4116-b816-daee9a426291" />
+
 **Add evaluation + early stopping**
 
 <img width="990" height="853" alt="image" src="https://github.com/user-attachments/assets/60a33364-5319-4a7d-a544-7b263627f04f" />
 
 <img width="1022" height="151" alt="image" src="https://github.com/user-attachments/assets/7185fec8-e121-4327-a46d-09405add3e6e" />
-
 
 **Make a small validation set (e.g., 10–20%):**
 
