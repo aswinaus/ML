@@ -2,7 +2,7 @@
 Machine Learning experiment tracking, model checkpointing
 
 
-**Calculating the f1_macros scroe - Training and Fine Tuning**
+**Calculating the f1macro score - Training and Fine Tuning**
 
 from sklearn.metrics import accuracy_score, f1_score
 
