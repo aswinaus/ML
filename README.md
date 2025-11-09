@@ -2,7 +2,7 @@
 Machine Learning experiment tracking, model checkpointing
 
 
-**Calculating the f1_macro score - Training and Supervised Fine Tuning for a Classification Problem**
+**Training and Supervised FineTuning for a Classification Problem - Calculating the f1_macro score**
 
 In a Supuervised Fine Tunning model specifically in a Classification problem the F1-macro is an evaluation metric it is often monitored during supervised fine-tuning (SFT) to measure how well the encoder model is learning to classify. The F1 score is the harmonic mean of precision and recall for a class. When fine tuning a model the training objective is cross-entropy loss specifically in this case where we have multiple independent labels like problem, solution, tax type, tax topic and tax year the correct one is Binary Cross-Entropy(BCE) also can be called as Sigmoid + BCE loss which is the standard for multi-lable classificaiton and this is from where the gradient is computed and F1_macro metric is computed after each epoch (or batch) as a validation metric not as a loss like in RL where a reward signal directly drives optimization (e.g. in RLHF or GRPO), F1-macro is only used for monitoring and model selection - it does not produce gradients. It tells if the model is improving across all classes fairly.
 
