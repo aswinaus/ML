@@ -1,4 +1,4 @@
-# Maching Learning
+# Machine Learning
 Machine Learning experiment tracking, model checkpointing
 
 
