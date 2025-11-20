@@ -801,3 +801,56 @@ Running on Azure ML as a scalable REST API
 
 On CPU (cost-efficient) or GPU (if needed)
 
+-------------------------------------------------------------------------------------------
+**Hyperparameter Tuning:**
+The supervised finetunning specific in the classificaiton problem which we had before computes the F1-macro and picks the model checkpoint when the F1-macro score is at the highest and it is restored at the end of training with one fixed hperparameter setup as in the code below. All these parameters are manually provided hyperparameters and none of these are tuned.
+
+<img width="1172" height="291" alt="image" src="https://github.com/user-attachments/assets/b9c003f1-bcac-468d-ab10-61b54a60182f" />
+
+**Ray Tune–powered hyperparameter tuning:**
+This is one of the common type of hyperparameter tuning. Here we will retain SemanticTrainer, custom dataset and multi-label classification setup as we had before and run multiple training trials each with different hyperparameters with the F1-march score to tune through which we pick the best hyperparameter combination and then save the model for serving.
+
+**In nutshell this is what Ray Tune will perform:**
+Run multiple training trials each with different hyperparameters such as Learning rate, Batch size and epochs.
+Report validation metrics (f1_macro) to Tune.
+Pick the best hyperparameter combination.
+Optionally save the best model.
+
+**Advanced Tuning**
+**Population Based Training (PBT)**
+
+For the tax-document multi-label classification problem the learning rate, batch size and regularization strength are highly sensitive and interact in non-obvious ways so we would target those hyperparameters first.
+
+PBT is a hyperparameter optimization + model training method where:
+
+**1) Many model “workers” (populations) train in parallel**
+Each worker starts with different hyperparameters (Learning Rate LR, batch size, etc).
+
+**Every few iterations and the population is evaluated**
+Workers doing poorly:
+1) STOP
+2) COPY weights from the best-performing workers
+3) MUTATE their hyperparameters (slightly change LR, batch size, dropout, etc.)
+   
+**Bad configurations evolve into good ones**
+This mimics biological evolution:
+1) good solutions reproduce
+2) poor solutions die
+3) random mutations allow discovery of better hyperparameters over time
+
+It is efficient than grid/random search because bad configs don’t waste compute for long.
+
+**Population Based Training will help tax-document classifier in the following ways**
+
+
+**The labels are multi-label and imbalanced**
+PBT adapts LR and batch size to reduce overfitting.
+
+**We will use a custom semantic regularization loss**
+This increases sensitivity to hyperparameters for which PBT will help to stabilize it.
+
+**For the relatively small dataset (100 samples)**
+PBT helps avoid overfitting and finds gentler LRs → boosts F1.
+
+**Early stopping alone is not enough**
+Early stopping stops bad models but it does not improve hyperparameters.
