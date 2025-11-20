@@ -812,9 +812,10 @@ This is one of the common type of hyperparameter tuning. Here we will retain Sem
 
 **In nutshell this is what Ray Tune will perform:**
 Run multiple training trials each with different hyperparameters such as Learning rate, Batch size and epochs.
-Report validation metrics (f1_macro) to Tune.
-Pick the best hyperparameter combination.
-Optionally save the best model.
+
+1) Report validation metrics (f1_macro) to Tune.
+2) Pick the best hyperparameter combination.
+3) Optionally save the best model.
 
 **Advanced Tuning**
 **Population Based Training (PBT)**
@@ -841,7 +842,6 @@ This mimics biological evolution:
 It is efficient than grid/random search because bad configs don’t waste compute for long.
 
 **Population Based Training will help tax-document classifier in the following ways**
-
 
 **The labels are multi-label and imbalanced**
 PBT adapts LR and batch size to reduce overfitting.
