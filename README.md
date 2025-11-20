@@ -835,9 +835,9 @@ Workers doing poorly:
    
 **Bad configurations evolve into good ones**
 This mimics biological evolution:
-1) good solutions reproduce
-2) poor solutions die
-3) random mutations allow discovery of better hyperparameters over time
+1) Good solutions reproduce
+2) Poor solutions die
+3) Random mutations allow discovery of better hyperparameters over time
 
 It is efficient than grid/random search because bad configs don’t waste compute for long.
 
