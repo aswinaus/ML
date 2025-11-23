@@ -565,7 +565,7 @@ Recall the line: **hashingTF = HashingTF(inputCol="words", outputCol="rawFeature
 
 The purpose of HashingTF is to take a list of words (like the output from the Tokenizer) and convert it into a fixed-size numerical vector. It does this using a clever technique called the "hashing trick" to avoid having to build a huge dictionary of all unique words.
 
-Here's how it works with an example:
+Here is how it works with an example:
 
 Imagine you have a very small vocabulary and numFeatures is set to a small number, say 5, instead of 1000 for simplicity. This means our output vector will have 5 "bins" or dimensions.
 
@@ -808,7 +808,7 @@ The supervised finetunning specific in the classificaiton problem which we had b
 <img width="1172" height="291" alt="image" src="https://github.com/user-attachments/assets/b9c003f1-bcac-468d-ab10-61b54a60182f" />
 
 **Ray Tune–powered hyperparameter tuning:**
-This is one of the common type of hyperparameter tuning. Here we will retain SemanticTrainer, custom dataset and multi-label classification setup as we had before and run multiple training trials each with different hyperparameters with the F1-march score to tune through which we pick the best hyperparameter combination and then save the model for serving.
+This is one of the common type of hyperparameter tuning. Here we will retain SemanticTrainer, custom dataset and multi-label classification setup as we had before and run multiple training trials each with different hyperparameters with the F1-macro score to tune through which we pick the best hyperparameter combination and then save the model for serving.
 
 **In nutshell this is what Ray Tune will perform:**
 Run multiple training trials each with different hyperparameters such as Learning rate, Batch size and epochs.
