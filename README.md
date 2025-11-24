@@ -810,6 +810,29 @@ The supervised finetunning specific in the classificaiton problem which we had b
 **Ray Tune–powered hyperparameter tuning:**
 This is one of the common type of hyperparameter tuning. Here we will retain SemanticTrainer, custom dataset and multi-label classification setup as we had before and run multiple training trials each with different hyperparameters with the F1-macro score to tune through which we pick the best hyperparameter combination and then save the model for serving.
 
+Ray uses a resource-based scheduler where each task declares how many GPUs it needs.
+
+**Step 1** — Ray detects GPUs on the node
+**Step 2** — Tasks or Actors request GPU resources
+  @ray.remote(num_gpus=1)
+  def train_batch(...):
+      ...
+  This asks Ray:
+  “Give this task 1 GPU.
+**Step 3** — Ray schedules tasks according to GPU requests
+If each task requests 1 GPU, Ray schedules:
+Task 1 → GPU0
+Task 2 → GPU1
+Task 3 → GPU2
+Task 4 → GPU3
+→ 4 tasks run in parallel, each on its own GPU.
+If a task requests 2 GPUs, Ray schedules:
+Task A → GPU0 + GPU1
+Then only 2 GPUs remain, so fewer tasks run.
+If a task requests 4 GPUs, Ray schedules:
+Task A → GPU0 + GPU1 + GPU2 + GPU3
+Only 1 task runs at a time, but it gets all GPUs.
+
 **In nutshell this is what Ray Tune will perform:**
 Run multiple training trials each with different hyperparameters such as Learning rate, Batch size and epochs.
 
