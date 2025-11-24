@@ -1,6 +1,163 @@
 # Machine Learning
 Machine Learning experiment tracking, model checkpointing
 
+**Document Classification Solution :**
+A dual encoder / zero-shot NLI-style classifier where the labels guide semantics. This is a semantic matching model — not a classification head.
+Rncoder architecture for the semantic dual-encoder model. The encoder is shared for docs and labels. 
+The model outputs embeddings and similarity scores directly.  
+LoRA adapters can be fine-tuned further via GRPO reward signals training a two-tower (dual encoder) embedding model similar to:
+Zero-shot NLI (e.g., BART-NLI, DeBERTa-NLI)
+The label descriptions act as hypothesis statements.
+
+The document acts as the premise.
+Semantic Matching / Bi-Encoder Architecture (Sentence-BERT style)
+Where both:
+
+•	doc text → embedding
+
+•	label description → embedding
+
+are produced separately, then their similarity is the prediction.
+
+Label embeddings are semantic, not categorical
+
+The model learns whether:
+
+(doc_text, label_text)
+
+semantically match — which makes the model generalize to new labels, just like NLI-based zero-shot classifiers.
+
+1.	**Shared Encoder Architecture:**
+o	One AutoModel encoder is used for both documents and label descriptions.
+o	LoRA adapters are applied for efficient fine-tuning without modifying the base model.
+
+**2.	Label Description Embeddings:**
+o	Label descriptions are tokenized once and embedded via the same encoder.
+o	During inference, document embeddings are compared to label embeddings using cosine similarity.
+
+**3.	Zero-Shot Classification Style:**
+o	Cosine similarity between document and label embeddings is scaled (COSINE_SCALE) and passed through sigmoid.
+o	BCEWithLogitsLoss allows multi-label supervision, but the structure remains zero-shot at inference because the model computes similarity to label descriptions rather than classifying into fixed IDs.
+
+**4.	Inference Functions:**
+o	predict_labels embeds a new document and compares it to pre-computed label embeddings.
+o	Multi-label zero-shot predictions are generated purely based on semantic similarity, consistent with dual-encoder zero-shot classifiers.
+o	In short: LoRA + PBT updates the encoder efficiently, but the dual-encoder zero-shot classification logic is fully preserved
+
+1. New label description dictionary (already created)
+Semantic-rich descriptions.
+
+2. A dual-encoder dataset class
+•	Encodes documents
+•	Encodes label descriptions once
+•	No classifier head
+•	Uses cosine similarity predictions
+•	Uses BCE + contrastive semantic loss
+
+3. A new model wrapper
+•	Loads bge-m3
+•	Adds LoRA
+•	Output = embeddings
+•	Computes cosine similarity internally
+
+4. A new training loop
+•	Ray Tune PBT-compatible
+•	Uses your existing trainer
+•	But updated to support dual encoder logic
+
+5. Inference API
+•	Embed document
+•	Compare to fixed label embeddings
+•	Output similarities + thresholds
+
+6. Feedback/Reward Model : A GRPO-ready interface
+•	get_doc_embedding()
+•	get_label_embeddings()
+•	cosine similarity reward
+•	RL loop-ready structure
+
+Everything will be designed explicitly so that GRPO can continue optimizing LoRA modules on top of the trained semantic encoder.
+
+In nutshell this is what been done
+
+•	The labels are represented by their full semantic descriptions embedded once.
+
+•	Documents are embedded and similarity is computed by cosine similarity between embeddings.
+
+•	Loss is BCEWithLogits on similarity scores vs multi-hot labels.
+
+•	LoRA is applied to the shared transformer encoder.
+
+•	PBT tunes hyperparameters.
+
+•	Model is trained end-to-end to maximize semantic alignment between docs and labels.
+
+•	Prediction is done by thresholding cosine similarity scores after sigmoid.
+
+**Environment : Databricks Cluser**
+
+Worker Type: Standard_NV36adms_A10_v5
+Each Worker has 1x NVIDIA A10 GPU with 880 GB RAM
+This is a multi-node GPU cluster (not a single machine with 4 GPUs)
+Databricks automatically provisions 4 GPU nodes
+Total GPUs available = 4 nodes × 1 GPU each = 4 GPUs
+This is a multi-node GPU cluster (not a single machine with 4 GPUs)
+
+**Training Architecture**
+
+<img width="975" height="613" alt="image" src="https://github.com/user-attachments/assets/d9094a9a-628c-4c0d-ab4f-329424de48d6" />
+
+ **Extended Training Architecture**
+ 
+ <img width="975" height="630" alt="image" src="https://github.com/user-attachments/assets/bd22b37a-1ff5-4dd4-acdb-1de543e2aa9b" />
+
+**With Feedback and Policy GRPO Training**
+
+•	Builds on Dual-Encoder + LoRA + Cosine BCE + Ray-PBT diagram.
+•	Adds the GRPO stage:
+o	SFT + LoRA best checkpoint saved as a Reference Model
+o	Cloned into a Policy Model
+o	GRPOTrainer uses:
+Bernoulli log-probs for multi-label outputs
+Feedback scores (1–5) as rewards from a feedback store
+Produces an Updated Policy Model (SFT + GRPO LoRA weights)
+
+<img width="975" height="591" alt="image" src="https://github.com/user-attachments/assets/793d68c9-e945-493a-bc50-94bee406c56a" />
+
+Model Lifecycle for the above Training Architecture
+
+<img width="975" height="682" alt="image" src="https://github.com/user-attachments/assets/ba236f54-0444-4b05-bb99-29ba8a468cd2" />
+
+The above Model Lifecycle shows how models evolve in your pipeline:
+1.	Pretrained BGE encoder
+2.	SFT + LoRA training with PBT
+3.	Deploy SFT+LoRA classifier (v1)
+4.	Collect user feedback during usage
+5.	Offline GRPO training (ref vs policy, feedback-based rewards)
+6.	Evaluate candidate SFT+GRPO policy
+7.	Deploy v2 policy, archive old checkpoints, repeat loop.
+
+
+•	Builds on your Dual-Encoder + LoRA + Cosine BCE + Ray-PBT diagram.
+•	Adds the GRPO stage:
+o	SFT + LoRA best checkpoint saved as a Reference Model
+o	Cloned into a Policy Model
+o	GRPOTrainer uses:
+	Bernoulli log-probs for multi-label outputs
+	Feedback scores (1–5) as rewards from a feedback store
+o	Produces an Updated Policy Model (SFT + GRPO LoRA weights)
+•  Model Lifecycle Diagram
+•	Shows how models evolve in your pipeline:
+1.	Pretrained BGE encoder
+2.	SFT + LoRA training with PBT
+3.	Deploy SFT+LoRA classifier (v1)
+4.	Collect user feedback during usage
+5.	Offline GRPO training (ref vs policy, feedback-based rewards)
+6.	Evaluate candidate SFT+GRPO policy
+7.	Deploy v2 policy, archive old checkpoints, repeat loop.
+
+
+
 **Training and Supervised FineTuning for a Classification Problem - Calculating the f1_macro score**
 
 In a Supervised FineTunning model specifically in a Classification problem the F1-macro is an evaluation metric it is often monitored during supervised fine-tuning (SFT) to measure how well the encoder model is learning to classify. The F1 score is the harmonic mean of precision and recall for a class. When fine tuning a model the training objective is cross-entropy loss specifically in this case where we have multiple independent labels like problem, solution, tax type, tax topic and tax year the correct one is Binary Cross-Entropy(BCE) also can be called as Sigmoid + BCE loss which is the standard for multi-lable classificaiton and this is from where the gradient is computed and F1_macro metric is computed after each epoch (or batch) as a validation metric not as a loss like in RL where a reward signal directly drives optimization (e.g. in RLHF or GRPO), F1-macro is only used for monitoring and model selection - it does not produce gradients. It tells if the model is improving across all classes fairly.
@@ -841,6 +998,7 @@ Run multiple training trials each with different hyperparameters such as Learnin
 3) Optionally save the best model.
 
 **Advanced Tuning**
+
 **Population Based Training (PBT)**
 
 For the tax-document multi-label classification problem the learning rate, batch size and regularization strength are highly sensitive and interact in non-obvious ways so we would target those hyperparameters first.
@@ -874,6 +1032,94 @@ This increases sensitivity to hyperparameters for which PBT will help to stabili
 
 **For the relatively small dataset (100 samples)**
 PBT helps avoid overfitting and finds gentler LRs → boosts F1.
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Distributed training (DDP - Distributed Data Parallel/FSDP - Fully Sharded Data Parallel) inside each trial, Ray is still essential for everything else the workflow requires:**
+
+1. Ray gives you CONCURRENT HYPERPARAMETER SEARCH (HPO) using ALL GPUs
+Even without distributed training, Ray Tune lets you run:
+•	4 trials in parallel
+•	each on a dedicated GPU
+•	each with different hyperparameters
+This IS NOT POSSIBLE with HuggingFace Trainer alone.
+Without Ray
+HuggingFace can only train one configuration at a time, on a single GPU.
+With Ray
+You run 4 completely independent trainings, each exploring a different hyperparameter region.
+That’s the whole purpose of:
+•	PBT
+•	Bayesian optimization
+•	Hyperparam sampling
+•	mutation + exploitation
+You are using Ray not for data parallelism, but for search parallelism.
+________________________________________
+2. Ray Tune = Population-Based Training (PBT) — which HuggingFace Trainer CANNOT DO
+Your scheduler is:
+pbt = PopulationBasedTraining(...)
+This algorithm requires:
+•	multiple parallel workers
+•	random mutation
+•	cloning best-performing checkpoints
+•	replacing weaker trials mid-training
+HF Trainer cannot do PBT by itself.
+Ray is the only reason you can use PBT.
+________________________________________
+3. Ray manages GPU allocation better than Databricks
+Databricks has no native GPU queue.
+Ray gives you:
+•	resources_per_trial={"gpu": 1}
+•	guaranteed GPU isolation
+•	trial scheduling
+•	placement groups
+•	resource-aware parallelism
+If you try 4 parallel HF processes without Ray → they will fight for GPU 0, crashing instantly.
+Ray eliminates that.
+________________________________________ 4. Ray Tune handles trial retries, logging, checkpointing
+You get:
+•	automatic retries
+•	storage of all trial artifacts under /root/ray_results
+•	TensorBoard dashboard
+•	unified logs per trial
+•	final best-trial selection
+Using pure HF Trainer → you must manually script all this.
+Ray gives it for free.
+________________________________________
+5. Ray workers are isolated MINIPROCESSES
+This matters because:
+•	each trial loads a fresh BGE-base model
+•	each trial loads its own LoRA adapters
+•	each trial reads its own dataset subset
+•	each trial runs completely independently
+This is a MASSIVE stability improvement over multi-threaded pure Python.
+________________________________________
+6. Ray makes autoscaling possible
+Later, if you move to Ray on Kubernetes or Ray cluster:
+•	you can run 50+ trials on 50 GPUs
+•	perfect for model exploration
+•	nothing changes in your script
+Ray makes your workflow future-proof.
+________________________________________
+7. Ray Tune does not require distributed training
+Ray is NOT a distributed training framework.
+Ray gives you task-level parallelism, not gradient parallelism.
+You can have:
+✔ All trials run independently
+✔ Each trial uses 1 GPU
+✔ No distributed training
+✔ Still full PBT correctness
+That is exactly the setup you need.
+________________________________________
+Analogy
+Think:
+•	HuggingFace Trainer = the model trainer
+•	Ray Tune = the scientist running many different experiments in parallel
+Even if the model trains only on 1 GPU, the experiment scheduler (Ray) is still crucial.
+________________________________________
+So the answer: YES — you still need Ray.
+Ray is not about distributed training —
+Ray is about scaling the number of experiments efficiently.
+
 
 **Early stopping alone is not enough**
 Early stopping stops bad models but it does not improve hyperparameters.
