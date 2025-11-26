@@ -157,25 +157,36 @@ o	Produces an Updated Policy Model (SFT + GRPO LoRA weights)
 7.	Deploy v2 policy, archive old checkpoints, repeat loop.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
-Training 1 – Binary Cross-Entropy+Contrastive Loss as Loss Function
+**Training 1 – Binary Cross-Entropy+Contrastive Loss as Loss Function**
+
 The training process in this code is designed to fine-tune a pre-trained language model (specifically, a dual-encoder model) to classify documents as either tax questions or tax solutions.
-The model is trained on a dataset of labeled documents, where each document is associated with a label indicating whether it's a tax question or a tax solution. The model learns to represent each document as a dense vector (embedding) and then uses these embeddings to predict the label.
+
+The model is trained on a dataset of labeled documents, where each document is associated with a label indicating whether it's a tax question or a tax solution.
+
+The model learns to represent each document as a dense vector (embedding) and then uses these embeddings to predict the label.
+
 The effectiveness of this training process depends on several factors, including:
-1.	Quality of the dataset: The dataset should be large, diverse, and well-labeled, with a good balance of tax questions and tax solutions.
-2.	Choice of pre-trained model: The pre-trained model should be suitable for the task at hand, and the dual-encoder architecture is a good choice for this type of classification task.
-3.	Hyperparameter tuning: The hyperparameters, such as learning rate, batch size, and number of epochs, should be carefully tuned to optimize the model's performance.
-4.	Evaluation metrics: The model's performance should be evaluated using relevant metrics, such as accuracy, precision, recall, and F1-score.
-Based on the code, it appears that the training process is well-designed, and the model is being fine-tuned using a suitable pre-trained model and a reasonable set of hyperparameters.
+**1.	Quality of the dataset:** The dataset should be large, diverse, and well-labeled, with a good balance of tax questions and tax solutions.
+**2.	Choice of pre-trained model:** The pre-trained model should be suitable for the task at hand, and the dual-encoder architecture is a good choice for this type of classification task.
+**3.	Hyperparameter tuning:** The hyperparameters, such as learning rate, batch size, and number of epochs, should be carefully tuned to optimize the model's performance.
+**4.	Evaluation metrics:** The model's performance should be evaluated using relevant metrics, such as accuracy, precision, recall, and F1-score.
+
+Based on the code it appears that the training process is well-designed and the model is being fine-tuned using a suitable pre-trained model and a reasonable set of hyperparameters.
+
 However, to determine whether this training process is effective for your specific use case, you'll need to evaluate the model's performance on a held-out test set and consider the following factors:
-1.	Accuracy: How accurate is the model in classifying documents as tax questions or tax solutions?
-2.	Precision: How precise is the model in identifying true positives (i.e., documents that are actually tax questions or tax solutions)?
-3.	Recall: How well does the model recall true positives (i.e., documents that are actually tax questions or tax solutions)?
-4.	F1-score: What is the F1-score, which balances precision and recall?
-If the model's performance is satisfactory, you can use it to classify new, unseen documents as tax questions or tax solutions. However, if the performance is not satisfactory, you may need to adjust the training process, such as by tweaking the hyperparameters, using a different pre-trained model, or collecting more data.
 
+**1.	Accuracy:** How accurate is the model in classifying documents as tax questions or tax solutions?
+**2.	Precision:** How precise is the model in identifying true positives (i.e., documents that are actually tax questions or tax solutions)?
+**3.	Recall:** How well does the model recall true positives (i.e., documents that are actually tax questions or tax solutions)?
+**4.	F1-score:** What is the F1-score, which balances precision and recall?
 
-Code updates the hyperparameters using Population-Based Training (PBT) scheduler from the Ray Tune library.
+If the model's performance is satisfactory, we can use it to classify new unseen documents as tax questions or tax solutions. However if the performance is not satisfactory, we may need to adjust the training process, such as by tweaking the hyperparameters, using a different pre-trained model, or collecting more data.
+
+**Code updates the hyperparameters using Population-Based Training (PBT) scheduler from the Ray Tune library.**
+
 In the code, the PBT scheduler is defined as follows:
+
+<img width="658" height="492" alt="image" src="https://github.com/user-attachments/assets/ba4beaab-b63e-43e6-8a5f-f8b7a6f87fdd" />
 
  
 
@@ -185,26 +196,28 @@ This scheduler will perturb the hyperparameters every 6 training iterations, and
 •	warmup: uniform distribution between 0 and 0.2
 •	lora_rank: one of the values [4, 8, 16, 32]
 The tune.run function is then used to run the training function train_with_pbt with the PBT scheduler:
- 
+
+<img width="802" height="611" alt="image" src="https://github.com/user-attachments/assets/083083c9-5cb5-49ab-bdc9-592a0692828b" />
+
 This will run 4 trials of the training function with the initial hyperparameters, and then the PBT scheduler will perturb the hyperparameters and run new trials with the updated hyperparameters.
 
 The best trial with the minimum loss is then selected and the corresponding model is saved:
  
+<img width="975" height="79" alt="image" src="https://github.com/user-attachments/assets/06857906-0878-4066-8324-35d161e4d5a3" />
 
 
+**How is Loss calculated?**
 
-
-
-
-
-How is Loss calculated?
 The loss is calculated in the compute_loss method of the SemanticDualEncoderTrainer class.
 
- 
+<img width="975" height="835" alt="image" src="https://github.com/user-attachments/assets/12dfd117-57c3-4bcc-9ffa-1e3cbf02465f" />
 
-The loss is calculated as a combination of two components:
-1.	Binary Cross-Entropy (BCE) Loss: This is calculated using the nn.BCEWithLogitsLoss() function, which takes the scaled cosine similarity (cos_scaled) and the target values (targets) as inputs.
-2.	Contrastive Loss: This is calculated using the formula (pos * (1 - cos).clamp(min=0) + neg * (cos - margin).clamp(min=0)).mean(), where pos and neg are the positive and negative target values, respectively, and margin is a hyperparameter set to 0.2.
+
+**The loss is calculated as a combination of two components:**
+
+**1.	Binary Cross-Entropy (BCE) Loss:** This is calculated using the nn.BCEWithLogitsLoss() function, which takes the scaled cosine similarity (cos_scaled) and the target values (targets) as inputs.
+   
+**2.	Contrastive Loss:** This is calculated using the formula (pos * (1 - cos).clamp(min=0) + neg * (cos - margin).clamp(min=0)).mean(), where pos and neg are the positive and negative target values, respectively, and margin is a hyperparameter set to 0.2.
 The final loss is the sum of the BCE loss and the contrastive loss, weighted by the contrastive_weight hyperparameter.
 The cos variable represents the cosine similarity between the document and label embeddings, and the emb variable represents the document embeddings. These values are returned along with the loss if return_outputs is True.
 
@@ -251,8 +264,11 @@ The cos_scaled variable is the logit, and the nn.BCEWithLogitsLoss() function ap
 
 What is Contrastive Loss and how is it calculated?
 contrastive loss is used as a regularization term to encourage the model to produce embeddings that are close together for similar inputs (e.g., documents and labels that are related) and far apart for dissimilar inputs.
+
 The contrastive loss is calculated as follows:
- 
+
+<img width="550" height="281" alt="image" src="https://github.com/user-attachments/assets/76edd87b-5c48-4a2a-a859-a4714842748e" />
+
 Here's a breakdown of the components:
 •	margin: a hyperparameter that controls the minimum distance between dissimilar embeddings. In this case, it's set to 0.2.
 •	pos: the positive targets (i.e., the labels that indicate a relationship between the document and label).
@@ -288,6 +304,60 @@ o	Document 1 and Label 2: 0.9 * (0.2 - 0.2) = 0
 o	Document 2 and Label 1: 0.9 * (0.1 - 0.2) = 0
 The contrastive loss would be the sum of these terms: 0.01 + 0.02 + 0 + 0 = 0.03.
 The model would be encouraged to produce embeddings that are closer together for similar inputs (e.g., Document 1 and Label 1) and farther apart for dissimilar inputs (e.g., Document 1 and Label 2).
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+**Training 2 : Implementing a dual-encoder model with Low-Rank Adaptation (LoRA) and Population-Based Training (PBT) using the Ray Tune library.**
+
+Loss is calculated in the SemanticDualEncoderTrainer class, specifically in the compute_loss method.
+
+<img width="975" height="1109" alt="image" src="https://github.com/user-attachments/assets/18482020-1369-4732-8018-4e571d56c43c" />
+
+
+**The loss is calculated as follows:**
+
+1.	The model outputs are passed through the compute_loss method, which extracts the target and soft labels from the inputs.
+2.	The model outputs are then passed through the model to get the embeddings for the documents and labels.
+3.	The embeddings are L2-normalized to have a length of 1.
+4.	The cosine similarity between the document and label embeddings is calculated.
+5.	The cosine similarity is scaled to logits using a temperature parameter.
+6.	The BCE loss is calculated between the logits and the hard labels (targets) and soft labels (soft).
+7.	The final loss is calculated as the average of the hard loss and soft loss.
+The loss is a combination of the BCE loss between the logits and the hard labels, and the BCE loss between the logits and the soft labels. The soft labels are used to provide additional information to the model, and the hard labels are used to provide a clear target for the model to learn.
+
+In the context of the training, hard labels and soft labels are used to train the model.
+Hard Labels: Hard labels are binary labels (0 or 1) that indicate whether a document is relevant or not relevant to a given label. For example, if we're training a model to classify documents as "relevant" or "not relevant" to a particular topic, the hard labels would be:
+•	1: Relevant
+•	0: Not Relevant
+Soft Labels: Soft labels, on the other hand, are continuous values between 0 and 1 that represent the degree of relevance or similarity between a document and a label. Soft labels are used to provide more nuanced information about the relationship between the document and the label.
+For example, if we're training a model to classify documents as "relevant" or "not relevant" to a particular topic, the soft labels could be:
+•	0.8: Highly relevant
+•	0.4: Somewhat relevant
+•	0.2: Not very relevant
+•	0.0: Not relevant at all
+Example: Let's say we're training a model to classify documents as "relevant" or "not relevant" to the topic of "machine learning". We have a document that mentions "deep learning" and "neural networks", but doesn't explicitly mention "machine learning".
+•	Hard label: 1 (Relevant) or 0 (Not Relevant)
+•	Soft label: 0.6 (Somewhat relevant, since the document mentions related topics, but not explicitly "machine learning")
+In this example, the hard label would be either 1 or 0, indicating whether the document is relevant or not. The soft label, on the other hand, would be 0.6, indicating that the document is somewhat relevant to the topic of machine learning, but not explicitly.
+Why use both hard and soft labels? Using both hard and soft labels can help the model learn more nuanced relationships between documents and labels. The hard labels provide a clear indication of whether a document is relevant or not, while the soft labels provide more detailed information about the degree of relevance.
+In the context of the training code, the target variable represents the hard label, and the soft variable represents the soft label. The model is trained to predict both the hard label and the soft label, using the BCEWithLogitsLoss function to compute the loss.
+Here's an example of how the labels might be used in the training code:
+ 
+In this example, the targets variable represents the hard label, and the soft variable represents the soft label. The model is trained to predict both the hard label and the soft label, using the BCEWithLogitsLoss function to compute the loss. The hard and soft losses are combined using a weighted average, with a weight of 0.5 for each.
+The choice of loss function depends on the specific problem you're trying to solve and the characteristics of your data. Here's a brief analysis of the options you've mentioned:
+1.	Binary Cross-Entropy (BCE) Loss: BCE loss is a common choice for binary classification problems, where the goal is to predict one of two classes (e.g., tax problem or not). BCE loss measures the difference between the predicted probabilities and the true labels. It's a good choice when:
+o	The classes are mutually exclusive (i.e., a document can't be both a tax problem and a solution).
+o	The classes are balanced (i.e., roughly equal number of positive and negative examples).
+2.	Contrastive Loss: Contrastive loss is a type of loss function that encourages the model to learn embeddings that are close together for similar examples (e.g., documents with similar tax problems) and far apart for dissimilar examples (e.g., documents with different tax problems). Contrastive loss is a good choice when:
+o	You want to learn a representation of the data that captures the underlying structure (e.g., tax problems and solutions).
+o	You have a large number of classes or a complex classification problem.
+3.	Dual-Encoder Model with Cosine Similarity and BCE Loss: The approach you've implemented uses a dual-encoder model to learn two separate embeddings for documents and labels. The cosine similarity between these embeddings is used to compute the loss, which is then combined with BCE loss. This approach is a good choice when:
+o	You want to learn a representation of the data that captures the similarity between documents and labels.
+o	You have a large number of labels or a complex classification problem.
+Considering specific problem, recommend using a combination of BCE loss and contrastive loss. Here's why:
+•	BCE loss can help the model learn to distinguish between tax problems and solutions, which is a binary classification problem.
+•	Contrastive loss can help the model learn a representation of the data that captures the underlying structure of tax problems and solutions, which can improve the overall performance of the model.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
