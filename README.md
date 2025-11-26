@@ -305,6 +305,8 @@ o	Document 2 and Label 1: 0.9 * (0.1 - 0.2) = 0
 The contrastive loss would be the sum of these terms: 0.01 + 0.02 + 0 + 0 = 0.03.
 The model would be encouraged to produce embeddings that are closer together for similar inputs (e.g., Document 1 and Label 1) and farther apart for dissimilar inputs (e.g., Document 1 and Label 2).
 
+<img width="789" height="257" alt="image" src="https://github.com/user-attachments/assets/98b897f1-cd3e-46ae-887f-20a141f14f52" />
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
