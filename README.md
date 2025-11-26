@@ -156,7 +156,140 @@ o	Produces an Updated Policy Model (SFT + GRPO LoRA weights)
 6.	Evaluate candidate SFT+GRPO policy
 7.	Deploy v2 policy, archive old checkpoints, repeat loop.
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+Training 1 – Binary Cross-Entropy+Contrastive Loss as Loss Function
+The training process in this code is designed to fine-tune a pre-trained language model (specifically, a dual-encoder model) to classify documents as either tax questions or tax solutions.
+The model is trained on a dataset of labeled documents, where each document is associated with a label indicating whether it's a tax question or a tax solution. The model learns to represent each document as a dense vector (embedding) and then uses these embeddings to predict the label.
+The effectiveness of this training process depends on several factors, including:
+1.	Quality of the dataset: The dataset should be large, diverse, and well-labeled, with a good balance of tax questions and tax solutions.
+2.	Choice of pre-trained model: The pre-trained model should be suitable for the task at hand, and the dual-encoder architecture is a good choice for this type of classification task.
+3.	Hyperparameter tuning: The hyperparameters, such as learning rate, batch size, and number of epochs, should be carefully tuned to optimize the model's performance.
+4.	Evaluation metrics: The model's performance should be evaluated using relevant metrics, such as accuracy, precision, recall, and F1-score.
+Based on the code, it appears that the training process is well-designed, and the model is being fine-tuned using a suitable pre-trained model and a reasonable set of hyperparameters.
+However, to determine whether this training process is effective for your specific use case, you'll need to evaluate the model's performance on a held-out test set and consider the following factors:
+1.	Accuracy: How accurate is the model in classifying documents as tax questions or tax solutions?
+2.	Precision: How precise is the model in identifying true positives (i.e., documents that are actually tax questions or tax solutions)?
+3.	Recall: How well does the model recall true positives (i.e., documents that are actually tax questions or tax solutions)?
+4.	F1-score: What is the F1-score, which balances precision and recall?
+If the model's performance is satisfactory, you can use it to classify new, unseen documents as tax questions or tax solutions. However, if the performance is not satisfactory, you may need to adjust the training process, such as by tweaking the hyperparameters, using a different pre-trained model, or collecting more data.
 
+
+Code updates the hyperparameters using Population-Based Training (PBT) scheduler from the Ray Tune library.
+In the code, the PBT scheduler is defined as follows:
+
+ 
+
+This scheduler will perturb the hyperparameters every 6 training iterations, and the perturbations are defined as follows:
+•	lr: log uniform distribution between 1e-6 and 5e-5
+•	wd: uniform distribution between 0 and 0.1
+•	warmup: uniform distribution between 0 and 0.2
+•	lora_rank: one of the values [4, 8, 16, 32]
+The tune.run function is then used to run the training function train_with_pbt with the PBT scheduler:
+ 
+This will run 4 trials of the training function with the initial hyperparameters, and then the PBT scheduler will perturb the hyperparameters and run new trials with the updated hyperparameters.
+
+The best trial with the minimum loss is then selected and the corresponding model is saved:
+ 
+
+
+
+
+
+
+
+How is Loss calculated?
+The loss is calculated in the compute_loss method of the SemanticDualEncoderTrainer class.
+
+ 
+
+The loss is calculated as a combination of two components:
+1.	Binary Cross-Entropy (BCE) Loss: This is calculated using the nn.BCEWithLogitsLoss() function, which takes the scaled cosine similarity (cos_scaled) and the target values (targets) as inputs.
+2.	Contrastive Loss: This is calculated using the formula (pos * (1 - cos).clamp(min=0) + neg * (cos - margin).clamp(min=0)).mean(), where pos and neg are the positive and negative target values, respectively, and margin is a hyperparameter set to 0.2.
+The final loss is the sum of the BCE loss and the contrastive loss, weighted by the contrastive_weight hyperparameter.
+The cos variable represents the cosine similarity between the document and label embeddings, and the emb variable represents the document embeddings. These values are returned along with the loss if return_outputs is True.
+
+What is Binary Cross-Entropy Loss?
+Binary Cross-Entropy (BCE) loss is a common loss function used in binary classification problems, where the target variable is a binary label (0 or 1). It measures the difference between the predicted probabilities and the true labels.
+Mathematical Formula
+The BCE loss is calculated as follows:
+L(y, y_pred) = -[y * log(y_pred) + (1-y) * log(1-y_pred)]
+where:
+•	y is the true label (0 or 1)
+•	y_pred is the predicted probability of the positive class (between 0 and 1)
+•	log is the natural logarithm
+Example
+Suppose we have a binary classification problem, where we want to predict whether a person is likely to buy a product (label 1) or not (label 0). We have a model that outputs a probability of buying the product, which we'll call y_pred.
+Let's say we have two examples:
+True Label (y)	Predicted Probability (y_pred)
+1	0.8
+0	0.3
+To calculate the BCE loss for each example, we plug in the values:
+Example 1: True Label = 1, Predicted Probability = 0.8
+L(1, 0.8) = -[1 * log(0.8) + (1-1) * log(1-0.8)] L(1, 0.8) = -[1 * log(0.8) + 0 * log(0.2)] L(1, 0.8) = -log(0.8) L(1, 0.8) ≈ 0.223
+Example 2: True Label = 0, Predicted Probability = 0.3
+L(0, 0.3) = -[0 * log(0.3) + (1-0) * log(1-0.3)] L(0, 0.3) = -[0 * log(0.3) + 1 * log(0.7)] L(0, 0.3) = -log(0.7) L(0, 0.3) ≈ 0.356
+The BCE loss for each example is approximately 0.223 and 0.356, respectively. The goal of the model is to minimize the BCE loss, which means it should try to predict probabilities that are close to the true labels.
+In this example, the model is doing a decent job, but there's still room for improvement. If the model were to predict y_pred = 1.0 for the first example and y_pred = 0.0 for the second example, the BCE loss would be 0 for both examples, which is the minimum possible value.
+
+The nn.BCEWithLogitsLoss() function is used, which is a combination of a sigmoid activation function and the binary cross-entropy loss function.
+
+The nn.BCEWithLogitsLoss() function takes the logits (i.e., the output of the model before applying the sigmoid function) as input, applies the sigmoid function internally, and then calculates the binary cross-entropy loss.
+
+So, while the sigmoid function is not explicitly used in the code, it is implicitly applied by the nn.BCEWithLogitsLoss() function.
+
+Here's a breakdown of what's happening:
+
+The model outputs a value, which is often referred to as the "logit".
+The nn.BCEWithLogitsLoss() function takes this logit as input.
+Internally, the nn.BCEWithLogitsLoss() function applies the sigmoid function to the logit, which maps the logit to a probability between 0 and 1.
+The binary cross-entropy loss is then calculated between the predicted probability and the true label.
+By using nn.BCEWithLogitsLoss(), the code is effectively using the sigmoid function as the activation function, but it's done internally by the loss function, rather than explicitly applying the sigmoid function to the model output.
+
+In the compute_loss method of the SemanticDualEncoderTrainer class, the line bce = nn.BCEWithLogitsLoss()(cos_scaled, targets) is where the sigmoid function is implicitly applied.
+
+The cos_scaled variable is the logit, and the nn.BCEWithLogitsLoss() function applies the sigmoid function to it, and then calculates the binary cross-entropy loss between the resulting probability and the targets variable.
+
+What is Contrastive Loss and how is it calculated?
+contrastive loss is used as a regularization term to encourage the model to produce embeddings that are close together for similar inputs (e.g., documents and labels that are related) and far apart for dissimilar inputs.
+The contrastive loss is calculated as follows:
+ 
+Here's a breakdown of the components:
+•	margin: a hyperparameter that controls the minimum distance between dissimilar embeddings. In this case, it's set to 0.2.
+•	pos: the positive targets (i.e., the labels that indicate a relationship between the document and label).
+•	neg: the negative targets (i.e., the labels that indicate no relationship between the document and label).
+•	cos: the cosine similarity between the document and label embeddings.
+•	contrast: the contrastive loss term.
+The contrastive loss is calculated as the sum of two terms:
+1.	pos * (1 - cos).clamp(min=0): This term encourages the model to produce embeddings that are close together for similar inputs. When the cosine similarity is high (i.e., the embeddings are similar), this term is small. When the cosine similarity is low (i.e., the embeddings are dissimilar), this term is large.
+2.	neg * (cos - margin).clamp(min=0): This term encourages the model to produce embeddings that are far apart for dissimilar inputs. When the cosine similarity is low (i.e., the embeddings are dissimilar), this term is small. When the cosine similarity is high (i.e., the embeddings are similar), this term is large, but only if the cosine similarity is greater than the margin.
+The clamp(min=0) function ensures that the loss terms are non-negative.
+Example
+Suppose we have two document-label pairs:
+•	Document 1: "This is a great product"
+•	Label 1: "Product Review"
+•	Document 2: "I love this restaurant"
+•	Label 2: "Restaurant Review"
+The model produces the following embeddings:
+•	Document 1 embedding: [0.7, 0.3, 0.1]
+•	Label 1 embedding: [0.8, 0.2, 0.1]
+•	Document 2 embedding: [0.2, 0.6, 0.3]
+•	Label 2 embedding: [0.1, 0.7, 0.4]
+The cosine similarities between the embeddings are:
+•	Document 1 and Label 1: 0.9
+•	Document 2 and Label 2: 0.8
+•	Document 1 and Label 2: 0.2
+•	Document 2 and Label 1: 0.1
+The contrastive loss would be calculated as follows:
+•	pos * (1 - cos).clamp(min=0):
+o	Document 1 and Label 1: 0.1 * (1 - 0.9) = 0.01
+o	Document 2 and Label 2: 0.1 * (1 - 0.8) = 0.02
+•	neg * (cos - margin).clamp(min=0):
+o	Document 1 and Label 2: 0.9 * (0.2 - 0.2) = 0
+o	Document 2 and Label 1: 0.9 * (0.1 - 0.2) = 0
+The contrastive loss would be the sum of these terms: 0.01 + 0.02 + 0 + 0 = 0.03.
+The model would be encouraged to produce embeddings that are closer together for similar inputs (e.g., Document 1 and Label 1) and farther apart for dissimilar inputs (e.g., Document 1 and Label 2).
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 **Training and Supervised FineTuning for a Classification Problem - Calculating the f1_macro score**
 
