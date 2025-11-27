@@ -13,6 +13,7 @@ Zero-shot NLI (e.g., BART-NLI, DeBERTa-NLI)
 The label descriptions act as hypothesis statements.
 
 The document acts as the premise.
+
 Semantic Matching / Bi-Encoder Architecture (Sentence-BERT style)
 Where both:
 
@@ -30,25 +31,37 @@ The model learns whether:
 
 semantically match — which makes the model generalize to new labels, just like NLI-based zero-shot classifiers.
 
-1.	**Shared Encoder Architecture:**
+**1. Shared Encoder Architecture:**
+
 o	One AutoModel encoder is used for both documents and label descriptions.
+
 o	LoRA adapters are applied for efficient fine-tuning without modifying the base model.
 
 **2.	Label Description Embeddings:**
+
 o	Label descriptions are tokenized once and embedded via the same encoder.
+
 o	During inference, document embeddings are compared to label embeddings using cosine similarity.
 
 **3.	Zero-Shot Classification Style:**
+
 o	Cosine similarity between document and label embeddings is scaled (COSINE_SCALE) and passed through sigmoid.
+
 o	BCEWithLogitsLoss allows multi-label supervision, but the structure remains zero-shot at inference because the model computes similarity to label descriptions rather than classifying into fixed IDs.
 
 **4.	Inference Functions:**
+
 o	predict_labels embeds a new document and compares it to pre-computed label embeddings.
+
 o	Multi-label zero-shot predictions are generated purely based on semantic similarity, consistent with dual-encoder zero-shot classifiers.
-o	In short: LoRA + PBT updates the encoder efficiently, but the dual-encoder zero-shot classification logic is fully preserved
+
+o	In short: LoRA + PBT updates the encoder efficiently, but the dual-encoder zero-shot classification logic is fully preserved.
+
+Components:
 
 1. New label description dictionary (already created)
 Semantic-rich descriptions.
+
 
 2. A dual-encoder dataset class
 •	Encodes documents
