@@ -2,8 +2,11 @@
 Machine Learning experiment tracking, model checkpointing
 
 **Document Classification Solution :**
-A dual encoder / zero-shot NLI-style classifier where the labels guide semantics. This is a semantic matching model — not a classification head.
-Rncoder architecture for the semantic dual-encoder model. The encoder is shared for docs and labels. 
+A dual encoder / zero-shot NLI-style classifier where the labels guide semantics. This is a semantic matching model — not a classification head
+
+Encoder architecture for the semantic dual-encoder mode.
+The encoder is shared for docs and labels
+
 The model outputs embeddings and similarity scores directly.  
 LoRA adapters can be fine-tuned further via GRPO reward signals training a two-tower (dual encoder) embedding model similar to:
 Zero-shot NLI (e.g., BART-NLI, DeBERTa-NLI)
