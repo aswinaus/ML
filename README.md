@@ -1,5 +1,5 @@
 # Machine Learning
-Machine Learning experiment tracking, model checkpointing
+Machine Learning experiment tracking, model checkpointing.
 
 **Document Classification Solution :**
 A dual encoder / zero-shot NLI-style classifier where the labels guide semantics. This is a semantic matching model — not a classification head
