@@ -320,11 +320,7 @@ Contrastive loss is used as a regularization term to encourage the model to prod
 
 <img width="550" height="281" alt="image" src="https://github.com/user-attachments/assets/76edd87b-5c48-4a2a-a859-a4714842748e" />
 
-Updated code:
-
-<img width="525" height="142" alt="image" src="https://github.com/user-attachments/assets/f7e1212c-23bc-4361-9c09-c1308c89ca8a" />
-
-Here's a breakdown of the components:
+Here is a breakdown of the components:
 
 •	**margin**: a hyperparameter that controls the minimum distance between dissimilar embeddings. In this case, it's set to 0.2.
 
