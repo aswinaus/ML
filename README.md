@@ -1060,18 +1060,55 @@ In this Logistic Regression model, after training, the model will have coefficie
 
 The model learns these coefficients during the training process by analyzing the relationship between the features (the TF-IDF vectors representing the text) and the known labels of the documents. The goal is to find the set of coefficients that best allows the model to predict the correct label for each document.
 
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+The inference code in Dual Encoder Model training notebook sends a document (doc) and a label (label) as input to the dual encoder model. This is different from a Large Language Model (LLM) with prompts in several ways:
+
+
+**Input structure:** In an LLM with prompts, the input is typically a single string that contains the prompt, which may include the document and the label. In contrast, the dual encoder model takes two separate inputs: doc and label.
+
+**Model architecture:** LLMs are typically designed as a single, large transformer model that generates text based on the input prompt. The dual encoder model, on the other hand, consists of two separate encoders: one for the document and one for the label.
+
+**Training objective:** LLMs are typically trained on a masked language modeling objective, where the goal is to predict the next word in a sequence. The dual encoder model is trained on a contrastive learning objective, where the goal is to learn a similarity metric between the document and label embeddings.
+
+**Inference:** During inference an LLM with prompts generates text based on the input prompt, whereas the dual encoder model computes a similarity score between the document and label embeddings.
+
+**Similarities with LLMs and Prompts**
+
+Despite these differences, there are some similarities between the dual encoder model and LLMs with prompts:
+
+**Text-based input:** Both models take text-based input, although the dual encoder model takes two separate inputs.
+Semantic understanding: Both models aim to understand the semantic meaning of the input text, although the dual encoder model focuses on learning a similarity metric between the document and label embeddings.
+
+**Flexibility:** Both models can be fine-tuned for specific tasks and domains, allowing for flexibility in their application.
+
+**Advantages of Dual Encoder Model**
+
+The dual encoder model has some advantages over LLMs with prompts:
+**Efficient computation:** The dual encoder model can be more computationally efficient than LLMs, since it only requires computing the embeddings for the document and label, rather than generating text.
+
+**Improved accuracy:** The dual encoder model can achieve higher accuracy than LLMs for certain tasks, such as text classification and information retrieval, since it is specifically designed for these tasks.
+
+**Interpretability:** The dual encoder model provides more interpretable results than LLMs, since the similarity score between the document and label embeddings can be easily understood and analyzed.
+
+Overall, the dual encoder model and LLMs with prompts are both powerful tools for natural language processing tasks, but they have different strengths and weaknesses, and are suited for different applications.
+
+**Here is a code snippet that shows how you can use the dual encoder model for inference:**
+
+<img width="423" height="600" alt="image" src="https://github.com/user-attachments/assets/9a9f1283-2931-48e6-843e-06cb50df1ea5" />
 
 
 
 
+-------------------------------------------------------------------------------------------------------------------------------------------------
 
-quantization methods:
+**Quantization methods:**
 
-Dynamic quantization – Easy, fast, good for NLP (e.g., BERT)
+**Dynamic quantization** – Easy, fast, good for NLP (e.g., BERT)
 
-Static quantization – More accurate, requires calibration data
+**Static quantization** – More accurate, requires calibration data
 
-QAT (Quantization-Aware Training) – Most accurate, needs training
+**QAT (Quantization-Aware Training)** – Most accurate, needs training
 
 
  №######Yet to be proved№#######
