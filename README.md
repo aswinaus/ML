@@ -251,25 +251,28 @@ The loss is calculated in the compute_loss method of the SemanticDualEncoderTrai
    
 **2.	Contrastive Loss:** This is calculated using the formula (pos * (1 - cos).clamp(min=0) + neg * (cos - margin).clamp(min=0)).mean(), where pos and neg are the positive and negative target values respectively, and margin is a hyperparameter set to 0.2.
 
-The final loss is the sum of the BCE loss and the contrastive loss, weighted by the contrastive_weight hyperparameter.
+The final loss is the sum of the BCE loss and the contrastive loss weighted(multiplied) by the contrastive_weight hyperparameters(0.05,0.1,0.2,0.5,1.0).
 
 The cos variable represents the cosine similarity between the document and label embeddings and the emb variable represents the document embeddings.
 
 These values are returned along with the loss if return_outputs is True.
 
-What is Binary Cross-Entropy Loss?
+**What is Binary Cross-Entropy Loss?**
 
 Binary Cross-Entropy (BCE) loss is a common loss function used in binary classification problems, where the target variable is a binary label (0 or 1). It measures the difference between the predicted probabilities and the true labels.
 
-Mathematical Formula
+**Mathematical Formula**
+
 The BCE loss is calculated as follows:
+
 L(y, y_pred) = -[y * log(y_pred) + (1-y) * log(1-y_pred)]
 where:
 •	y is the true label (0 or 1)
 •	y_pred is the predicted probability of the positive class (between 0 and 1)
 •	log is the natural logarithm
 
-Example
+
+**Example**
 Suppose we have a binary classification problem, where we want to predict whether a person is likely to buy a product (label 1) or not (label 0). We have a model that outputs a probability of buying the product, which we'll call y_pred.
 
 Let's say we have two examples:
@@ -280,10 +283,10 @@ True Label (y)	Predicted Probability (y_pred)
 
 To calculate the BCE loss for each example, we plug in the values:
 
-Example 1: True Label = 1, Predicted Probability = 0.8
+**Example 1: True Label = 1, Predicted Probability = 0.8**
 L(1, 0.8) = -[1 * log(0.8) + (1-1) * log(1-0.8)] L(1, 0.8) = -[1 * log(0.8) + 0 * log(0.2)] L(1, 0.8) = -log(0.8) L(1, 0.8) ≈ 0.223
 
-Example 2: True Label = 0, Predicted Probability = 0.3
+**Example 2: True Label = 0, Predicted Probability = 0.3**
 L(0, 0.3) = -[0 * log(0.3) + (1-0) * log(1-0.3)] L(0, 0.3) = -[0 * log(0.3) + 1 * log(0.7)] L(0, 0.3) = -log(0.7) L(0, 0.3) ≈ 0.356.
 
 The BCE loss for each example is approximately 0.223 and 0.356, respectively. The goal of the model is to minimize the BCE loss, which means it should try to predict probabilities that are close to the true labels.
@@ -294,68 +297,67 @@ The nn.BCEWithLogitsLoss() function is used, which is a combination of a sigmoid
 
 The nn.BCEWithLogitsLoss() function takes the logits (i.e., the output of the model before applying the sigmoid function) as input, applies the sigmoid function internally, and then calculates the binary cross-entropy loss.
 
-
 So, while the sigmoid function is not explicitly used in this code, it is implicitly applied by the nn.BCEWithLogitsLoss() function.
 
 Here's a breakdown of what's happening:
 
 The model outputs a value, which is often referred to as the "logit".
 
-The nn.BCEWithLogitsLoss() function takes this logit as input.
-
-Internally, the nn.BCEWithLogitsLoss() function applies the sigmoid function to the logit, which maps the logit to a probability between 0 and 1.
+The nn.BCEWithLogitsLoss() function takes this logit as input. Internally, the nn.BCEWithLogitsLoss() function applies the sigmoid function to the logit, which maps the logit to a probability between 0 and 1.
 
 The binary cross-entropy loss is then calculated between the predicted probability and the true label.
 
-By using nn.BCEWithLogitsLoss(), the code is effectively using the sigmoid function as the activation function, but it's done internally by the loss function, rather than explicitly applying the sigmoid function to the model output.
+By using nn.BCEWithLogitsLoss(), the code is effectively using the **sigmoid function as the activation function**, but it's done internally by the loss function, rather than explicitly applying the sigmoid function to the model output.
 
-In the compute_loss method of the SemanticDualEncoderTrainer class, the line bce = nn.BCEWithLogitsLoss()(cos_scaled, targets) is where the sigmoid function is implicitly applied.
+In the compute_loss method of the SemanticDualEncoderTrainer class, the line bce = nn.BCEWithLogitsLoss()(cos_scaled, targets) is where the sigmoid function is implicitly applied.The cos_scaled variable is the logit, and the nn.BCEWithLogitsLoss() function applies the sigmoid function to it, and then calculates the binary cross-entropy loss between the resulting probability and the targets variable.
 
-The cos_scaled variable is the logit, and the nn.BCEWithLogitsLoss() function applies the sigmoid function to it, and then calculates the binary cross-entropy loss between the resulting probability and the targets variable.
 
-What is Contrastive Loss and how is it calculated?
+**What is Contrastive Loss and how is it calculated?**
 
 Contrastive loss is used as a regularization term to encourage the model to produce embeddings that are close together for similar inputs (e.g., documents and labels that are related) and far apart for dissimilar inputs.
 
-The contrastive loss is calculated as follows:
+**The contrastive loss is calculated as follows:**
 
 <img width="550" height="281" alt="image" src="https://github.com/user-attachments/assets/76edd87b-5c48-4a2a-a859-a4714842748e" />
 
 Here's a breakdown of the components:
 
-•	margin: a hyperparameter that controls the minimum distance between dissimilar embeddings. In this case, it's set to 0.2.
+•	**margin**: a hyperparameter that controls the minimum distance between dissimilar embeddings. In this case, it's set to 0.2.
 
-•	pos: the positive targets (i.e., the labels that indicate a relationship between the document and label).
+•	**pos**: the positive targets (i.e., the labels that indicate a relationship between the document and label).
 
-•	neg: the negative targets (i.e., the labels that indicate no relationship between the document and label).
+•	**neg**: the negative targets (i.e., the labels that indicate no relationship between the document and label).
 
-•	cos: the cosine similarity between the document and label embeddings.
+•	**cos**: the cosine similarity between the document and label embeddings.
 
-•	contrast: the contrastive loss term.
+•	**contrast**: the contrastive loss term.
+
 The contrastive loss is calculated as the sum of two terms:
 
-1.	pos * (1 - cos).clamp(min=0): This term encourages the model to produce embeddings that are close together for similar inputs. When the cosine similarity is high (i.e., the embeddings are similar), this term is small. When the cosine similarity is low (i.e., the embeddings are dissimilar), this term is large.
+**1.	pos * (1 - cos).clamp(min=0):** This term encourages the model to produce embeddings that are close together for similar inputs. When the cosine similarity is high (i.e., the embeddings are similar), this term is small. When the cosine similarity is low (i.e., the embeddings are dissimilar), this term is large.
    
-2.	neg * (cos - margin).clamp(min=0): This term encourages the model to produce embeddings that are far apart for dissimilar inputs. When the cosine similarity is low (i.e., the embeddings are dissimilar), this term is small. When the cosine similarity is high (i.e., the embeddings are similar), this term is large, but only if the cosine similarity is greater than the margin.
-The clamp(min=0) function ensures that the loss terms are non-negative.
+**2.	neg * (cos - margin).clamp(min=0):** This term encourages the model to produce embeddings that are far apart for dissimilar inputs. When the cosine similarity is low (i.e., the embeddings are dissimilar), this term is small. When the cosine similarity is high (i.e., the embeddings are similar), this term is large, but only if the cosine similarity is greater than the margin.The clamp(min=0) function ensures that the loss terms are non-negative.
 
-Example
+**Example**
 
 Suppose we have two document-label pairs:
 •	Document 1: "This is a great product"
 •	Label 1: "Product Review"
 •	Document 2: "I love this restaurant"
 •	Label 2: "Restaurant Review"
+
 The model produces the following embeddings:
 •	Document 1 embedding: [0.7, 0.3, 0.1]
 •	Label 1 embedding: [0.8, 0.2, 0.1]
 •	Document 2 embedding: [0.2, 0.6, 0.3]
 •	Label 2 embedding: [0.1, 0.7, 0.4]
+
 The cosine similarities between the embeddings are:
 •	Document 1 and Label 1: 0.9
 •	Document 2 and Label 2: 0.8
 •	Document 1 and Label 2: 0.2
 •	Document 2 and Label 1: 0.1
+
 The contrastive loss would be calculated as follows:
 •	pos * (1 - cos).clamp(min=0):
 o	Document 1 and Label 1: 0.1 * (1 - 0.9) = 0.01
@@ -363,10 +365,13 @@ o	Document 2 and Label 2: 0.1 * (1 - 0.8) = 0.02
 •	neg * (cos - margin).clamp(min=0):
 o	Document 1 and Label 2: 0.9 * (0.2 - 0.2) = 0
 o	Document 2 and Label 1: 0.9 * (0.1 - 0.2) = 0
+
 The contrastive loss would be the sum of these terms: 0.01 + 0.02 + 0 + 0 = 0.03.
+
 The model would be encouraged to produce embeddings that are closer together for similar inputs (e.g., Document 1 and Label 1) and farther apart for dissimilar inputs (e.g., Document 1 and Label 2).
 
-Trials running in parallel : 
+
+Following the above training with Trials running in parallel : 
 
 <img width="789" height="257" alt="image" src="https://github.com/user-attachments/assets/98b897f1-cd3e-46ae-887f-20a141f14f52" />
 
