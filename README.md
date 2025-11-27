@@ -238,7 +238,7 @@ The best trial with the minimum loss is then selected and the corresponding mode
 <img width="975" height="79" alt="image" src="https://github.com/user-attachments/assets/06857906-0878-4066-8324-35d161e4d5a3" />
 
 
-**How is Loss calculated?**
+**How is Loss calculated in this Training?**
 
 The loss is calculated in the compute_loss method of the SemanticDualEncoderTrainer class.
 
