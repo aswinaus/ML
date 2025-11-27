@@ -78,7 +78,7 @@ Semantic-rich descriptions.
 
 4. A new training loop
 •	Ray Tune PBT-compatible
-•	Uses your existing trainer
+•	Uses existing trainer
 •	But updated to support dual encoder logic
 
 5. Inference API
