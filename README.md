@@ -1317,7 +1317,6 @@ Run multiple training trials each with different hyperparameters such as Learnin
 | **TERMINATED** | Trial finished successfully.                   | No            | Reached stopping criteria (epochs/iterations) or scheduler ended it cleanly.       |
 | **ERROR**      | Trial crashed due to failure.                  | No            | CUDA not found, GPU not assigned, OOM, Python exception, bad hyperparameters.      |
 
-
 **Advanced Tuning**
 
 **Population Based Training (PBT)**
@@ -1353,6 +1352,9 @@ This increases sensitivity to hyperparameters for which PBT will help to stabili
 
 **For the relatively small dataset (100 samples)**
 PBT helps avoid overfitting and finds gentler LRs → boosts F1.
+
+**Ray Tune powered Hyperparameter Tuning with PBT with Ray Tune status:**
+<img width="1237" height="495" alt="image" src="https://github.com/user-attachments/assets/e4b3c733-120a-4b7b-a83b-a0324e59db1d" />
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
