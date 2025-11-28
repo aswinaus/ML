@@ -1307,6 +1307,17 @@ Run multiple training trials each with different hyperparameters such as Learnin
 2) Pick the best hyperparameter combination.
 3) Optionally save the best model.
 
+**Ray Tune Trial Status Table:**
+
+| **Status**     | **Description**                                | **Can Resume?** | **Typical Reasons / Notes**                                                        |
+| -------------- | ---------------------------------------------- | --------------- | ---------------------------------------------------------------------------------- |
+| **PENDING**    | Trial is created but has not started yet.      | Yes          | Waiting for GPU/CPU resources, queued by scheduler, cluster busy.                  |
+| **RUNNING**    | Trial is actively training.                    | N/A             | GPU forward/backward passes, optimizer steps, validation, metrics reporting.       |
+| **PAUSED**     | Trial is temporarily stopped but checkpointed. | Yes          | PBT/ASHA paused it to allocate resources to stronger trials. Can be resumed later. |
+| **TERMINATED** | Trial finished successfully.                   | No            | Reached stopping criteria (epochs/iterations) or scheduler ended it cleanly.       |
+| **ERROR**      | Trial crashed due to failure.                  | No            | CUDA not found, GPU not assigned, OOM, Python exception, bad hyperparameters.      |
+
+
 **Advanced Tuning**
 
 **Population Based Training (PBT)**
