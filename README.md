@@ -419,15 +419,19 @@ The choice of loss function depends on the specific problem you're trying to sol
 1.	Binary Cross-Entropy (BCE) Loss: BCE loss is a common choice for binary classification problems, where the goal is to predict one of two classes (e.g., tax problem or not). BCE loss measures the difference between the predicted probabilities and the true labels. It's a good choice when:
 o	The classes are mutually exclusive (i.e., a document can't be both a tax problem and a solution).
 o	The classes are balanced (i.e., roughly equal number of positive and negative examples).
-2.	Contrastive Loss: Contrastive loss is a type of loss function that encourages the model to learn embeddings that are close together for similar examples (e.g., documents with similar tax problems) and far apart for dissimilar examples (e.g., documents with different tax problems). Contrastive loss is a good choice when:
+
+3.	Contrastive Loss: Contrastive loss is a type of loss function that encourages the model to learn embeddings that are close together for similar examples (e.g., documents with similar tax problems) and far apart for dissimilar examples (e.g., documents with different tax problems). Contrastive loss is a good choice when:
 o	You want to learn a representation of the data that captures the underlying structure (e.g., tax problems and solutions).
 o	You have a large number of classes or a complex classification problem.
-3.	Dual-Encoder Model with Cosine Similarity and BCE Loss: The approach you've implemented uses a dual-encoder model to learn two separate embeddings for documents and labels. The cosine similarity between these embeddings is used to compute the loss, which is then combined with BCE loss. This approach is a good choice when:
+
+5.	Dual-Encoder Model with Cosine Similarity and BCE Loss: The approach implemented uses a dual-encoder model to learn two separate embeddings for documents and labels. The cosine similarity between these embeddings is used to compute the loss, which is then combined with BCE loss. This approach is a good choice when:
 o	You want to learn a representation of the data that captures the similarity between documents and labels.
 o	You have a large number of labels or a complex classification problem.
 Considering specific problem, recommend using a combination of BCE loss and contrastive loss. Here's why:
+
 •	BCE loss can help the model learn to distinguish between tax problems and solutions, which is a binary classification problem.
-•	Contrastive loss can help the model learn a representation of the data that captures the underlying structure of tax problems and solutions, which can improve the overall performance of the model.
+
+•	Contrastive loss can help the model learn a representation of the data that captures the underlying structure of tax problems and solutions which can improve the overall performance of the model.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
