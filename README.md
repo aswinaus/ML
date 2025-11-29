@@ -397,37 +397,58 @@ Loss is calculated in the SemanticDualEncoderTrainer class, specifically in the 
 The loss is a combination of the BCE loss between the logits and the hard labels, and the BCE loss between the logits and the soft labels. The soft labels are used to provide additional information to the model, and the hard labels are used to provide a clear target for the model to learn.
 
 In the context of the training, hard labels and soft labels are used to train the model.
-Hard Labels: Hard labels are binary labels (0 or 1) that indicate whether a document is relevant or not relevant to a given label. For example, if we're training a model to classify documents as "relevant" or "not relevant" to a particular topic, the hard labels would be:
+
+**Hard Labels:** Hard labels are binary labels (0 or 1) that indicate whether a document is relevant or not relevant to a given label. 
+
+For example, if we're training a model to classify documents as "relevant" or "not relevant" to a particular topic, the hard labels would be:
 •	1: Relevant
 •	0: Not Relevant
-Soft Labels: Soft labels, on the other hand, are continuous values between 0 and 1 that represent the degree of relevance or similarity between a document and a label. Soft labels are used to provide more nuanced information about the relationship between the document and the label.
-For example, if we're training a model to classify documents as "relevant" or "not relevant" to a particular topic, the soft labels could be:
+
+**Soft Labels:** Soft labels on the other hand are continuous values between 0 and 1 that represent the degree of relevance or similarity between a document and a label. Soft labels are used to provide more nuanced information about the relationship between the document and the label.
+
+For example, if we're training a model to classify documents as "relevant" or "not relevant" to a particular topic the soft labels could be:
+
 •	0.8: Highly relevant
 •	0.4: Somewhat relevant
 •	0.2: Not very relevant
 •	0.0: Not relevant at all
-Example: Let's say we're training a model to classify documents as "relevant" or "not relevant" to the topic of "machine learning". We have a document that mentions "deep learning" and "neural networks", but doesn't explicitly mention "machine learning".
+
+Example: Let's say when training a model to classify documents as "relevant" or "not relevant" to the topic of "machine learning". Need to have a document that mentions "deep learning" and "neural networks", but doesn't explicitly mention "machine learning".
+
 •	Hard label: 1 (Relevant) or 0 (Not Relevant)
+
 •	Soft label: 0.6 (Somewhat relevant, since the document mentions related topics, but not explicitly "machine learning")
+
 In this example, the hard label would be either 1 or 0, indicating whether the document is relevant or not. The soft label, on the other hand, would be 0.6, indicating that the document is somewhat relevant to the topic of machine learning, but not explicitly.
-Why use both hard and soft labels? Using both hard and soft labels can help the model learn more nuanced relationships between documents and labels. The hard labels provide a clear indication of whether a document is relevant or not, while the soft labels provide more detailed information about the degree of relevance.
-In the context of the training code, the target variable represents the hard label, and the soft variable represents the soft label. The model is trained to predict both the hard label and the soft label, using the BCEWithLogitsLoss function to compute the loss.
+
+**Why use both hard and soft labels?**
+Using both hard and soft labels can help the model learn more nuanced relationships between documents and labels. The hard labels provide a clear indication of whether a document is relevant or not while the soft labels provide more detailed information about the degree of relevance.
+
+In the context of the training code, the target variable represents the hard label and the soft variable represents the soft label. The model is trained to predict both the hard label and the soft label using the BCEWithLogitsLoss function to compute the loss.
+
 Here's an example of how the labels might be used in the training code:
  
-In this example, the targets variable represents the hard label, and the soft variable represents the soft label. The model is trained to predict both the hard label and the soft label, using the BCEWithLogitsLoss function to compute the loss. The hard and soft losses are combined using a weighted average, with a weight of 0.5 for each.
-The choice of loss function depends on the specific problem you're trying to solve and the characteristics of your data. Here's a brief analysis of the options you've mentioned:
-1.	Binary Cross-Entropy (BCE) Loss: BCE loss is a common choice for binary classification problems, where the goal is to predict one of two classes (e.g., tax problem or not). BCE loss measures the difference between the predicted probabilities and the true labels. It's a good choice when:
+In this example the targets variable represents the hard label and the soft variable represents the soft label. The model is trained to predict both the hard label and the soft label using the BCEWithLogitsLoss function to compute the loss. The hard and soft losses are combined using a weighted average with a weight of 0.5 for each.
+
+The choice of loss function depends on the specific problem trying to solve and the characteristics of the training data. Here's a brief analysis of the options mentioned:
+
+**1.	Binary Cross-Entropy (BCE) Loss:** BCE loss is a common choice for binary classification problems where the goal is to predict one of two classes (e.g., tax problem or not). BCE loss measures the difference between the predicted probabilities and the true labels. It's a good choice when:
+
 o	The classes are mutually exclusive (i.e., a document can't be both a tax problem and a solution).
+
 o	The classes are balanced (i.e., roughly equal number of positive and negative examples).
 
-3.	Contrastive Loss: Contrastive loss is a type of loss function that encourages the model to learn embeddings that are close together for similar examples (e.g., documents with similar tax problems) and far apart for dissimilar examples (e.g., documents with different tax problems). Contrastive loss is a good choice when:
-o	You want to learn a representation of the data that captures the underlying structure (e.g., tax problems and solutions).
-o	You have a large number of classes or a complex classification problem.
+**2.	Contrastive Loss:** Contrastive loss is a type of loss function that encourages the model to learn embeddings that are close together for similar examples (e.g., documents with similar tax problems) and far apart for dissimilar examples (e.g., documents with different tax problems). Contrastive loss is a good choice when:
 
-5.	Dual-Encoder Model with Cosine Similarity and BCE Loss: The approach implemented uses a dual-encoder model to learn two separate embeddings for documents and labels. The cosine similarity between these embeddings is used to compute the loss, which is then combined with BCE loss. This approach is a good choice when:
-o	You want to learn a representation of the data that captures the similarity between documents and labels.
-o	You have a large number of labels or a complex classification problem.
-Considering specific problem, recommend using a combination of BCE loss and contrastive loss. Here's why:
+o	Model needs to learn a representation of the data that captures the underlying structure (e.g., tax problems and solutions).
+o	There is a large number of classes or a complex classification problem.
+
+**3.	Dual-Encoder Model with Cosine Similarity and BCE Loss:** The approach implemented uses a dual-encoder model to learn two separate embeddings for documents and labels. The cosine similarity between these embeddings is used to compute the loss which is then combined with BCE loss. This approach is a good choice when:
+
+o	The Model needs to learn a representation of the data that captures the similarity between documents and labels.
+o	There is  a large number of labels or a complex classification problem.
+
+Considering specific problem recommend using a combination of BCE loss and contrastive loss. Here's why:
 
 •	BCE loss can help the model learn to distinguish between tax problems and solutions, which is a binary classification problem.
 
