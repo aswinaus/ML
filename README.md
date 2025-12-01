@@ -375,6 +375,14 @@ Following the above training with Trials running in parallel :
 
 <img width="789" height="257" alt="image" src="https://github.com/user-attachments/assets/98b897f1-cd3e-46ae-887f-20a141f14f52" />
 
+
+<img width="1018" height="715" alt="image" src="https://github.com/user-attachments/assets/d5112a04-26fb-4557-a963-d759be20026b" />
+
+<img width="1124" height="630" alt="image" src="https://github.com/user-attachments/assets/bdfc00b5-fae4-44bd-a6c5-9523667a8d6a" />
+
+<img width="1112" height="427" alt="image" src="https://github.com/user-attachments/assets/e4b8616d-bfac-4640-8083-c205e71c8a05" />
+
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
