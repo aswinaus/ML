@@ -370,6 +370,34 @@ The contrastive loss would be the sum of these terms: 0.01 + 0.02 + 0 + 0 = 0.03
 
 The model would be encouraged to produce embeddings that are closer together for similar inputs (e.g., Document 1 and Label 1) and farther apart for dissimilar inputs (e.g., Document 1 and Label 2).
 
+**Activation Functions : **
+tanH and Sigmoid used in this training - Practical explanation on where it is used within the code.
+
+The **pooler_output** uses a tanh activation function and the BCEWithLogitsLoss() function uses a **sigmoid activation** function internally.
+
+However these two activation functions are not in conflict with each other. Here is why:
+
+**Pooler output:** The pooler_output is used to extract a fixed-size vector representation of the input sequence. The tanh activation function is applied to the last hidden state of the encoder to produce this vector. This is a common technique used in many transformer-based models.
+
+**BCEWithLogitsLoss():** The BCEWithLogitsLoss() function is used to compute the binary cross-entropy loss between the model's output and the target labels. This function uses a sigmoid activation function internally to produce a probability output.
+
+**The key point to note is that these two activation functions are applied at different stages of the model:**
+
+The **tanh activation function** is applied to the pooler_output to produce a vector representation of the input sequence.
+
+The **sigmoid activation function** is applied to the output of the model (i.e., the logits) to produce a probability output which is then used to compute the binary cross-entropy loss.
+
+Since these two activation functions are applied at different stages, **they do not conflict with each other.** In fact, this is a common pattern in many deep learning models, where different activation functions are used at different stages to achieve specific goals.
+
+**To illustrate this, consider the following sequence of operations:**
+
+
+**Input sequence → Encoder → Last hidden state → Tanh activation → Pooler output (vector representation)**
+
+Pooler output → Linear layer → Logits → Sigmoid activation (internal to BCEWithLogitsLoss()) → Probability output → Binary cross-entropy loss
+
+As you can see, the tanh activation function is applied to the pooler_output to produce a vector representation while the sigmoid activation function is applied to the logits to produce a probability output. These two activation functions are not in conflict with each other and they serve different purposes in the model.
+
 
 Following the above training with Trials running in parallel : 
 
