@@ -370,8 +370,9 @@ The contrastive loss would be the sum of these terms: 0.01 + 0.02 + 0 + 0 = 0.03
 
 The model would be encouraged to produce embeddings that are closer together for similar inputs (e.g., Document 1 and Label 1) and farther apart for dissimilar inputs (e.g., Document 1 and Label 2).
 
-**Activation Functions : **
-tanH and Sigmoid used in this training - Practical explanation on where it is used within the code.
+**Activation Functions:**
+
+**tanh and Sigmoid used in this training - Practical explanation on where it is used within the code.**
 
 The **pooler_output** uses a tanh activation function and the BCEWithLogitsLoss() function uses a **sigmoid activation** function internally.
 
