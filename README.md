@@ -46,20 +46,18 @@ o	During inference, document embeddings are compared to label embeddings using c
 **3.	Zero-Shot Classification Style:**
 
 o	Cosine similarity between document and label embeddings is scaled (COSINE_SCALE) and passed through sigmoid.
-
 o	BCEWithLogitsLoss allows multi-label supervision, but the structure remains zero-shot at inference because the model computes similarity to label descriptions rather than classifying into fixed IDs.
 
 **4.	Inference Functions:**
 
 o	predict_labels embeds a new document and compares it to pre-computed label embeddings.
-
 o	Multi-label zero-shot predictions are generated purely based on semantic similarity, consistent with dual-encoder zero-shot classifiers.
-
 o	In short: LoRA + PBT updates the encoder efficiently, but the dual-encoder zero-shot classification logic is fully preserved.
 
 Components:
 
 1. New label description dictionary (already created)
+
 Semantic-rich descriptions.
 
 
