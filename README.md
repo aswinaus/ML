@@ -13,7 +13,6 @@ Zero-shot NLI (e.g., BART-NLI, DeBERTa-NLI)
 The label descriptions act as hypothesis statements.
 
 The document acts as the premise.
-
 Semantic Matching / Bi-Encoder Architecture (Sentence-BERT style)
 Where both:
 
