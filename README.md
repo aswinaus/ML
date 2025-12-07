@@ -21,13 +21,9 @@ Where both:
 •	label description → embedding
 
 are produced separately, then their similarity is the prediction.
-
 Label embeddings are semantic, not categorical
-
 The model learns whether:
-
 (doc_text, label_text)
-
 semantically match — which makes the model generalize to new labels, just like NLI-based zero-shot classifiers.
 
 **1. Shared Encoder Architecture:**
