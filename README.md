@@ -1665,4 +1665,11 @@ Approox Cost saved for $1000 document -  $3345
 
 
 At scale, Local Model provides over 400× cost reduction, especially when classifying tens of thousands of documents daily.”
------------------------------------------Cost Savings using local LLM for Classificaiton Problem-----------------------------------------------------------------
+-----------------------------------------Cost Savings using local LLM for Classificaiton Problem-------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+Training dataset
+{"doc_id": "c6cfce94-4c21-421a-aefe-841739b28bbb", "doc_text": "Cybersecurity practices: Multi-factor authentication is enforced for privileged and administrative accounts consistently. Least privilege access policies restrict lateral movement and reduce attack surface. Endpoint detection and response tools flag suspicious process spawn chains promptly. Patch cycles remediate high-severity vulnerabilities according to prioritization policies. Secrets management rotates keys, audits vault access events, and eliminates hardcoding. Network segmentation isolates critical systems from general traffic and external exposure. Phishing simulations train staff to recognize deceptive content and report incidents. Backup encryption protects restore points and ensures integrity during recovery. Threat modeling reviews attack surfaces before major releases and architectural changes. Incident playbooks define containment, eradication, and recovery sequences with clear roles. Our advice is based on current tax legislation and subject to change. See Art. 13 CITA and relevant Kluwer commentary. Board resolution dated 2022-03-11 is attached.", "label_name": "tax_problem", "label_text": "A document that discusses a tax issue, error, dispute, challenge, or risk requiring attention. Often includes facts, circumstances, concerns, or problems that need resolution.", "target": 0, "soft_score": 0.0396, "pii_flag": 0, "pii_score": 0.0, "pii_types": []}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
