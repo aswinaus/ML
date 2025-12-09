@@ -1507,6 +1507,33 @@ Early stopping stops bad models but it does not improve hyperparameters.
 3) GPT-4.1 cost comparison for the same workload
 4) True total cost over 1,000 documents
 
+
+(These are the public reference prices Microsoft provided in 2024–2025.)
+
+| Model       | Input (per 1K tokens)                          | Output (per 1K tokens)                          |
+| ----------- | ---------------------------------------------- | ----------------------------------------------- |
+| **GPT-4.1** | **$5.00 per 1M tokens → $0.005 per 1K tokens** | **$15.00 per 1M tokens → $0.015 per 1K tokens** |
+
+
+So GPT-4.1 cost structure = same as GPT-4o
+GPT-4.1 ≈ GPT-4o in token pricing
+
+Token Count for a Typical 20-Page PDF
+~7,000 input tokens
+~300 output tokens
+Total ≈ 7,300 tokens/document
+
+Cost Calculation (GPT-4.1)
+Cost per document
+Input: 7,000 × $0.005 / 1,000 = $0.035
+Output: 300 × $0.015 / 1,000 = $0.0045
+✔ Total per document = $0.0395
+
+Cost for 1,000 Documents (GPT-4.1)
+$0.0395 × 1,000 = $39.50
+
+
+
 Typical Training Workload
 
 Dataset: 80k train + 10k val (≈ 90k samples)
