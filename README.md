@@ -19,6 +19,7 @@ Where both:
 •	doc text → embedding
 •	label description → embedding
 
+
 are produced separately, then their similarity is the prediction.
 Label embeddings are semantic, not categorical
 The model learns whether:
