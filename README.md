@@ -1394,7 +1394,8 @@ When using PeftModel.from_pretrained, it only loads the model weights, but not t
 
 By using resume_from_checkpoint, you can ensure that the entire training state, including the adapter state, is properly loaded from the checkpoint.
 
-Files saved when a trained model is saved in local
+**Files saved when a trained model is saved in local after a trained with optimal tuned hyperparameters**
+
 config.json
 model.safetensors
 pytorch_model.bin
@@ -1413,6 +1414,16 @@ In your case, we are using PeftModel to load the model and then you are creating
 using model.save_pretrained, it only saves the model weights and configuration, but not the trainer state.
 
 To fix this, we need to use the Trainer instance to save the model which will save the trainer state along with the model weights. We can do this by calling trainer.save_model instead of model.save_pretrained. And this needs to be done after the PBT iteration loop this will ensure that the final model state is saved after the PBT iteration loop completes.
+
+**To illustrate this, consider the following example:**
+
+**Training 1:** Model converges to a loss value of 0.6 after 100 epochs.
+Save the training state (model weights, optimizer state, etc.).
+
+**Training 2:** Resume the training from the saved state. The model starts with the same weights and optimizer state as where the previous training left off.
+The loss value is recalculated from scratch, and it may not be exactly 0.6. However, the model is likely to start with a similar level of performance, and the loss value may be close to 0.6 (e.g., 0.59 or 0.61).
+
+In summary saving the training state allows us to resume the training from where the previous training left off but the loss value itself is not directly saved or restored. The model will start with the same weights and optimizer state but the loss value will be recalculated from scratch.
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 
