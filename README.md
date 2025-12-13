@@ -1673,3 +1673,36 @@ Training dataset
 {"doc_id": "c6cfce94-4c21-421a-aefe-841739b28bbb", "doc_text": "Cybersecurity practices: Multi-factor authentication is enforced for privileged and administrative accounts consistently. Least privilege access policies restrict lateral movement and reduce attack surface. Endpoint detection and response tools flag suspicious process spawn chains promptly. Patch cycles remediate high-severity vulnerabilities according to prioritization policies. Secrets management rotates keys, audits vault access events, and eliminates hardcoding. Network segmentation isolates critical systems from general traffic and external exposure. Phishing simulations train staff to recognize deceptive content and report incidents. Backup encryption protects restore points and ensures integrity during recovery. Threat modeling reviews attack surfaces before major releases and architectural changes. Incident playbooks define containment, eradication, and recovery sequences with clear roles. Our advice is based on current tax legislation and subject to change. See Art. 13 CITA and relevant Kluwer commentary. Board resolution dated 2022-03-11 is attached.", "label_name": "tax_problem", "label_text": "A document that discusses a tax issue, error, dispute, challenge, or risk requiring attention. Often includes facts, circumstances, concerns, or problems that need resolution.", "target": 0, "soft_score": 0.0396, "pii_flag": 0, "pii_score": 0.0, "pii_types": []}
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Soft and target refer to the labels or annotations associated with the training data.**
+
+**Sample training data:**
+{"doc_id": "c6cfce94-4c21-421a-aefe-841739b28bbb", "doc_text": "Cybersecurity practices: Multi-factor authentication is enforced for privileged and administrative accounts consistently. Least privilege access policies restrict lateral movement and reduce attack surface. Endpoint detection and response tools flag suspicious process spawn chains promptly. Patch cycles remediate high-severity vulnerabilities according to prioritization policies. Secrets management rotates keys, audits vault access events, and eliminates hardcoding. Network segmentation isolates critical systems from general traffic and external exposure. Phishing simulations train staff to recognize deceptive content and report incidents. Backup encryption protects restore points and ensures integrity during recovery. Threat modeling reviews attack surfaces before major releases and architectural changes. Incident playbooks define containment, eradication, and recovery sequences with clear roles. Our advice is based on current tax legislation and subject to change. See Art. 13 CITA and relevant Kluwer commentary. Board resolution dated 2022-03-11 is attached.", "label_name": "tax_problem", "label_text": "A document that discusses a tax issue, error, dispute, challenge, or risk requiring attention. Often includes facts, circumstances, concerns, or problems that need resolution.", "target": 0, **"soft_score": 0.0396**, "pii_flag": 0, "pii_score": 0.0, "pii_types": []}
+
+**target:** This typically refers to a hard label, which is a binary or categorical label that indicates the presence or absence of a specific class or category. In the context of the tax problem, the target might represent a binary label indicating whether a document is related to a tax problem (1) or not (0).
+
+
+**soft:** This refers to a soft label, which is a probability distribution over all possible classes or categories. Soft labels can be used to represent uncertainty or ambiguity in the labeling process. In the context of the tax problem, the soft label might represent a probability score indicating the likelihood that a document is related to a tax problem.
+
+
+**target:** This is a hard label, which is a binary or categorical label that indicates the presence or absence of a specific class or category. In this case, the target label is 0, which means that the document is not considered a tax problem.
+
+
+**soft:** This is a soft label, which is a probability score that indicates the likelihood of a document being a tax problem. The soft_score is 0.0396, which means that the model has a 3.96% confidence that the document is a tax problem.
+The use of both target and soft labels allows the model to learn from both the hard labels (which provide a clear indication of whether a document is a tax problem or not) and the soft labels (which provide a more nuanced indication of the likelihood of a document being a tax problem).
+
+
+In this specific example, the target label is 0, indicating that the document is not a tax problem, but the soft_score is 0.0396, indicating that the model has some confidence (although low) that the document might be related to a tax problem.
+
+
+**Here's a breakdown of the possible scenarios:**
+
+target = 1 and soft_score = 1.0: The document is clearly a tax problem, and the model is highly confident.
+
+target = 0 and soft_score = 0.0: The document is not a tax problem, and the model is highly confident.
+
+target = 1 and soft_score = 0.5: The document is a tax problem, but the model is uncertain (50% confidence).
+
+target = 0 and soft_score = 0.5: The document is not a tax problem, but the model is uncertain (50% confidence).
+
+------------------------------------------------------------------------------------------------------------------------------------------
