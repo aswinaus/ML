@@ -1369,6 +1369,53 @@ Run multiple training trials each with different hyperparameters such as Learnin
 | **TERMINATED** | Trial finished successfully.                   | No            | Reached stopping criteria (epochs/iterations) or scheduler ended it cleanly.       |
 | **ERROR**      | Trial crashed due to failure.                  | No            | CUDA not found, GPU not assigned, OOM, Python exception, bad hyperparameters.      |
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**** Nuances of saving the checkpoint and Resuming the training from checkpoint and let HF restore optimizer/scheduler from the checkpoint folder: {checkpoint.path}") vs resume_from_checkpoint in Hugging Face's Trainer ****
+**
+resume_from_checkpoint in Hugging Face's Trainer it will restore the following:**
+
+Model weights: The weights of the model will be restored from the checkpoint.
+
+Optimizer state: The state of the optimizer, including the learning rate, momentum, and other hyperparameters, will be restored from the checkpoint. In this case, the optimizer is AdamW.
+
+LR scheduler state: The state of the learning rate scheduler, including the current learning rate, warmup steps, and other hyperparameters, will be restored from the checkpoint.
+
+Global step / epoch counters: The global step and epoch counters will be restored from the checkpoint, so the training will resume from the correct point.
+
+RNG state: The random number generator state will be restored from the checkpoint, which ensures that the training will continue with the same random seed.
+
+Training arguments snapshot: A snapshot of the training arguments, including the batch size, gradient accumulation steps, and other hyperparameters, will be restored from the checkpoint.
+
+
+Python objects: Any Python objects that are not serialized in the checkpoint, such as custom datasets or data loaders, will not be restored.
+External state: Any external state, such as the state of other models or external libraries, will not be restored.
+When using PeftModel.from_pretrained, it only loads the model weights, but not the adapter state. The adapter state including the optimizer and scheduler, is stored in the trainer_state.json file in the checkpoint directory.
+
+By using resume_from_checkpoint, you can ensure that the entire training state, including the adapter state, is properly loaded from the checkpoint.
+
+Files saved when a trained model is saved in local
+config.json
+model.safetensors
+pytorch_model.bin
+sentencepiece.bpe.model
+special_tokens_map.json
+tokenizer.json
+tokenizer_config.json
+
+The trainer_state.json file is not being saved because we are using PeftModel.from_pretrained to load the model, which does not include the trainer state.
+
+When we use PeftModel.from_pretrained, it only loads the model weights and configuration, but not the trainer state which includes the optimizer and scheduler.
+
+To save the trainer_state.json file we need to use the Trainer class from Hugging Face, which saves the trainer state along with the model weights.
+
+In your case, we are using PeftModel to load the model and then you are creating a new Trainer instance with the loaded model. However, when we save the model
+using model.save_pretrained, it only saves the model weights and configuration, but not the trainer state.
+
+To fix this, we need to use the Trainer instance to save the model which will save the trainer state along with the model weights. We can do this by calling trainer.save_model instead of model.save_pretrained. And this needs to be done after the PBT iteration loop this will ensure that the final model state is saved after the PBT iteration loop completes.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
 **Advanced Tuning**
 
 **Population Based Training (PBT)**
