@@ -501,7 +501,7 @@ In short
 | **Single-label classification** | Each document has *only one* label (e.g., “Tax Type = Corporate”)                                             | **Softmax + Cross-Entropy**        |
 | **Multi-label classification**  | Each document can have *multiple* labels (e.g., “has_problem=1, has_solution=1, tax_topic=‘TransferPricing’”) | **Sigmoid + Binary Cross-Entropy** |
 
-How BCE works for tax classifier
+**How BCE works for tax classifier**
 
 For each label (output neuron), we compute:
 
@@ -547,7 +547,7 @@ In the case of Multi-Label where a document can contain a tax problem or solutio
 | tax_topic    | 0    | 0.05                  | 0            |
 | year         | 0    | 0.08                  | 0            |
 
-Why Sigmoid with BinaryCrossEntropy classification is robust
+**Why Sigmoid with BinaryCrossEntropy classification is robust**
 
 | Property           | Softmax + Cross-Entropy  | Sigmoid + BCE                        |
 | ------------------ | ------------------------ | ------------------------------------ |
@@ -602,7 +602,8 @@ Check text length—keep max_length=256 unless your chunks are longer.
 
 **Note: F1_macro is the macro-averaged F1 score. It is the unweighted mean of the F1 scores computed independently for each class(Problem, Solution, Topic, Tax Year) in a multi-class classification problem.**
 
-**Why is it important?** It treats all classes equally, regardless of their frequency in the dataset.
+**Why is it important?** 
+It treats all classes equally, regardless of their frequency in the dataset.
 
 It is especially useful when you have class imbalance, as it does not let dominant classes overshadow minority classes.
 
@@ -622,12 +623,13 @@ Expect clear gains with another 1–3 epochs and proper early stopping.
 
 <img width="478" height="162" alt="image" src="https://github.com/user-attachments/assets/a67c8b66-2639-4ee4-92a5-4189860c7c2e" />
 
-**Core conceptual difference between how embedding similarity models (like your original intfloat/multilingual-e5-base) and fine-tuned classification models (like finetuned_model_inference) work.**
+**Core conceptual difference between how embedding similarity models (like original intfloat/multilingual-e5-base) and fine-tuned classification models (like finetuned_model_inference) work.**
 
 Embedding + Cosine Similarity Logic (What we had)
+
 ** Goal: measure semantic closeness between any two pieces of text, without explicit labels.**
 
-🔹 Mechanism
+Mechanism
 
 The model (e.g., intfloat/multilingual-e5-base) converts text into a high-dimensional vector → an embedding (e.g., 768-D float vector).
 
@@ -643,7 +645,8 @@ Values range from -1 (opposite meaning) to 1 (same meaning).
 
 The class with the highest similarity above a threshold (e.g., 0.8) is chosen.
 
-🔹 Example
+**Example**
+
 Label	Reference Text	Cosine Similarity
 
 problem	"This describes a tax problem"	0.91
@@ -665,16 +668,16 @@ But classification is approximate; it relies on semantic proximity, not learned 
 
 Sensitive to the prompt wording of reference texts.
 
-2️⃣ Fine-Tuned Classifier Logic (What we have now after supervised fine tuning on labelled dataset)
+**2️) Fine-Tuned Classifier Logic (What we have now after supervised fine tuning on labelled dataset)**
 
 
 **Goal:** predict explicit class probabilities learned from labeled examples (problem, solution, topic, year).
 
 **
-🔹 Mechanism
+Mechanism
 **
-Start from a pretrained model (like E5) and add a classification head (a small linear layer mapping embeddings → logits for 4 classes).
 
+Start from a pretrained model (like E5) and add a classification head (a small linear layer mapping embeddings → logits for 4 classes).
 
 Fine-tune on labeled pairs:
 
@@ -695,7 +698,7 @@ probs = [0.10, 0.68, 0.16, 0.06]
 
 The class with the highest probability is the predicted label.
 
-🔹 Example
+**Example**
 
 Label	Probability
 
@@ -709,7 +712,7 @@ year	0.06
 
 → Classified as Tax Solution
 
-🔹 Characteristics
+**Characteristics**
 
 Supervised — learns from labeled examples.
 
