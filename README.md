@@ -399,8 +399,7 @@ Following the above training with Trials running in parallel :
 
 **Training metrics - Loss improvement per trial for all hyperparameters**
 
-<img width="1324" height="320" alt="image" src="https://github.com/user-attachments/assets/f49b75fa-bb04-4771-97eb-ddb4f6e936eb" />
-
+<img width="1330" height="420" alt="image" src="https://github.com/user-attachments/assets/ba4baf0e-8753-481a-8bac-6ccf2b50a8b9" />
 
 <img width="1018" height="715" alt="image" src="https://github.com/user-attachments/assets/d5112a04-26fb-4557-a963-d759be20026b" />
 
