@@ -1512,7 +1512,8 @@ Ray gives you:
 •	resource-aware parallelism
 If you try 4 parallel HF processes without Ray → they will fight for GPU 0, crashing instantly.
 Ray eliminates that.
-________________________________________ 4. Ray Tune handles trial retries, logging, checkpointing
+________________________________________
+4. Ray Tune handles trial retries, logging, checkpointing
 You get:
 •	automatic retries
 •	storage of all trial artifacts under /root/ray_results
@@ -1767,4 +1768,64 @@ target = 1 and soft_score = 0.5: The document is a tax problem, but the model is
 
 target = 0 and soft_score = 0.5: The document is not a tax problem, but the model is uncertain (50% confidence).
 
-------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------**Scaled cosine similarity**----------------------------------------------------------
+
+In the training code, the cos variable represents the cosine similarity between the document and label embeddings. The cosine similarity is a measure of how similar two vectors are, and it's calculated as the dot product of the two vectors divided by the product of their magnitudes.
+
+The cosine similarity is then scaled by a factor alpha, which is a hyperparameter that's being tuned. This scaling is done to widen the range of the cosine similarity values, making it easier for the model to learn and differentiate between positive and negative pairs.
+
+The scaled cosine similarity is used as the input to the BCEWithLogitsLoss function, rather than the raw cosine similarity values. This is because the BCEWithLogitsLoss function expects logits as input, which are the raw, unnormalized scores output by a model.
+
+**Question :**  If alpha is used to scale the cosine similarity between two vectors in this case the doc text and lable text then what is the purpose of calculating contrastive loss?
+
+In this case, the alpha is used to scale the cosine similarity between the document and label embeddings, which is then used to compute the BCE loss.
+
+The contrastive loss, on the other hand, is used to encourage the model to learn embeddings that are close together for positive pairs (i.e., document and label are similar) and far apart for negative pairs (i.e., document and label are dissimilar).
+
+The purpose of calculating the contrastive loss is to provide an **additional training signal that helps the model** to learn more informative and discriminative embeddings. By minimizing the contrastive loss, the model is encouraged to:
+
+**Pull together positive pairs:** The model is encouraged to learn embeddings that are close together for positive pairs, which helps to improve the similarity between the document and label embeddings.
+
+**Push apart negative pairs:** The model is encouraged to learn embeddings that are far apart for negative pairs, which helps to improve the dissimilarity between the document and label embeddings.
+
+The contrastive loss is calculated as:
+
+**contrast = (targets * (1 - cos).clamp(min=0) + (1 - targets) * (cos - margin).clamp(min=0)).mean()**
+
+where cos is the cosine similarity between the document and label embeddings, targets is the target label (1 for positive pairs and 0 for negative pairs), and margin is a hyperparameter that controls the minimum margin between positive and negative pairs.
+
+By combining the BCE loss and the contrastive loss, the model is trained to learn embeddings that are both informative and discriminative, which can improve the overall performance of the model.
+
+Here is a code snippet that shows the calculation of the contrastive loss:
+
+%python
+# 4) Contrastive loss on raw cosine (no sigmoid)
+contrast = (targets * (1 - cos).clamp(min=0) + (1 - targets) * (cos - margin).clamp(min=0)).mean()
+
+Note that the contrastive loss is only calculated for the positive and negative pairs, and not for the neutral pairs (i.e., pairs with a target label of 0.5).
+
+--------------------------------------------------------**Scaled cosine similarity**---------------------------------------------------------
+
+-----------------------------------------**Using BCEWithLogitsLoss for numerical stability and efficiency**---------------------
+
+BCEWithLogitsLoss is a loss function that's commonly used for binary classification problems, where the goal is to predict a probability of belonging to one of two classes.
+
+In this case, the BCEWithLogitsLoss function is being used with the scaled cosine similarity values, which are not necessarily logits. However, the BCEWithLogitsLoss function is still a good choice here because of its numerical stability and efficiency.
+
+The reason for this is that BCEWithLogitsLoss is equivalent to the BCELoss function when the input is passed through a sigmoid function. In other words, BCEWithLogitsLoss(x) == BCELoss(torch.sigmoid(x)). 
+
+By using BCEWithLogitsLoss with the scaled cosine similarity values, the code is effectively applying a sigmoid function to the input, which maps the cosine similarity values to a probability range between 0 and 1. This is useful because the cosine similarity values are not necessarily probabilities, but the sigmoid function helps to interpret them as such.
+
+
+**Using BCEWithLogitsLoss in this way has several advantages:**
+
+
+**Numerical stability:** BCEWithLogitsLoss is more numerically stable than BCELoss because it avoids the need to compute the sigmoid function explicitly. This can help to prevent overflow or underflow issues when working with large or small input values.
+
+**Efficiency:** BCEWithLogitsLoss is often faster than BCELoss because it can take advantage of optimized implementations that are specifically designed for working with logits.
+
+**Flexibility:** By using BCEWithLogitsLoss with the scaled cosine similarity values, the code can take advantage of the flexibility of this loss function to work with different types of inputs.
+
+----------------------------------------**Using BCEWithLogitsLoss for numerical stability and efficiency**----------------------------
+
+
