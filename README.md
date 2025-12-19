@@ -401,6 +401,40 @@ Following the above training with Trials running in parallel :
 
 <img width="1330" height="420" alt="image" src="https://github.com/user-attachments/assets/ba4baf0e-8753-481a-8bac-6ccf2b50a8b9" />
 
+
+**Parameters Perturbating:**
+
+<img width="1298" height="71" alt="image" src="https://github.com/user-attachments/assets/2dbdeb5e-86af-4922-83ee-67d2afe3c46b" />
+
+Plots:
+
+<img width="1354" height="899" alt="image" src="https://github.com/user-attachments/assets/7696410d-72de-4d2f-bfe6-f8f4b3a00d7a" />
+
+As you can see from the above Population-Based Training (PBT) works by periodically perturbing hyperparameters based on performance. The plots confirm this:
+
+1) lr (learning rate): Starts constant, then jumps significantly after a few iterations.
+2) wd (weight decay): Shows a clear change mid-training.
+3) warmup, margin, alpha: Also exhibit sudden changes at certain iterations.
+4) lora_rank: Changes from 4 → 32 or vice versa in some trials.
+
+These jumps indicate PBT exploitation and exploration steps, where poorly performing trials copy weights from better ones and perturb hyperparameters slightly. And Perturbation helps escape **local minima** and adapt hyperparameters dynamically. The fact that we see sharp changes means PBT is actively tuning parameters during training.
+
+Why hyperparameters changed the most?
+**From the extracted ranges (normalized 0–1 scale):**
+Learning Rate (lr): Range ≈ 0.90 → most perturbed
+
+Warmup: Range ≈ 0.90 → highly perturbed
+
+Margin: Range ≈ 0.90 → highly perturbed
+
+Weight Decay (wd): Range ≈ 0.64 → moderate
+
+LoRA Rank: Range ≈ 0.58 → moderate
+
+Alpha: Range ≈ 0.16 → barely changed
+
+The orange trial barely moved (range ≈ 0.003 for all parameters), confirming that only the blue trial underwent significant perturbations.
+
 <img width="1018" height="715" alt="image" src="https://github.com/user-attachments/assets/d5112a04-26fb-4557-a963-d759be20026b" />
 
 <img width="1124" height="630" alt="image" src="https://github.com/user-attachments/assets/bdfc00b5-fae4-44bd-a6c5-9523667a8d6a" />
