@@ -1863,4 +1863,13 @@ By using BCEWithLogitsLoss with the scaled cosine similarity values, the code is
 
 ----------------------------------------**Using BCEWithLogitsLoss for numerical stability and efficiency**----------------------------
 
+**Calculating the training time**
+
+6 trials x 2 epochs x 18.75(300 samples in dataset with 16 dataset per batch) batches per epoch = 225 batches per trial
+225 batches per trial x 4 PBT iterations per trial = 900 batches per trial
+900 batches per trial x 6 trials = 5400 batches
+Assuming 1-2 seconds per batch, the total training time would be around 1-2 hours
+
+------------------------------------------------------------------------------------------------------------------------------
+
 
