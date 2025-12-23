@@ -1875,6 +1875,56 @@ By using BCEWithLogitsLoss with the scaled cosine similarity values, the code is
 900 batches per trial x 6 trials = 5400 batches
 Assuming 1-2 seconds per batch, the total training time would be around 1-2 hours
 
+**How is Ray tune - num_samples(trials) indicated through the logs in Ray Tune while training ?**
+
+In this three trials were completed and early stopping was triggered as there was no improvement in loss. 
+
+**Logs:**
+
+<img width="1201" height="86" alt="image" src="https://github.com/user-attachments/assets/a9746fa2-7f03-4b49-af11-5e007dc521ff" />
+
+
+**Trial status: 3 TERMINATED** <-- Terminated status means Training completed successfully.
+
+Current time: 2025-12-23 14:53:18. Total running time: 7min 51s
+Logical resource usage: 2.0/36 CPUs, 1.0/1 GPUs (0.0/1.0 accelerator_type:A10)
+
++-------------------------------------------------------------------------------+
+| Trial name                   status         iter     total time (s)      loss |
++-------------------------------------------------------------------------------+
+| train_with_pbt_054b0_00000   TERMINATED        4            159.224   1.20927 |
+| train_with_pbt_054b0_00001   TERMINATED        4            152.212   2.10058 |
+| train_with_pbt_054b0_00002   TERMINATED        4            150.893   1.4184  |
++-------------------------------------------------------------------------------+
+
+**In Population Based Training in the context of explore/exploit how do we infer that the exploit has happened during training?**
+
+After completing certain number of trials within training PBT periodically ranks trials and performs exploit/explore:
+
+Exploit: Copy weights & hyperparameters from best to worst.
+
+Explore: Mutate hyperparameters slightly for diversity.
+
+If ranking is unstable (due to noisy metrics or dependency issues) PBT can fail to converge ie. Divergence after Convergence would never happen as a result.
+
+
+**Logs**
+
+[PopulationBasedTraining] [Exploit] Cloning trial 967a0_00001 (score = -0.506585) into trial 967a0_00000 (score = -0.531692)
+
+
+2025-12-23 15:06:38,891	INFO pbt.py:917 -- 
+
+In this case PBT has perturbed the hyperparameters from trial 967a0_00001 with the best loss score of -0.506585 to the trial 967a0_00000 with worst score -0.531692 meaning the hyperparameter(as shown below) are copied over from best to worst and the checkpoint is created and saved after which the training continues.
+
+[PopulationBasedTraining] [Explore] **Perturbed** the hyperparameter config of trial967a0_00001:
+
+<img width="1286" height="290" alt="image" src="https://github.com/user-attachments/assets/5444a083-a683-4d23-8df6-2aa55b039af1" />
+
+
+(train_with_pbt pid=10552) Checkpoint successfully created at: Checkpoint(filesystem=local, path=/root/ray_results/dual_encoder_pbt/train_with_pbt_967a0_00001_1_2025-12-23_14-56-40/checkpoint_000007)
+
+
 ------------------------------------------------------------------------------------------------------------------------------
 
 
