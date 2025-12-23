@@ -433,6 +433,11 @@ Alpha: Range ≈ 0.16 → barely changed
 
 The orange trial barely moved (range ≈ 0.003 for all parameters), confirming that only the blue trial underwent significant perturbations.
 
+**Example PBT Hyperparameter Evolution (actual values) per trial:**
+
+<img width="1323" height="666" alt="image" src="https://github.com/user-attachments/assets/a8f02657-83bf-4fe1-b0b5-8eb4b6da19ba" />
+
+
 <img width="1018" height="715" alt="image" src="https://github.com/user-attachments/assets/d5112a04-26fb-4557-a963-d759be20026b" />
 
 <img width="1124" height="630" alt="image" src="https://github.com/user-attachments/assets/bdfc00b5-fae4-44bd-a6c5-9523667a8d6a" />
