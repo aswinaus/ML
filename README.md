@@ -1924,6 +1924,39 @@ In this case PBT has perturbed the hyperparameters from trial 967a0_00001 with t
 
 (train_with_pbt pid=10552) Checkpoint successfully created at: Checkpoint(filesystem=local, path=/root/ray_results/dual_encoder_pbt/train_with_pbt_967a0_00001_1_2025-12-23_14-56-40/checkpoint_000007)
 
+**Side Notes**
+
+Early stopping
+early_stop_patience=5
+early_stop_min_delta=0.001
+
+
+PBT
+max_pbt_iters=2
+perturbation_interval=1
+
+Ray Tune config
+num_samples=2
+
+Above will cause mutation and perturbation as the number early_stop_patience was set to five meaning five continuous iterations hence early stopping would take long period of time to complete
+
+
+If you want mutation by PBT then make sure early_stop_patience=3. 
+
+
+Early stopping
+early_stop_patience=3
+early_stop_min_delta=0.001
+
+
+PBT
+max_pbt_iters=2
+perturbation_interval=1
+
+Ray Tune config
+num_samples=2
+
+since max_pbt_iters = 2, early stop won’t matter here because the trial ends after 2 iterations anyway.
 
 ------------------------------------------------------------------------------------------------------------------------------
 
