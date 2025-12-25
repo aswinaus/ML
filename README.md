@@ -1958,6 +1958,26 @@ num_samples=2
 
 since max_pbt_iters = 2, early stop won’t matter here because the trial ends after 2 iterations anyway.
 
+**Hugging Face behavior:**
+
+•	If max_steps > 0, num_train_epochs is ignored
+
+•	Training stops strictly at max_steps
+
+Meaning in out training case
+
+Each trainer.train() call runs for 200 steps, which is:
+200 / 125 ≈ 1.6 epochs
+
+And when calling trainer.train() inside a PBT loop:
+
+for it in range(config["max_pbt_iters"]):  # max_pbt_iters = 4
+    trainer.train()
+
+Total training per trial
+
+1.6 epochs × 4 PBT iters ≈ 6.4 epochs
+
 ------------------------------------------------------------------------------------------------------------------------------
 
 
