@@ -1975,7 +1975,6 @@ for it in range(config["max_pbt_iters"]):  # max_pbt_iters = 4
     trainer.train()
 
 Total training per trial
-
 1.6 epochs × 4 PBT iters ≈ 6.4 epochs
 
 ------------------------------------------------------------------------------------------------------------------------------
