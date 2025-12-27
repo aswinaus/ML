@@ -13,14 +13,16 @@ Zero-shot NLI (e.g., BART-NLI, DeBERTa-NLI)
 The label descriptions act as hypothesis statements.
 
 The document acts as the premise.
+
 Semantic Matching / Bi-Encoder Architecture (Sentence-BERT style)
+
 Where both:
 •	doc text → embedding
-•	label description → embedding
+•	label description → embeddings are produced separately, then their similarity is the prediction.
 
-are produced separately, then their similarity is the prediction.
 Label embeddings are semantic, not categorical
 The model learns whether:
+
 (doc_text, label_text)
 semantically match — which makes the model generalize to new labels, just like NLI-based zero-shot classifiers.
 
@@ -47,12 +49,11 @@ o	predict_labels embeds a new document and compares it to pre-computed label emb
 o	Multi-label zero-shot predictions are generated purely based on semantic similarity, consistent with dual-encoder zero-shot classifiers.
 o	In short: LoRA + PBT updates the encoder efficiently, but the dual-encoder zero-shot classification logic is fully preserved.
 
-Components:
+**Components:**
 
 1. New label description dictionary (already created)
 
 Semantic-rich descriptions.
-
 
 2. A dual-encoder dataset class
 •	Encodes documents
