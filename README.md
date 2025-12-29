@@ -41,6 +41,7 @@ o	During inference, document embeddings are compared to label embeddings using c
 **3.	Zero-Shot Classification Style:**
 
 o	Cosine similarity between document and label embeddings is scaled (COSINE_SCALE) and passed through sigmoid.
+
 o	BCEWithLogitsLoss allows multi-label supervision, but the structure remains zero-shot at inference because the model computes similarity to label descriptions rather than classifying into fixed IDs.
 
 **4.	Inference Functions:**
