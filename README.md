@@ -97,7 +97,7 @@ In nutshell this is what been done
 
 •	LoRA is applied to the shared transformer encoder.
 
-•	PBT tunes hyperparameters.
+•	PBT tunes hyperparameters with Ray Tune.
 
 •	Model is trained end-to-end to maximize semantic alignment between docs and labels.
 
