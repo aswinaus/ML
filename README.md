@@ -392,7 +392,6 @@ Pooler output → Linear layer → Logits → Sigmoid activation (internal to BC
 
 As you can see, the tanh activation function is applied to the pooler_output to produce a vector representation while the sigmoid activation function is applied to the logits to produce a probability output. These two activation functions are not in conflict with each other and they serve different purposes in the model.
 
-
 Following the above training with Trials running in parallel : 
 
 <img width="789" height="257" alt="image" src="https://github.com/user-attachments/assets/98b897f1-cd3e-46ae-887f-20a141f14f52" />
