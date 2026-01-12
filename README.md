@@ -170,7 +170,7 @@ o	Produces an Updated Policy Model (SFT + GRPO LoRA weights)
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 **Training 1 – Binary Cross-Entropy+Contrastive Loss as Loss Function**
 
-The training process in this code is designed to fine-tune a pre-trained language model (specifically, a dual-encoder model) to classify documents as either tax proble or tax solutions.
+The training process in this code is designed to fine-tune a pre-trained language model (specifically, a dual-encoder model) to classify documents as either tax problem or tax solutions.
 
 The model is trained on a dataset of labeled documents, where each document is associated with a label indicating whether it's a tax question or a tax solution or similar tax related markers which help identify a tax document.
 
