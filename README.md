@@ -1603,6 +1603,45 @@ Ray is about scaling the number of experiments efficiently.
 **Early stopping alone is not enough**
 Early stopping stops bad models but it does not improve hyperparameters.
 
+**-------------------------------------Evaluation----------------------------------------------------**
+
+AUC-ROC stands for Area Under the Receiver Operating Characteristic Curve. It's a metric used to evaluate the performance of a binary classification model.
+
+
+**What does it measure?**
+
+
+AUC-ROC measures the model's ability to distinguish between two classes (e.g., positive and negative, 0 and 1, etc.). It plots the True Positive Rate (TPR) against the False Positive Rate (FPR) at different threshold settings.
+
+
+**Interpretation:**
+
+**AUC-ROC values range from 0 to 1, where:**
+
+1: Perfect classification (all positive instances are correctly classified, and no negative instances are misclassified)
+
+0.5: Random chance (the model is no better than a random guess)
+
+0: Worst possible classification (all positive instances are misclassified, and all negative instances are correctly classified)
+
+A higher AUC-ROC value indicates better model performance.
+
+**How to interpret AUC-ROC values:**
+
+
+0.9-1: Excellent classification performance
+0.7-0.89: Good classification performance
+0.5-0.69: Fair classification performance
+0.4-0.49: Poor classification performance
+0-0.39: Very poor classification performance
+
+
+In the classification evaluation code, the AUC-ROC value is calculated using the roc_auc_score function from scikit-learn, which takes the true labels and predicted probabilities as input. The resulting AUC-ROC value provides an estimate of the model's ability to distinguish between the two classes.
+
+-----------------------------------------Evaluation----------------------------------------------------
+
+
+
 -----------------------------------------Cost Savings using local LLM for Classificaiton Problem-----------------------------------------------------------------
 
 1) Training / fine-tuning cost of the Local model on Databricks
