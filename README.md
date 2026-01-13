@@ -529,7 +529,7 @@ Considering specific problem recommend using a combination of BCE loss and contr
 
 **Training and Supervised FineTuning for a Classification Problem - Calculating the f1_macro score**
 
-In a Supervised FineTunning model specifically in a Classification problem the F1-macro is an evaluation metric it is often monitored during supervised fine-tuning (SFT) to measure how well the encoder model is learning to classify. The F1 score is the harmonic mean of precision and recall for a class. When fine tuning a model the training objective is cross-entropy loss specifically in this case where we have multiple independent labels like problem, solution, tax type, tax topic and tax year the correct one is Binary Cross-Entropy(BCE) also can be called as Sigmoid + BCE loss which is the standard for multi-lable classificaiton and this is from where the gradient is computed and F1_macro metric is computed after each epoch (or batch) as a validation metric not as a loss like in RL where a reward signal directly drives optimization (e.g. in RLHF or GRPO), F1-macro is only used for monitoring and model selection - it does not produce gradients. It tells if the model is improving across all classes fairly.
+In a Supervised FineTunning model specifically in a Classification problem the F1-macro is an evaluation metric it is often monitored during supervised fine-tuning (SFT) to measure how well the encoder model is learning to classify. The F1 score is the harmonic mean of precision and recall for a class. When fine tuning a model the training objective is cross-entropy loss specifically in this case where we have multiple independent labels like problem, solution, tax type, tax topic and tax year the correct one is Binary Cross-Entropy(BCE) also can be called as Sigmoid + BCE loss which is the standard for multi-label classificaiton problem and this is from where the gradient is computed and F1_macro metric is computed after each epoch (or batch) as a validation metric not as a loss like in RL where a reward signal directly drives optimization (e.g. in RLHF or GRPO), F1-macro is only used for monitoring and model selection - it does not produce gradients. It tells if the model is improving across all classes fairly.
 
 | Stage                       | Metric used                           |
 | --------------------------- | ------------------------------------- |
@@ -1630,19 +1630,37 @@ A higher AUC-ROC value indicates better model performance.
 
 
 0.9-1: Excellent classification performance
+
 0.7-0.89: Good classification performance
+
 0.5-0.69: Fair classification performance
+
 0.4-0.49: Poor classification performance
+
 0-0.39: Very poor classification performance
 
 
+
 In the classification evaluation code, the AUC-ROC value is calculated using the roc_auc_score function from scikit-learn, which takes the true labels and predicted probabilities as input. The resulting AUC-ROC value provides an estimate of the model's ability to distinguish between the two classes.
+
+
+# ROC - Receiver Operating Characteristic Curve
+
+ROC curve is a graphical plot that illustrates the diagnostic ability of a binary classifier system as its discrimination threshold is varied. It is created by plotting the true positive rate (TPR) against the false positive rate (FPR) at various threshold settings.
+
+AUC-ROC curve is a graphical representation of the trade-off between the true positive rate (TPR) and the false positive rate (FPR) at different classification thresholds
+
+<img width="794" height="550" alt="image" src="https://github.com/user-attachments/assets/276f5661-84d8-47a9-a511-f69494e8973b" />
+
+<img width="708" height="551" alt="image" src="https://github.com/user-attachments/assets/9f4ff23a-69f6-4338-852f-6b9c9ad31e0c" />
+
+
 
 -----------------------------------------Evaluation----------------------------------------------------
 
 
 
------------------------------------------Cost Savings using local LLM for Classificaiton Problem-----------------------------------------------------------------
+-----------------------Cost Savings using local LLM for Classificaiton Problem--------------------------
 
 1) Training / fine-tuning cost of the Local model on Databricks
 2) Inference serving cost on a Medium GPU VM in Databricks
