@@ -16,8 +16,11 @@ The document acts as the premise.
 Semantic Matching / Bi-Encoder Architecture (Sentence-BERT style)
 
 Where both:
+
 •	doc text → embedding
+
 •	label description → embeddings are produced separately, then their similarity is the prediction.
+
 
 Label embeddings are semantic, not categorical
 The model learns whether:
