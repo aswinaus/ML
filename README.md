@@ -21,7 +21,6 @@ Where both:
 
 •	label description → embeddings are produced separately, then their similarity is the prediction.
 
-
 Label embeddings are semantic, not categorical
 The model learns whether:
 
