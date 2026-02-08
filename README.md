@@ -124,11 +124,15 @@ This is a multi-node GPU cluster (not a single machine with 4 GPUs)
 **With Feedback and Policy GRPO Training**
 
 •	Builds on Dual-Encoder + LoRA + Cosine BCE + Ray-PBT diagram.
+
 •	Adds the GRPO stage:
 o	SFT + LoRA best checkpoint saved as a Reference Model
+
 o	Cloned into a Policy Model
+
 o	GRPOTrainer uses:
 Bernoulli log-probs for multi-label outputs
+
 Feedback scores (1–5) as rewards from a feedback store
 Produces an Updated Policy Model (SFT + GRPO LoRA weights)
 
