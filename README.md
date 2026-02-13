@@ -664,7 +664,22 @@ Add validation + metrics, keep training until val loss/metrics converge.
 
 Expect clear gains with another 1–3 epochs and proper early stopping.
 
+**Another Early Stopping Technique :** 
 
+The loss is considered to not have improved if the current loss is not less than the previous loss minus a small delta (early_stop_min_delta). This allows for some minor fluctuations in the loss without triggering early stopping.
+
+In other words, the early stopping condition is triggered when the loss has not decreased by at least early_stop_min_delta for early_stop_patience consecutive iterations.
+So, to answer your question, the early stopping kicks in when the loss did not improve by at least early_stop_min_delta for more than three iterations.
+
+Here early_stop_min_delta is set to 0.001.
+So the condition is:
+The loss at the current iteration should be greater than or equal to the loss at the previous iteration minus 0.001.
+
+This condition should be met for 3 consecutive iterations.
+
+Only then will the early stopping be triggered.
+
+This is a common technique to prevent early stopping from being triggered by minor fluctuations in the loss.
 
 **After further training**
 
