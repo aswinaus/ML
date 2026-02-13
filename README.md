@@ -2057,4 +2057,232 @@ Total training per trial
 
 ------------------------------------------------------------------------------------------------------------------------------
 
+**Additional Notes after Evaluation**
+
+evaluation dataset samples  100
+
+Accuracy: 1.0000. The proportion of correctly classified examples.
+
+F1 Score: 1.0000. The harmonic mean of precision and recall.
+
+Precision: 1.0000. The proportion of true positives among all predicted positives.
+
+Recall: 1.0000. The proportion of true positives among all actual positives.
+
+AUC-ROC: 1.0. The area under the receiver operating characteristic curve, which measures the model's ability to distinguish between positive and negative classes.
+
+Cosine Similarities between doc embedding and label embedding : [0.4929605722427368, 0.39989757537841797, 0.413132905960083, 0.4945484399795532, 0.39989757537841797, 0.39989757537841797, 0.39989757537841797, 0.39989757537841797, 0.39989757537841797, 0.413132905960083, 0.4929605722427368, 0.4813384711742401, 0.413132905960083, 0.4813384711742401, 0.39989757537841797, 0.39989757537841797, 0.5004759430885315, 0.413132905960083, 0.5004759430885315, 0.5004759430885315, 0.413132905960083, 0.4929605722427368, 0.4929605722427368, 0.5004759430885315, 0.39989757537841797, 0.413132905960083, 0.39989757537841797, 0.413132905960083, 0.4813384711742401, 0.4945484399795532, 0.39989757537841797, 0.4929605722427368, 0.5004759430885315, 0.39989757537841797, 0.4945484399795532, 0.5004759430885315, 0.413132905960083, 0.5004759430885315, 0.4929605722427368, 0.413132905960083, 0.5004759430885315, 0.4813384711742401, 0.39989757537841797, 0.39989757537841797, 0.4929605722427368, 0.39989757537841797, 0.5004759430885315, 0.39989757537841797, 0.413132905960083, 0.39989757537841797, 0.39989757537841797, 0.4813384711742401, 0.413132905960083, 0.4813384711742401, 0.4813384711742401, 0.39989757537841797, 0.4945484399795532, 0.39989757537841797, 0.413132905960083, 0.39989757537841797, 0.4945484399795532, 0.39989757537841797, 0.4929605722427368, 0.5004759430885315, 0.5004759430885315, 0.413132905960083, 0.4929605722427368, 0.413132905960083, 0.4929605722427368, 0.413132905960083, 0.39989757537841797, 0.413132905960083, 0.4929605722427368, 0.39989757537841797, 0.413132905960083, 0.413132905960083, 0.4813384711742401, 0.4813384711742401, 0.39989757537841797, 0.5004759430885315, 0.4813384711742401, 0.5004759430885315, 0.4945484399795532, 0.5004759430885315, 0.413132905960083, 0.413132905960083, 0.4929605722427368, 0.4929605722427368, 0.4945484399795532, 0.4945484399795532, 0.413132905960083, 0.4929605722427368, 0.4813384711742401, 0.413132905960083, 0.4813384711742401, 0.413132905960083, 0.5004759430885315, 0.413132905960083, 0.39989757537841797, 0.4929605722427368]
+
+Predicted Labels: [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1]
+True Labels: [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1]
+AUC-ROC interpretation:
+
+0.9-1.0 : Excellent classification performance
+0.7-0.89: Good classification performance
+0.5-0.69: Fair classification performance
+0.4-0.49: Poor classification performance
+0.0-0.39: Very poor classification performance
+
+# The F1 score is the harmonic mean of precision and recall for a class. When fine tuning a model the training objective is cross-entropy loss specifically in this case where we have multiple independent labels like problem, solution, tax type, tax topic and tax year the correct one is Binary Cross-Entropy(BCE) also can be called as Sigmoid + BCE loss which is the standard for multi-lable classificaiton and this is from where the gradient is computed and F1_macro metric is computed after each epoch (or batch) as a validation metric not as a loss like in RL where a reward signal directly drives optimization (e.g. in RLHF or GRPO), F1-macro is only used for monitoring and model selection - it does not produce gradients. It tells if the model is improving across all classes fairly.
+
+AUC-ROC (Area Under the Receiver Operating Characteristic Curve) is indeed an evaluation metric used to assess the performance of a binary classification model. It plots the True Positive Rate (TPR) against the False Positive Rate (FPR) at different classification thresholds, and the area under this curve represents the model's ability to distinguish between the positive and negative classes.
+
+In the context of your code, AUC-ROC is used to evaluate the performance of the model in classifying documents as either related to tax issues or not. The AUC-ROC score ranges from 0 to 1, where:
+
+0.9-1.0: Excellent classification performance
+0.7-0.89: Good classification performance
+0.5-0.69: Fair classification performance
+0.4-0.49: Poor classification performance
+0.0-0.39: Very poor classification performance
+The AUC-ROC score is calculated using the roc_auc_score function from the sklearn.metrics module, which takes the true labels and predicted scores as input
+
+
+------------------------------------------------------
+
+Metrics:
+
+Accuracy: 0.65 (or 65%) - This means that the model correctly classified 65% of the samples in the evaluation dataset.
+F1 Score: 0.4615 - This is the harmonic mean of precision and recall. A higher F1 score indicates better performance. In this case, the F1 score is relatively low, indicating that the model is not performing well in terms of both precision and recall.
+Precision: 1.0 - This means that all the samples that the model predicted as positive (i.e., related to tax issues) were actually positive. However, this is a bit misleading, as we'll see in the confusion matrix.
+Recall: 0.3 - This means that the model only correctly identified 30% of the actual positive samples (i.e., samples related to tax issues).
+AUC-ROC: 1.0 - This indicates that the model is able to perfectly distinguish between positive and negative classes. However, this is likely due to the fact that the model is heavily biased towards predicting negative classes (as we'll see in the confusion matrix).
+Confusion Matrix:
+
+The confusion matrix shows the number of true positives, false positives, true negatives, and false negatives.
+
+True Negatives (TN): 50 - The model correctly predicted 50 samples as not related to tax issues.
+False Negatives (FN): 35 - The model incorrectly predicted 35 samples as not related to tax issues, when they actually were.
+True Positives (TP): 15 - The model correctly predicted 15 samples as related to tax issues.
+False Positives (FP): 0 - The model did not incorrectly predict any samples as related to tax issues.
+
+Classification Report:
+
+The classification report provides more detailed information about the model's performance.
+
+Class 0 (not related to tax issues):
+Precision: 0.59 - The model correctly predicted 59% of the samples that were not related to tax issues.
+Recall: 1.00 - The model correctly identified all the samples that were not related to tax issues.
+
+F1-score: 0.74 - The harmonic mean of precision and recall for this class.
+
+Class 1 (related to tax issues):
+Precision: 1.00 - The model correctly predicted all the samples that were related to tax issues (but this is because there were no false positives).
+
+Recall: 0.30 - The model only correctly identified 30% of the samples that were related to tax issues.
+
+F1-score: 0.46 - The harmonic mean of precision and recall for this class.
+
+Overall, the model is performing in terms of recall for the positive class (related to tax issues). This means that the model is missing many samples that are actually related to tax issues. The high precision for the positive class is misleading, as it's due to the fact that there are no false positives. The model is heavily biased towards predicting negative classes, which is why the AUC-ROC score is 1.0. To improve the model's performance, you may need to adjust the threshold or explore other techniques to reduce the bias towards negative classes.
+
+Here's a step-by-step breakdown:
+
+Load Evaluation Dataset: The code loads a JSON file containing the evaluation dataset.
+Encode Label: It encodes a label text ("Discussion of a tax issue or tax solution.") using a tokenizer.
+Loop Through Examples: The code loops through each example in the evaluation dataset.
+Forward Pass: For each example, it performs a forward pass through the model, passing in the encoded document text and the encoded label text.
+Compute Cosine Similarity: It computes the cosine similarity between the document embedding and the label embedding.
+Predict Label: The predicted label is determined by comparing the cosine similarity to a threshold (0.42 in this case).
+Store Results: The true label, predicted score, and predicted label are stored in separate lists.
+Compute Metrics: After looping through all examples, the code computes various metrics, including:
+Accuracy
+F1 score
+Precision
+Recall
+AUC-ROC (Area Under the Receiver Operating Characteristic Curve)
+Print Results: The code prints the computed metrics, as well as the predicted scores, predicted labels, and true labels.
+Purpose
+The purpose of this code is to evaluate the performance of a binary classification model in distinguishing between documents that discuss tax issues or solutions and those that do not. The model's performance is measured using various metrics, including accuracy, F1 score, precision, recall, and AUC-ROC.
+
+Model
+The model used in this code is a dual encoder model, which is a type of neural network architecture that consists of two separate encoders: one for the document text and one for the label text. The model computes the cosine similarity between the document embedding and the label embedding to predict the label.
+
+Threshold
+The threshold value (0.42) is used to determine the predicted label. If the cosine similarity is greater than the threshold, the predicted label is 1 (indicating that the document discusses a tax issue or solution), otherwise it is 0.
+
+Evaluation Metrics
+The evaluation metrics used in this code are:
+
+Accuracy: The proportion of correctly classified examples.
+F1 score: The harmonic mean of precision and recall.
+Precision: The proportion of true positives among all predicted positives.
+Recall: The proportion of true positives among all actual positives.
+AUC-ROC: The area under the receiver operating characteristic curve, which measures the model's ability to distinguish between positive and negative classes.
+These metrics provide a comprehensive evaluation of the model's performance in binary classification tasks.
+
+AUC-ROC Interpretation
+The AUC-ROC score is interpreted as follows:
+
+0.9-1.0: Excellent classification performance
+0.7-0.89: Good classification performance
+0.5-0.69: Fair classification performance
+0.4-0.49: Poor classification performance
+0.0-0.39: Very poor classification performance
+This interpretation provides a general guideline for evaluating the model's performance based on the AUC-ROC score.
+
+Model Reliability and Testing
+
+How has the risk of generalization errors been assessed and addressed in the context of this AI model? (required)
+
+To assess and address generalization risk we trained the model and validated using tax document samples along with some transfer pricing tax cases to ensure coverage. Reliability across varied and different inputs from different languages was evaluated using cross validation with a 20 percent dataset and out of distribution testing that included noisy documents with minor portion of it with tax and incomplete documents. AUC ROC was used as the primary metric to measure true generalization performance and the final threshold was derived directly from the ROC curve. Overfitting risks were monitored through gaps between training and validation performance stability across folds and a proposed tax professional review of low frequency cases and continuous drift detection via cosine similarity monitoring during production has been implemented. Issues identified like as class imbalance, noisy document weakness and missing reference outputs have been remediated while future backlog items include automated KPI dashboards, concept drift adaptation with improved coverage for extremely rare forms and dynamic thresholding are in the pipeline for future implementation.
+
+What considerations have been made to ensure the model's scalability, and how are scalability-related risks mitigated? (required)
+To ensure scalability, the model and pipeline are designed to handle increased usage and larger tax documents through cloud ready, horizontally scalable components, including Databricks clusters that autoscale based on workload. lightweight BGE M3 inference optimized for local or containerized deployment. Latency and throughput have been validated through load and stress testing using high volume batches of documents, and results showed stable inference times and no degradation in classification accuracy under peak loads. The system mitigates scaling risks through asynchronous job processing, retry mechanisms, lineage based logging, and separation of compute for different document types and segregating the images through separate compute. And in order to tackle the future load we have backlog items which include automated scaling dashboards(Dashboard), predictive auto scaling triggers, and extended testing across multi region or hybrid deployments.
+
+
+How does the model perform on out-of-distribution data, and what measures are in place to manage associated risks?
+The model s performance on out of distribution (OOD) data is evaluated using intentionally varied test samples post training the model which includes noisy scans, pages with less graphical data along with incomplete scanned pdf tax forms which were not present in the original training dataset. The tests confirmed that while the model maintains stable performance within expected tax document patterns the confidence naturally decreases for unfamiliar layouts or degraded input. To manage OOD risks, the system uses cosine similarity based drift detection, confidence score thresholds along with  human in the loop review and JSON schema validation to flag incomplete or unsupported outputs. Fallback mechanisms ensure uncertain classifications are routed for Tax professionals review with additional highligts for those assets rather than returned as final IPs. Continuous monitoring of drift, confidence trends and human feedback scores drives iterative data improvements along with any edge case forms are added to training on a rolling basis to strengthen robustness over time. 
+
+Describe the protections in place to defend against adversarial attacks and manipulation. (GenAI Only)
+The model is protected against adversarial attacks through multiple layers of input validation, content safety control and prompt hardening strategies. All incoming documents and prompts are filtered through the Content Safety REST API endpoint to detect toxic, malicious or manipulative patterns before they reach the model. 
+The system also enforces a strict prompt template rule set that instructs the model to never follow instructions embedded inside documents and to automatically strip or ignore fields resembling prompt injection attempts, including phrases like ignore previous ,  system prompt, exfiltrate and suspicious URLs or command style text.
+Additional defenses include schema validation, anomaly detection based on confidence scores and confidence score and human in the loop escalation for uncertain or abnormal cases. The model has been evaluated for adversarial robustness using malformed, misleading and instruction laden documents and safeguards were confirmed to prevent jailbreak style behavior. Threat model considerations included prompt injection, data poisoning, malformed PDF manipulation and unauthorized instruction execution with risk mitigations captured in audit logs and lineage tables. While no external red team audit has yet been completed, internal testing is ongoing and backlog items include formal adversarial training evaluations and third party security reviews to further strengthen model resilience.
+
+Explainability
+How are explanations of AI system outputs provided to users? If not applicable, please briefly explain why. (required)
+
+The system is designed for content based tasks such as document classification extraction summarization and safety filtering and does not perform autonomous decision making about individuals. For this reason detailed model internal explanations such as chain of thought or internal reasoning traces are not exposed to users.
+Transparency is provided through clear labeling of AI generated outputs user visible metadata such as classification type confidence indicators and source document references where applicable and human in the loop review and approval workflows for sensitive outputs.
+
+Who needs explanations (e.g., consumers, stakeholders, regulators)? If not applicable, please briefly explain why. (required)
+Explanations of AI system outputs are primarily intended for internal stakeholders and oversight functions rather than end consumers.
+
+Which models are prioritised for explainability? If not applicable, please briefly explain why. (required)
+
+Explainability is not prioritised for specific models because the system does not rely on predictive or decision making models that generate outcomes affecting individuals.
+The AI models used are applied to content based tasks such as document classification extraction summarization and safety filtering where outputs are intended to support internal workflows rather than drive autonomous decisions. As a result explainability is addressed at a system and process level rather than at an individual model level. This includes documentation of model purpose input and output boundaries confidence indicators where applicable and human in the loop review controls.
+
+What types of explanations are produced? If not applicable, please briefly explain why. (required)
+The system produces process level and outcome level explanations rather than model internal or algorithmic explanations.
+Explanations include clear labeling of AI generated outputs contextual information about the task performed such as classification extraction or summarization confidence indicators where applicable and traceability to source documents or input data.
+For sensitive use cases explanations are supplemented by human in the loop review audit logs and documented business rules that govern how outputs are generated and used.
+Model internal reasoning explanations such as chain of thought or algorithm specific feature attributions are not produced because the system does not perform autonomous decision making about individuals and such explanations are not required for the intended use.
+
+Robustness
+How does your system ensure robustness against adversarial attacks, outlier data, and off-topic queries? If not applicable, please briefly explain why. (required)
+
+Protection against adversarial attacks is achieved through content safety filtering prompt injection detection strict input handling and controlled prompt construction that treats untrusted content as data rather than instructions. System prompts and outputs are constrained by defined schemas and safety policies to prevent unintended behavior.
+Outlier data and anomalous inputs are handled through input validation confidence indicators monitoring and human in the loop review for sensitive or unexpected outputs. The system is designed to surface low confidence or unusual results for review rather than act on them automatically.
+
+What performance metrics are used to evaluate robustness? If not applicable, please briefly explain why. (required)
+Metrics and indicators used include content safety and prompt injection detection outcomes input validation and rejection rates monitoring of off topic or unsupported queries logging of anomalous or outlier inputs confidence indicators where applicable and frequency of human in the loop escalations.
+System level monitoring also includes audit logs error rates policy enforcement outcomes and review of false positives or false negatives related to safety controls. These measures are used to assess whether the system behaves consistently within its defined scope and handles unexpected or adversarial inputs safely.
+
+How is sensitivity analysis performed (e.g., noise, perturbations)? If not applicable, please briefly explain why. (required)
+The system does not rely on predictive or decision making models with continuous numerical outputs and does not generate outcomes that affect individuals. AI capabilities are limited to content based tasks such as document classification extraction summarization and safety filtering within defined workflows.
+
+What regularisation techniques are applied? If not applicable, please briefly explain why. (required)
+Data augmentation is used by expanding the training dataset with additional synthetically generated examples. Synthetic data is created using controlled python scripts based on representative sample data provided by the business team. This approach increases data diversity and improves classification robustness while preserving domain relevance and semantic validity.
+Early stopping is applied as an explicit regularisation mechanism. Training progress is monitored using validation loss and convergence is considered to have stalled when the loss does not improve by at least early_stop_min_delta for a defined number of consecutive evaluations early_stop_patience. In this configuration early stopping is triggered when the validation loss does not decrease by at least 0.001 for more than three consecutive iterations.
+
+How are vulnerabilities identified? If not applicable, please briefly explain why. (required)
+In operation vulnerabilities are identified through monitoring of content safety outcomes audit logs error rates policy enforcement results and review of anomalies or unexpected system behavior. Findings from internal reviews security checkpoints and governance assessments are tracked and remediated as part of established risk management processes.
+
+What mitigation strategies are in place for vulnerabilities? If not applicable, please briefly explain why. (required)
+A Sensor to Detect capability is implemented using content safety controls to identify prompt injection and adversarial input patterns. Detected events are logged along with the attack type and metadata in a delta table to support monitoring analysis and auditability.
+A Sensor to Respond capability is implemented to automatically mitigate risk when repeated injection attempts are detected. If more than two sections or hunks within a document are flagged for prompt injection the system automatically prevents the document from proceeding to downstream asset generation. This mitigation is applied regardless of document type including tax documents that may otherwise contain valid problem or solution content.
+
+Data Quality
+How do you manage data quality and governance? If not applicable, please briefly explain why. (required)
+Sample data is provided by the business team and synthetic data is generated using controlled python scripts to augment coverage while preserving domain validity.
+Data handling follows established data protection and security guidelines including access controls such as managing secrets in Key Vault securing ADLS connections using system managed identity private link configurations for ADLS Azure Search and Azure OpenAI controlled storage retention policies and comprehensive logging of data usage.
+A system of record is maintained along with defined data retention controls to ensure consistency traceability and compliance across the data lifecycle.
+Data quality issues anomalies and policy violations are identified through monitoring validation checks(PIM for secured Cloud resource access) and human in the loop review where applicable. Findings are logged reviewed and addressed as part of ongoing data governance and risk management processes.
+
+Is exploratory data analysis (EDA) performed? When? If not applicable, please briefly explain why. (required)
+EDA is performed to synthetic data generation process using controlled python scripts to ensure that augmented data remains aligned with domain expectations and does not introduce unintended artifacts or inconsistencies.
+
+How do you perform data profiling, check distributions, and correlations? If not applicable, please briefly explain why. (required)
+We performed Distribution checks mainly to assess class balance value ranges for binary classification problem and to make sure there is consistency between sample data provided by the business team and synthetically generated data created using controlled python scripts.
+
+How do you handle missing data, outliers, duplicates, and class imbalance? If not applicable, please briefly explain why. (required)
+Missing data outliers duplicates and class imbalance are managed primarily during data preparation and exploratory data analysis prior to training. The training dataset is generated internally using controlled python scripts and business provided sample content. No public datasets or dynamic open source data sources are used.
+
+What data quality dimensions and measurements are used? If not applicable, please briefly explain why. (required)
+We manage data consistency by verifying alignment between document content labels and derived attributes such as language tags and PII indicators across training validation and test splits. Relevance and representativeness are assessed by reviewing class coverage and distribution across labels including rare cases to ensure alignment with intended business use.
+
+How do you ensure labelling consistency? If not applicable, please briefly explain why. (required)
+Labelling consistency is ensured through deterministic rule based label generation embedded in the data synthesis pipeline Labels are assigned from explicit version controlled rules and validation logic Structural and content indicators are only applied when the corresponding text patterns are present and are automatically reconciled using rule checks and regex based detection We run post generation validation to confirm label to text alignment and reject or regenerate records that violate constraints Since labels are programmatically generated and not manually annotated inter annotator variability is not applicable All outputs are sanitized to the approved character set a-z A-Z 0-9 space - . _ : ( ) ; % & @ ? = /
+Label schema included in the pipeline
+tax_problem
+tax_solution
+tax_type
+tax_topic
+year
+client_addressed - addressed to client partner external
+internal_email - internal email
+final_document - final version signature
+draft_document - draft
+long_document - long document indicator
+short_email - 1 sentence trivial email
+has_disclaimer - advisory disclaimer present
+has_advisory_structure - intro executive summary analysis conclusion
+has_sow_reference - references engagement letter agreement
+has_citations - references footnotes citations
+has_appendices - appendices present
+
+How are discovered data quality issues resolved? If not applicable, please briefly explain why. (required)
+When an issue is detected  we analyse and  then the affected record is flagged and either corrected using deterministic rules or rejected and regenerated Root cause analysis is performed by reviewing the rule or generation logic. This is done through closely working with the testing team and development team.
+
+
+
 
