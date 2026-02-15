@@ -2085,6 +2085,7 @@ AUC-ROC interpretation:
 
 # The F1 score is the harmonic mean of precision and recall for a class. When fine tuning a model the training objective is cross-entropy loss specifically in this case where we have multiple independent labels like problem, solution, tax type, tax topic and tax year the correct one is Binary Cross-Entropy(BCE) also can be called as Sigmoid + BCE loss which is the standard for multi-lable classificaiton and this is from where the gradient is computed and F1_macro metric is computed after each epoch (or batch) as a validation metric not as a loss like in RL where a reward signal directly drives optimization (e.g. in RLHF or GRPO), F1-macro is only used for monitoring and model selection - it does not produce gradients. It tells if the model is improving across all classes fairly.
 
+
 AUC-ROC (Area Under the Receiver Operating Characteristic Curve) is indeed an evaluation metric used to assess the performance of a binary classification model. It plots the True Positive Rate (TPR) against the False Positive Rate (FPR) at different classification thresholds, and the area under this curve represents the model's ability to distinguish between the positive and negative classes.
 
 In the context of your code, AUC-ROC is used to evaluate the performance of the model in classifying documents as either related to tax issues or not. The AUC-ROC score ranges from 0 to 1, where:
@@ -2094,29 +2095,30 @@ In the context of your code, AUC-ROC is used to evaluate the performance of the 
 0.5-0.69: Fair classification performance
 0.4-0.49: Poor classification performance
 0.0-0.39: Very poor classification performance
+
 The AUC-ROC score is calculated using the roc_auc_score function from the sklearn.metrics module, which takes the true labels and predicted scores as input
-
-
 ------------------------------------------------------
 
-Metrics:
+**Metrics:**
 
-Accuracy: 0.65 (or 65%) - This means that the model correctly classified 65% of the samples in the evaluation dataset.
+**Accuracy:** 0.65 (or 65%) - This means that the model correctly classified 65% of the samples in the evaluation dataset.
 F1 Score: 0.4615 - This is the harmonic mean of precision and recall. A higher F1 score indicates better performance. In this case, the F1 score is relatively low, indicating that the model is not performing well in terms of both precision and recall.
-Precision: 1.0 - This means that all the samples that the model predicted as positive (i.e., related to tax issues) were actually positive. However, this is a bit misleading, as we'll see in the confusion matrix.
-Recall: 0.3 - This means that the model only correctly identified 30% of the actual positive samples (i.e., samples related to tax issues).
-AUC-ROC: 1.0 - This indicates that the model is able to perfectly distinguish between positive and negative classes. However, this is likely due to the fact that the model is heavily biased towards predicting negative classes (as we'll see in the confusion matrix).
-Confusion Matrix:
 
-The confusion matrix shows the number of true positives, false positives, true negatives, and false negatives.
+**Precision:** 1.0 - This means that all the samples that the model predicted as positive (i.e., related to tax issues) were actually positive. However, this is a bit misleading, as we'll see in the confusion matrix.
+
+**Recall:** 0.3 - This means that the model only correctly identified 30% of the actual positive samples (i.e., samples related to tax issues).
+
+**AUC-ROC:** 1.0 - This indicates that the model is able to perfectly distinguish between positive and negative classes. However, this is likely due to the fact that the model is heavily biased towards predicting negative classes (as we'll see in the confusion matrix).
+
+**Confusion Matrix:**
+The confusion matrix shows the number of true positives, false positives, true negatives and false negatives.
 
 True Negatives (TN): 50 - The model correctly predicted 50 samples as not related to tax issues.
 False Negatives (FN): 35 - The model incorrectly predicted 35 samples as not related to tax issues, when they actually were.
 True Positives (TP): 15 - The model correctly predicted 15 samples as related to tax issues.
 False Positives (FP): 0 - The model did not incorrectly predict any samples as related to tax issues.
 
-Classification Report:
-
+**Classification Report:**
 The classification report provides more detailed information about the model's performance.
 
 Class 0 (not related to tax issues):
