@@ -1,10 +1,13 @@
 # Databricks notebook source
+import sys
+sys.path.append("/Workspace/Users/aswin@eyaswin.onmicrosoft.com")
 
+from utils_common import post_json
+from map_partitions_api import map_partitions_api
 
 # COMMAND ----------
 
 import base64, json, os
-from utils_common import post_json, map_partitions_api
 
 DI_ENDPOINT = "https://documentsclassifier.cognitiveservices.azure.com/" #dbutils.secrets.get("kv-scope","di_endpoint")  # e.g., https://<res>.cognitiveservices.azure.com
 DI_KEY      = ""# dbutils.secrets.get("kv-scope","di_key")
