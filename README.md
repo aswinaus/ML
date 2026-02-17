@@ -2136,7 +2136,7 @@ F1-score: 0.46 - The harmonic mean of precision and recall for this class.
 
 Overall, the model is performing in terms of recall for the positive class (related to tax issues). This means that the model is missing many samples that are actually related to tax issues. The high precision for the positive class is misleading, as it's due to the fact that there are no false positives. The model is heavily biased towards predicting negative classes, which is why the AUC-ROC score is 1.0. To improve the model's performance, you may need to adjust the threshold or explore other techniques to reduce the bias towards negative classes.
 
-Here's a step-by-step breakdown:
+**Here's a step-by-step breakdown:**
 
 Load Evaluation Dataset: The code loads a JSON file containing the evaluation dataset.
 Encode Label: It encodes a label text ("Discussion of a tax issue or tax solution.") using a tokenizer.
