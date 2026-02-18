@@ -5,6 +5,7 @@ Machine Learning experiment tracking, model checkpointing.
 A dual encoder / zero-shot NLI-style classifier where the labels guide semantics. This is a semantic matching model — not a classification head
 
 Encoder architecture for the semantic dual-encoder mode.
+
 The encoder is shared for docs and labels
 The model outputs embeddings and similarity scores directly.  
 LoRA adapters can be fine-tuned further via GRPO reward signals training a two-tower (dual encoder) embedding model similar to:
