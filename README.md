@@ -2244,14 +2244,17 @@ What mitigation strategies are in place for vulnerabilities? If not applicable, 
 A Sensor to Detect capability is implemented using content safety controls to identify prompt injection and adversarial input patterns. Detected events are logged along with the attack type and metadata in a delta table to support monitoring analysis and auditability.
 A Sensor to Respond capability is implemented to automatically mitigate risk when repeated injection attempts are detected. If more than two sections or hunks within a document are flagged for prompt injection the system automatically prevents the document from proceeding to downstream asset generation. This mitigation is applied regardless of document type including tax documents that may otherwise contain valid problem or solution content.
 
-Data Quality
+**Data Quality**
+
 How do you manage data quality and governance? If not applicable, please briefly explain why. (required)
 Sample data is provided by the business team and synthetic data is generated using controlled python scripts to augment coverage while preserving domain validity.
+
 Data handling follows established data protection and security guidelines including access controls such as managing secrets in Key Vault securing ADLS connections using system managed identity private link configurations for ADLS Azure Search and Azure OpenAI controlled storage retention policies and comprehensive logging of data usage.
 A system of record is maintained along with defined data retention controls to ensure consistency traceability and compliance across the data lifecycle.
 Data quality issues anomalies and policy violations are identified through monitoring validation checks(PIM for secured Cloud resource access) and human in the loop review where applicable. Findings are logged reviewed and addressed as part of ongoing data governance and risk management processes.
 
 Is exploratory data analysis (EDA) performed? When? If not applicable, please briefly explain why. (required)
+
 EDA is performed to synthetic data generation process using controlled python scripts to ensure that augmented data remains aligned with domain expectations and does not introduce unintended artifacts or inconsistencies.
 
 How do you perform data profiling, check distributions, and correlations? If not applicable, please briefly explain why. (required)
