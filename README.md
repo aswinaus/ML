@@ -298,7 +298,7 @@ The nn.BCEWithLogitsLoss() function takes the logits (i.e., the output of the mo
 
 So, while the sigmoid function is not explicitly used in this code, it is implicitly applied by the nn.BCEWithLogitsLoss() function.
 
-Here's a breakdown of what's happening:
+**Here's a breakdown of what's happening:**
 
 The model outputs a value, which is often referred to as the "logit".
 
