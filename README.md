@@ -454,6 +454,27 @@ The orange trial barely moved (range ≈ 0.003 for all parameters), confirming t
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
+**Ray Tune experiment analysis for hyperparameter tunning.**
+
+**Best trial identification - Which trial achieved the lowest loss and what were its final hyperparameters?**
+
+
+<img width="1332" height="868" alt="image" src="https://github.com/user-attachments/assets/7262ea28-33a6-429c-b288-1cc9968fbea5" />
+
+
+<img width="1325" height="773" alt="image" src="https://github.com/user-attachments/assets/4bd166d3-9ba5-4ecd-9bc5-a401ce41d8d5" />
+
+
+**Convergence analysis - How quickly did the trials converge?**
+
+<img width="1303" height="422" alt="image" src="https://github.com/user-attachments/assets/b261e2f7-9159-4287-8470-651109d184e6" />
+
+<img width="1332" height="495" alt="image" src="https://github.com/user-attachments/assets/496fd8d6-3ba9-4703-8928-9e9fb675ffd7" />
+
+<img width="1331" height="666" alt="image" src="https://github.com/user-attachments/assets/f3413e2a-3f49-4c44-8021-8b8fcd7ec89d" />
+
+
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 **Training 2 : Implementing a dual-encoder model with Low-Rank Adaptation (LoRA) and Population-Based Training (PBT) using the Ray Tune library.**
 
