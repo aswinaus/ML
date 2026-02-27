@@ -180,7 +180,6 @@ The training process in this code is designed to fine-tune a pre-trained languag
 
 The model is trained on a dataset of labeled documents, where each document is associated with a label indicating whether it's a tax question or a tax solution or similar tax related markers which help identify a tax document.
 
-
 The model learns to represent each document as a dense vector (embedding) and then uses these embeddings to predict the label.
 
 The effectiveness of this training process depends on several factors, including:
