@@ -2220,73 +2220,75 @@ The model is protected against adversarial attacks through multiple layers of in
 The system also enforces a strict prompt template rule set that instructs the model to never follow instructions embedded inside documents and to automatically strip or ignore fields resembling prompt injection attempts, including phrases like ignore previous ,  system prompt, exfiltrate and suspicious URLs or command style text.
 Additional defenses include schema validation, anomaly detection based on confidence scores and confidence score and human in the loop escalation for uncertain or abnormal cases. The model has been evaluated for adversarial robustness using malformed, misleading and instruction laden documents and safeguards were confirmed to prevent jailbreak style behavior. Threat model considerations included prompt injection, data poisoning, malformed PDF manipulation and unauthorized instruction execution with risk mitigations captured in audit logs and lineage tables. While no external red team audit has yet been completed, internal testing is ongoing and backlog items include formal adversarial training evaluations and third party security reviews to further strengthen model resilience.
 
-Explainability
-How are explanations of AI system outputs provided to users? If not applicable, please briefly explain why. (required)
+**Explainability**
+
+How are explanations of AI system outputs provided to users? 
 
 The system is designed for content based tasks such as document classification extraction summarization and safety filtering and does not perform autonomous decision making about individuals. For this reason detailed model internal explanations such as chain of thought or internal reasoning traces are not exposed to users.
 Transparency is provided through clear labeling of AI generated outputs user visible metadata such as classification type confidence indicators and source document references where applicable and human in the loop review and approval workflows for sensitive outputs.
 
-Who needs explanations (e.g., consumers, stakeholders, regulators)? If not applicable, please briefly explain why. (required)
+Who needs explanations (e.g., consumers, stakeholders, regulators)? 
 Explanations of AI system outputs are primarily intended for internal stakeholders and oversight functions rather than end consumers.
 
-Which models are prioritised for explainability? If not applicable, please briefly explain why. (required)
+**Which models are prioritised for explainability? **
 
 Explainability is not prioritised for specific models because the system does not rely on predictive or decision making models that generate outcomes affecting individuals.
 The AI models used are applied to content based tasks such as document classification extraction summarization and safety filtering where outputs are intended to support internal workflows rather than drive autonomous decisions. As a result explainability is addressed at a system and process level rather than at an individual model level. This includes documentation of model purpose input and output boundaries confidence indicators where applicable and human in the loop review controls.
 
-What types of explanations are produced? If not applicable, please briefly explain why. (required)
+**What types of explanations are produced? **
+
 The system produces process level and outcome level explanations rather than model internal or algorithmic explanations.
 Explanations include clear labeling of AI generated outputs contextual information about the task performed such as classification extraction or summarization confidence indicators where applicable and traceability to source documents or input data.
 For sensitive use cases explanations are supplemented by human in the loop review audit logs and documented business rules that govern how outputs are generated and used.
 Model internal reasoning explanations such as chain of thought or algorithm specific feature attributions are not produced because the system does not perform autonomous decision making about individuals and such explanations are not required for the intended use.
 
 Robustness
-How does your system ensure robustness against adversarial attacks, outlier data, and off-topic queries? If not applicable, please briefly explain why. (required)
+How does your system ensure robustness against adversarial attacks, outlier data, and off-topic queries? 
 
 Protection against adversarial attacks is achieved through content safety filtering prompt injection detection strict input handling and controlled prompt construction that treats untrusted content as data rather than instructions. System prompts and outputs are constrained by defined schemas and safety policies to prevent unintended behavior.
 Outlier data and anomalous inputs are handled through input validation confidence indicators monitoring and human in the loop review for sensitive or unexpected outputs. The system is designed to surface low confidence or unusual results for review rather than act on them automatically.
 
-What performance metrics are used to evaluate robustness? If not applicable, please briefly explain why. (required)
+What performance metrics are used to evaluate robustness? 
 Metrics and indicators used include content safety and prompt injection detection outcomes input validation and rejection rates monitoring of off topic or unsupported queries logging of anomalous or outlier inputs confidence indicators where applicable and frequency of human in the loop escalations.
 System level monitoring also includes audit logs error rates policy enforcement outcomes and review of false positives or false negatives related to safety controls. These measures are used to assess whether the system behaves consistently within its defined scope and handles unexpected or adversarial inputs safely.
 
-How is sensitivity analysis performed (e.g., noise, perturbations)? If not applicable, please briefly explain why. (required)
+How is sensitivity analysis performed (e.g., noise, perturbations)? 
 The system does not rely on predictive or decision making models with continuous numerical outputs and does not generate outcomes that affect individuals. AI capabilities are limited to content based tasks such as document classification extraction summarization and safety filtering within defined workflows.
 
-What regularisation techniques are applied? If not applicable, please briefly explain why. (required)
+What regularisation techniques are applied? 
 Data augmentation is used by expanding the training dataset with additional synthetically generated examples. Synthetic data is created using controlled python scripts based on representative sample data provided by the business team. This approach increases data diversity and improves classification robustness while preserving domain relevance and semantic validity.
 Early stopping is applied as an explicit regularisation mechanism. Training progress is monitored using validation loss and convergence is considered to have stalled when the loss does not improve by at least early_stop_min_delta for a defined number of consecutive evaluations early_stop_patience. In this configuration early stopping is triggered when the validation loss does not decrease by at least 0.001 for more than three consecutive iterations.
 
-How are vulnerabilities identified? If not applicable, please briefly explain why. (required)
+How are vulnerabilities identified? 
 In operation vulnerabilities are identified through monitoring of content safety outcomes audit logs error rates policy enforcement results and review of anomalies or unexpected system behavior. Findings from internal reviews security checkpoints and governance assessments are tracked and remediated as part of established risk management processes.
 
-What mitigation strategies are in place for vulnerabilities? If not applicable, please briefly explain why. (required)
+What mitigation strategies are in place for vulnerabilities? 
 A Sensor to Detect capability is implemented using content safety controls to identify prompt injection and adversarial input patterns. Detected events are logged along with the attack type and metadata in a delta table to support monitoring analysis and auditability.
 A Sensor to Respond capability is implemented to automatically mitigate risk when repeated injection attempts are detected. If more than two sections or hunks within a document are flagged for prompt injection the system automatically prevents the document from proceeding to downstream asset generation. This mitigation is applied regardless of document type including tax documents that may otherwise contain valid problem or solution content.
 
 **Data Quality**
 
-How do you manage data quality and governance? If not applicable, please briefly explain why. (required)
+How do you manage data quality and governance? 
 Sample data is provided by the business team and synthetic data is generated using controlled python scripts to augment coverage while preserving domain validity.
 
 Data handling follows established data protection and security guidelines including access controls such as managing secrets in Key Vault securing ADLS connections using system managed identity private link configurations for ADLS Azure Search and Azure OpenAI controlled storage retention policies and comprehensive logging of data usage.
 A system of record is maintained along with defined data retention controls to ensure consistency traceability and compliance across the data lifecycle.
 Data quality issues anomalies and policy violations are identified through monitoring validation checks(PIM for secured Cloud resource access) and human in the loop review where applicable. Findings are logged reviewed and addressed as part of ongoing data governance and risk management processes.
 
-Is exploratory data analysis (EDA) performed? When? If not applicable, please briefly explain why. (required)
+Is exploratory data analysis (EDA) performed? When? 
 
 EDA is performed to synthetic data generation process using controlled python scripts to ensure that augmented data remains aligned with domain expectations and does not introduce unintended artifacts or inconsistencies.
 
-How do you perform data profiling, check distributions, and correlations? If not applicable, please briefly explain why. (required)
+How do you perform data profiling, check distributions, and correlations? 
 We performed Distribution checks mainly to assess class balance value ranges for binary classification problem and to make sure there is consistency between sample data provided by the business team and synthetically generated data created using controlled python scripts.
 
-How do you handle missing data, outliers, duplicates, and class imbalance? If not applicable, please briefly explain why. (required)
+How do you handle missing data, outliers, duplicates, and class imbalance? 
 Missing data outliers duplicates and class imbalance are managed primarily during data preparation and exploratory data analysis prior to training. The training dataset is generated internally using controlled python scripts and business provided sample content. No public datasets or dynamic open source data sources are used.
 
-What data quality dimensions and measurements are used? If not applicable, please briefly explain why. (required)
+What data quality dimensions and measurements are used? 
 We manage data consistency by verifying alignment between document content labels and derived attributes such as language tags and PII indicators across training validation and test splits. Relevance and representativeness are assessed by reviewing class coverage and distribution across labels including rare cases to ensure alignment with intended business use.
 
-How do you ensure labelling consistency? If not applicable, please briefly explain why. (required)
+How do you ensure labelling consistency? 
 Labelling consistency is ensured through deterministic rule based label generation embedded in the data synthesis pipeline Labels are assigned from explicit version controlled rules and validation logic Structural and content indicators are only applied when the corresponding text patterns are present and are automatically reconciled using rule checks and regex based detection We run post generation validation to confirm label to text alignment and reject or regenerate records that violate constraints Since labels are programmatically generated and not manually annotated inter annotator variability is not applicable All outputs are sanitized to the approved character set a-z A-Z 0-9 space - . _ : ( ) ; % & @ ? = /
 Label schema included in the pipeline
 tax_problem
@@ -2306,7 +2308,7 @@ has_sow_reference - references engagement letter agreement
 has_citations - references footnotes citations
 has_appendices - appendices present
 
-How are discovered data quality issues resolved? If not applicable, please briefly explain why. (required)
+How are discovered data quality issues resolved? 
 When an issue is detected  we analyse and  then the affected record is flagged and either corrected using deterministic rules or rejected and regenerated Root cause analysis is performed by reviewing the rule or generation logic. This is done through closely working with the testing team and development team.
 
 
