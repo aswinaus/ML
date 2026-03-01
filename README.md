@@ -2243,32 +2243,39 @@ For sensitive use cases explanations are supplemented by human in the loop revie
 Model internal reasoning explanations such as chain of thought or algorithm specific feature attributions are not produced because the system does not perform autonomous decision making about individuals and such explanations are not required for the intended use.
 
 Robustness
-How does your system ensure robustness against adversarial attacks, outlier data, and off-topic queries? 
+
+How does system ensure robustness against adversarial attacks, outlier data, and off-topic queries? 
 
 Protection against adversarial attacks is achieved through content safety filtering prompt injection detection strict input handling and controlled prompt construction that treats untrusted content as data rather than instructions. System prompts and outputs are constrained by defined schemas and safety policies to prevent unintended behavior.
+
 Outlier data and anomalous inputs are handled through input validation confidence indicators monitoring and human in the loop review for sensitive or unexpected outputs. The system is designed to surface low confidence or unusual results for review rather than act on them automatically.
 
-What performance metrics are used to evaluate robustness? 
+What performance metrics are used to evaluate robustness?
+
 Metrics and indicators used include content safety and prompt injection detection outcomes input validation and rejection rates monitoring of off topic or unsupported queries logging of anomalous or outlier inputs confidence indicators where applicable and frequency of human in the loop escalations.
 System level monitoring also includes audit logs error rates policy enforcement outcomes and review of false positives or false negatives related to safety controls. These measures are used to assess whether the system behaves consistently within its defined scope and handles unexpected or adversarial inputs safely.
 
-How is sensitivity analysis performed (e.g., noise, perturbations)? 
+How is sensitivity analysis performed (e.g., noise, perturbations)?
+
 The system does not rely on predictive or decision making models with continuous numerical outputs and does not generate outcomes that affect individuals. AI capabilities are limited to content based tasks such as document classification extraction summarization and safety filtering within defined workflows.
 
-What regularisation techniques are applied? 
+What regularisation techniques are applied?
+
 Data augmentation is used by expanding the training dataset with additional synthetically generated examples. Synthetic data is created using controlled python scripts based on representative sample data provided by the business team. This approach increases data diversity and improves classification robustness while preserving domain relevance and semantic validity.
 Early stopping is applied as an explicit regularisation mechanism. Training progress is monitored using validation loss and convergence is considered to have stalled when the loss does not improve by at least early_stop_min_delta for a defined number of consecutive evaluations early_stop_patience. In this configuration early stopping is triggered when the validation loss does not decrease by at least 0.001 for more than three consecutive iterations.
 
 How are vulnerabilities identified? 
 In operation vulnerabilities are identified through monitoring of content safety outcomes audit logs error rates policy enforcement results and review of anomalies or unexpected system behavior. Findings from internal reviews security checkpoints and governance assessments are tracked and remediated as part of established risk management processes.
 
-What mitigation strategies are in place for vulnerabilities? 
+What mitigation strategies are in place for vulnerabilities?
+
 A Sensor to Detect capability is implemented using content safety controls to identify prompt injection and adversarial input patterns. Detected events are logged along with the attack type and metadata in a delta table to support monitoring analysis and auditability.
 A Sensor to Respond capability is implemented to automatically mitigate risk when repeated injection attempts are detected. If more than two sections or hunks within a document are flagged for prompt injection the system automatically prevents the document from proceeding to downstream asset generation. This mitigation is applied regardless of document type including tax documents that may otherwise contain valid problem or solution content.
 
 **Data Quality**
 
-How do you manage data quality and governance? 
+How do you manage data quality and governance?
+
 Sample data is provided by the business team and synthetic data is generated using controlled python scripts to augment coverage while preserving domain validity.
 
 Data handling follows established data protection and security guidelines including access controls such as managing secrets in Key Vault securing ADLS connections using system managed identity private link configurations for ADLS Azure Search and Azure OpenAI controlled storage retention policies and comprehensive logging of data usage.
@@ -2282,10 +2289,12 @@ EDA is performed to synthetic data generation process using controlled python sc
 How do you perform data profiling, check distributions, and correlations? 
 We performed Distribution checks mainly to assess class balance value ranges for binary classification problem and to make sure there is consistency between sample data provided by the business team and synthetically generated data created using controlled python scripts.
 
-How do you handle missing data, outliers, duplicates, and class imbalance? 
+How do you handle missing data, outliers, duplicates, and class imbalance?
+
 Missing data outliers duplicates and class imbalance are managed primarily during data preparation and exploratory data analysis prior to training. The training dataset is generated internally using controlled python scripts and business provided sample content. No public datasets or dynamic open source data sources are used.
 
-What data quality dimensions and measurements are used? 
+What data quality dimensions and measurements are used?
+
 We manage data consistency by verifying alignment between document content labels and derived attributes such as language tags and PII indicators across training validation and test splits. Relevance and representativeness are assessed by reviewing class coverage and distribution across labels including rare cases to ensure alignment with intended business use.
 
 How do you ensure labelling consistency? 
@@ -2308,7 +2317,8 @@ has_sow_reference - references engagement letter agreement
 has_citations - references footnotes citations
 has_appendices - appendices present
 
-How are discovered data quality issues resolved? 
+How are discovered data quality issues resolved?
+
 When an issue is detected  we analyse and  then the affected record is flagged and either corrected using deterministic rules or rejected and regenerated Root cause analysis is performed by reviewing the rule or generation logic. This is done through closely working with the testing team and development team.
 
 
