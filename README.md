@@ -1893,7 +1893,6 @@ Training dataset
 **soft:** This is a soft label, which is a probability score that indicates the likelihood of a document being a tax problem. The soft_score is 0.0396, which means that the model has a 3.96% confidence that the document is a tax problem.
 The use of both target and soft labels allows the model to learn from both the hard labels (which provide a clear indication of whether a document is a tax problem or not) and the soft labels (which provide a more nuanced indication of the likelihood of a document being a tax problem).
 
-
 In this specific example, the target label is 0, indicating that the document is not a tax problem, but the soft_score is 0.0396, indicating that the model has some confidence (although low) that the document might be related to a tax problem.
 
 
@@ -1914,6 +1913,7 @@ In the training code, the cos variable represents the cosine similarity between 
 The cosine similarity is then scaled by a factor alpha, which is a hyperparameter that's being tuned. This scaling is done to widen the range of the cosine similarity values, making it easier for the model to learn and differentiate between positive and negative pairs.
 
 The scaled cosine similarity is used as the input to the BCEWithLogitsLoss function, rather than the raw cosine similarity values. This is because the BCEWithLogitsLoss function expects logits as input, which are the raw, unnormalized scores output by a model.
+
 
 **Question :**  If alpha is used to scale the cosine similarity between two vectors in this case the doc text and lable text then what is the purpose of calculating contrastive loss?
 
@@ -1938,6 +1938,7 @@ By combining the BCE loss and the contrastive loss, the model is trained to lear
 Here is a code snippet that shows the calculation of the contrastive loss:
 
 %python
+
 # 4) Contrastive loss on raw cosine (no sigmoid)
 contrast = (targets * (1 - cos).clamp(min=0) + (1 - targets) * (cos - margin).clamp(min=0)).mean()
 
