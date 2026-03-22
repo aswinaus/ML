@@ -2322,6 +2322,705 @@ How are discovered data quality issues resolved?
 
 When an issue is detected  we analyse and  then the affected record is flagged and either corrected using deterministic rules or rejected and regenerated Root cause analysis is performed by reviewing the rule or generation logic. This is done through closely working with the testing team and development team.
 
+------------------------------------------------------------------------
+
+A machine learning engineer is configuring a hyperparameter search using SparkML's 'CrossValidator'. The goal is to optimize the 'maxDepth' parameter (for depths 5, 10, and 15) of a pre-defined 'DecisionTreeClassifier' instance named 'dt'. Which Python code snippet correctly uses the 'ParamGridBuilder' to define the search space?
+
+The correct way to define the hyperparameter search space for maxDepth using Spark ML’s ParamGridBuilder is:
+
+from pyspark.ml.tuning import ParamGridBuilder
+
+paramGrid = (ParamGridBuilder()
+             .addGrid(dt.maxDepth, [5, 10, 15])
+             .build())
+
+dt.maxDepth references the parameter from the existing DecisionTreeClassifier instance
+.addGrid() specifies the values to try → [5, 10, 15]
+.build() finalizes the grid for use in CrossValidator
+
+
+-------------------------------------------------------------------------
+
+A data science team is constructing a SparkML Pipeline to prepare high-dimensional sparse data for a distributed clustering algorithm. The pipeline must convert a categorical string column ('customer_segment') to a numeric format and aggregate all relevant inputs into a single feature vector. Given the component instances 'indexer', 'encoder', and 'assembler', which order correctly specifies the required sequence of transformations in the pipeline stages?
+
+[indexer, encoder, assembler]
+
+To properly handle a categorical string column like customer_segment and prepare it for clustering:
+
+1. indexer (StringIndexer)
+Converts string categories → numeric indices
+Example: "Retail" → 0, "Enterprise" → 1
+2. encoder (OneHotEncoder)
+Converts indexed values → sparse binary vectors
+Prevents the model from assuming ordinal relationships
+3. assembler (VectorAssembler)
+Combines:
+Encoded categorical features
+Any numerical features
+Outputs a single features vector required by Spark ML algorithms
+
+-------------------------------------------------------------------------
+
+An ML Engineer needs to perform distributed training for a large-scale XGBoost model using the 'xgboost.spark' module on Databricks. The cluster has 16 worker nodes, configured with 4 CPU cores each. To maximize the utilization of all available Spark task slots across the cluster for training the 'SparkXGBClassifier', how should the parameter defining parallelism typically be configured?
+
+To maximize utilization of all available Spark task slots, the key parameter in xgboost.spark is:
+
+num_workers
+
+The cluster has:
+
+16 worker nodes
+4 CPU cores per node
+
+👉 Total available task slots =
+16 × 4 = 64
+
+So the correct setting is:
+
+xgb = SparkXGBClassifier(
+    num_workers=64
+)
+Explanation
+In xgboost.spark, num_workers = number of parallel training tasks
+Each worker maps to one Spark task slot
+To fully utilize the cluster:
+Set num_workers = total available cores across workers
+
+------------------------------------------------------------------------------------
+
+A transactional fraud detection application requires predictions based on the absolute latest version of the production model. The trained model is registered in Unity Catalog as 'prod.risk.fraud_model'. The model deployment pipeline updates the 'Champion' alias after successful validation. Which MLflow URI should the real-time inference pipeline use to ensure automatic referencing of the newly promoted model version?
+
+The correct MLflow URI is:
+
+models:/prod.risk.fraud_model@Champion
+
+models:/ → indicates a model from the MLflow Model Registry
+prod.risk.fraud_model → fully qualified model name in Unity Catalog
+@Champion → model alias, not a fixed version
+
+👉 This ensures:
+
+The inference pipeline always uses the latest promoted “Champion” model
+No code changes are needed when a new version is deployed
+Automatic switching happens when the alias is updated
+
+------------------------------------------------------------------------------------------------
+
+A data scientist has developed a supervised learning model using scikit-learn and wants to apply it at scale for batch scoring a large Spark DataFrame in a production pipeline. The trained model artifact is stored via MLflow. Which statement(s) accurately describe the recommended approach for integrating this model efficiently into the distributed inference pipeline? (Select TWO correct options.)
+
+✔️ 1. Use a Pandas UDF with mlflow.pyfunc.load_model
+Load the model once per executor
+Apply it in parallel using vectorized Pandas UDFs
+Efficient for large-scale distributed inference
+
+✔️ Example pattern:
+
+import mlflow.pyfunc
+from pyspark.sql.functions import pandas_udf
+
+model = mlflow.pyfunc.load_model("models:/prod.risk.fraud_model@Champion")
+
+@pandas_udf("double")
+def predict_udf(*cols):
+    import pandas as pd
+    df = pd.concat(cols, axis=1)
+    return model.predict(df)
+
+df.withColumn("prediction", predict_udf(*feature_cols))
+
+2. Use mlflow.pyfunc.spark_udf to create a Spark-native UDF
+Simplest and recommended MLflow-native approach
+Automatically handles:
+Model distribution
+Serialization
+Efficient execution
+
+✔️ Example:
+
+from pyspark.sql.functions import col
+import mlflow.pyfunc
+
+predict_udf = mlflow.pyfunc.spark_udf(
+    spark,
+    "models:/prod.risk.fraud_model@Champion"
+)
+
+df.withColumn("prediction", predict_udf(*feature_cols))
+
+  ----------------------------------------------------------------------
+
+In the context of designing an ML pipeline in SparkML, an Estimator is conceptually distinct from a Transformer. Which definition accurately captures the core function of an Estimator instance in the pipeline workflow?
+
+An Estimator is an algorithm that learns from data by fitting on a dataset and produces a Transformer.
+
+In a Spark ML pipeline:
+
+🔹 Estimator
+Has a .fit() method
+Takes a DataFrame as input
+Learns parameters from data (training step)
+Outputs a Transformer
+
+✔️ Examples:
+
+DecisionTreeClassifier
+KMeans
+StringIndexer
+🔹 Transformer (for contrast)
+Has a .transform() method
+Applies a fixed transformation
+Does not learn anything new
+
+✔️ Examples:
+
+OneHotEncoderModel
+VectorAssembler
+🔁 Pipeline Flow
+Estimator --(fit)--> Transformer --(transform)--> Transformed Data
+
+-------------------------------------------------------------------------------
+
+A data engineering team sets up an automated retraining workflow using a Databricks Workflow (Job). The workflow includes three sequential tasks: T1 (Data Prep), T2 (Model Training), and T3 (Model Validation). T2 logs the model artifact and registers it to Unity Catalog, yielding a unique model URI. How can the model URI generated by Task T2 be reliably passed as an input parameter to the subsequent Task T3 (Model Validation) within the same Databricks Workflow execution?
+
+Use dbutils.jobs.taskValues to set the model URI in Task T2 and retrieve it in Task T3.
+
+Databricks Workflows provide a built-in mechanism for passing values between tasks in the same job run.
+
+In Task T2 (Model Training)
+
+After logging and registering the model:
+
+dbutils.jobs.taskValues.set(
+    key="model_uri",
+    value=model_uri
+)
+🔹 In Task T3 (Model Validation)
+
+Retrieve the value:
+
+model_uri = dbutils.jobs.taskValues.get(
+    taskKey="T2",
+    key="model_uri",
+    debugValue=None
+)
+
+--------------------------------------------------------------------
+
+A Data Scientist is implementing a high-throughput image classification pipeline on Databricks. The task involves performing featurization using a pre-trained Keras model (TensorFlow backend) over millions of images stored in a Delta table. To optimize performance and leverage GPU resources, which approach is the most appropriate way to apply this single-node deep learning model at scale in a Spark DataFrame environment?
+
+The most appropriate approach is:
+
+Use a vectorized Pandas UDF (iterator-style) that loads the Keras model once per executor and performs batch inference on partitions, leveraging GPU-enabled clusters.
+
+✅ Why this is correct
+
+This pattern is ideal because it:
+
+Scales across Spark partitions → parallel processing of millions of images
+Loads the model once per executor → avoids repeated initialization overhead
+Processes data in batches (vectorized) → efficient for deep learning
+Leverages GPUs on each worker node when available
+🔹 Recommended Implementation Pattern
+from pyspark.sql.functions import pandas_udf
+import pandas as pd
+
+@pandas_udf("array<float>")
+def featurize(iterator):
+    import tensorflow as tf
+    
+    # Load model once per executor
+    model = tf.keras.models.load_model("/dbfs/path/to/model")
+    
+    for batch in iterator:
+        # batch contains a Pandas Series of image data/paths
+        images = preprocess(batch)  # your preprocessing logic
+        features = model.predict(images)
+        yield pd.Series(list(features))
+✅ Key Design Points
+🔸 Iterator-style Pandas UDF
+Uses iterator → processes batches instead of row-by-row
+Minimizes serialization overhead
+Best practice for deep learning inference in Spark
+🔸 GPU Utilization
+Each executor can:
+Access a GPU
+Run TensorFlow inference efficiently
+🔸 Batch Processing
+Deep learning models perform best on batches, not single rows
+
+-----------------------------------------------------------------------------------------
+
+A Financial Institution is building a real-time fraud detection endpoint using Databricks Model Serving. The model requires a feature representing the Euclidean distance between the current transaction location (provided in the API request) and the user's historical median location (stored in an online feature table). The distance calculation logic must be executed at the time of inference. Which entity should the MLOps engineer define to handle this dynamic calculation and seamlessly integrate it into the model serving endpoint?
+
+
+Define an on-demand feature in the Databricks Feature Store (Feature Engineering).
+
+The key requirement is:
+
+A feature (Euclidean distance)
+Computed at inference time
+Using:
+Request-time data (current transaction location)
+Stored feature (historical median location)
+🔹 Why On-Demand Features are correct
+
+On-demand features are specifically designed for:
+
+Real-time computation during model serving
+Combining:
+Online feature store values
+Incoming request data
+
+They allow you to:
+
+Define transformation logic once
+Automatically apply it during inference
+Keep training and serving logic consistent
+🔹 How it works conceptually
+Retrieve stored feature:
+User’s historical median location (from online feature table)
+Combine with request input:
+Current transaction location
+Compute:
+Euclidean distance
+Pass result into model → prediction
+
+The correct answer for the scenario described is:
+
+A registered Unity Catalog Python UDF, referenced in a 'FeatureFunction' within a 'FeatureSpec' logged with the model.
+
+--------------------------------------------------------------------------------------------------------------------------
+
+A telecommunications company has billions of customer call records (unstructured text) stored in a Delta table in Unity Catalog. They need to categorize these calls (e.g., 'Billing Issue', 'Network Outage', 'Technical Support') using a state-of-the-art Generative AI model hosted by Databricks for periodic batch analysis. Which command is the most appropriate and scalable method for executing this large-scale inference directly within the data pipeline?
+
+The most appropriate and scalable method is to use map_batches with the Databricks Generative AI model inside a Delta Live Table or Spark pipeline for batch scoring.
+
+Recommended approach:
+from databricks import generative_ai as genai
+
+# Load the Generative AI model once per executor
+model = genai.load_model("your_generative_ai_model_name")
+
+def categorize_calls(batch_df):
+    # Example: apply model to the 'call_text' column
+    batch_df['category'] = batch_df['call_text'].apply(lambda text: model.predict_category(text))
+    return batch_df
+
+# Apply the function at scale with map_batches (vectorized)
+categorized_df = calls_df.map_batches(categorize_calls)
+Why this is best:
+map_batches processes data in batches → efficient distributed execution
+Loads model once per executor → avoids repeated initialization overhead
+Scales easily to billions of rows in Delta tables
+Keeps inference within Spark pipeline for seamless integration
+Uses Databricks Generative AI hosted model → state-of-the-art NLP
+
+SELECT call_text, ai_query('databricks-llama-4-maverick', CONCAT('Classify the following text: ', call_text)) AS category FROM customer_reviews_table;
+
+-------------------------------------------------------------------
+
+In a continuous deployment architecture, a Model Deployment pipeline is tasked with evaluating the newly trained 'Challenger' model against the current 'Champion' model before deciding which version should serve production traffic. After performing a successful A/B test comparison over two weeks, the pipeline determines the Challenger performs statistically better. How should the Model Deployment pipeline reflect this decision and ensure downstream inference pipelines use the superior model without requiring code changes or downtime?
+
+Use the Unity Catalog Model Registry API to update the 'Champion' alias to point to the Challenger model version.
+
+Explanation:
+The Unity Catalog Model Registry supports aliases (like "Champion") that point to specific model versions.
+Updating the "Champion" alias to the new Challenger version switches production traffic seamlessly.
+Downstream inference pipelines reference the model via the alias (e.g., models:/model_name@Champion), so no code changes or downtime are required.
+This approach aligns perfectly with continuous deployment and MLOps best practices for smooth model promotion.
+
+-------------------------------------------------------------------------------------------
+
+A Data Engineering team is tasked with setting up a highly reliable and performant pipeline on Databricks to continuously ingest millions of IoT sensor records saved hourly as semi-structured JSON files in cloud storage. The pipeline must handle schema evolution automatically and stream the raw data into a Bronze Delta table. Which component combination is essential for optimizing this ingestion process?
+
+The correct choice is:
+
+Lakeflow Declarative Pipelines utilizing Auto Loader configured with cloudFiles.format = "json" and publishing to a STREAMING TABLE.
+
+Why this is the right combination:
+
+Auto Loader is the Databricks component designed for incremental, scalable file ingestion from cloud storage, especially for millions of incoming JSON files.
+It supports schema inference and schema evolution, which is exactly what you need for semi-structured IoT JSON data.
+Writing into a Bronze Delta table through a streaming table gives reliable, fault-tolerant ingestion with Delta Lake benefits.
+
+-----------------------------------------------------------------------------------------------------------
+
+A Data Scientist is preparing a dataset for fine-grained demand forecasting. The raw input includes a categorical column 'day_of_week' (e.g., 'Monday', 'Tuesday'). They intend to use this feature, along with numerical features, to train a Random Forest Regressor using MLlib and require a feature representation that avoids implying ordinal relationships between days. Which sequence of standard MLlib feature transformers should be applied immediately before combining all features into the final input vector?
+
+
+StringIndexer followed by OneHotEncoder.
+
+Why:
+
+day_of_week is a categorical string column.
+StringIndexer first converts values like "Monday", "Tuesday" into numeric category indices.
+OneHotEncoder then converts those indices into a one-hot vector, which avoids creating a false ordinal meaning between days.
+After that, you use VectorAssembler to combine this encoded vector with the numerical features.
+
+------------------------------------------------------------
+
+
+A Data Science team has successfully trained an MLflow model that includes a complex custom preprocessing step (defined in a class 'CustomPreprocessor') and a scikit-learn XGBoost classifier. They need to deploy this entire logic unit (preprocessing + model) for low-latency real-time inference via a Databricks Model Serving endpoint. Which MLflow flavor deployment method is necessary to ensure the custom Python preprocessing code is correctly packaged, callable at inference time, and decoupled from the XGBoost binary artifact?
+
+Creating an implementation that inherits from mlflow.pyfunc.PythonModel and overriding the predict() method to include the CustomPreprocessor logic.
+
+Why:
+A custom pyfunc model is the MLflow mechanism intended for packaging arbitrary Python inference logic, including preprocessing, postprocessing, branching, and framework-specific model loading, in a form that Databricks Model Serving can deploy. Databricks explicitly recommends pyfunc when your model requires preprocessing before calling the underlying model.
+
+This approach keeps the XGBoost artifact separate from your custom Python code while exposing a single deployable inference interface. In a PythonModel, you typically place one-time loading in load_context() and per-request execution in predict(), which is exactly the pattern needed for low-latency serving with custom preprocessing.
+
+--------------------------------------------------------------------------------
+
+A development team is deploying distributed XGBoost training on a Databricks GPU cluster to handle a large dataset with highly sparse features. They want to ensure the training process is maximized for speed and efficiency using the 'xgboost.spark' estimator. Which three configurations are essential technical measures to optimize resource utilization and computation for this specific scenario? (Choose three.)
+
+
+Set the SparkXGBClassifier parameter use_gpu to True.
+Set the SparkXGBClassifier parameter num_workers to sc.defaultParallelism.
+Set the SparkXGBClassifier parameters enable_sparse_data_optim=True and missing=0.0.
+
+Why these three:
+
+Databricks recommends use_gpu=True to enable GPU training with xgboost.spark.
+For distributed training, num_workers should match the number of concurrent Spark tasks, and Databricks specifically recommends sc.defaultParallelism to use all Spark task slots.
+For highly sparse features, Databricks documents that you should enable sparse-data optimization and set missing=0.0 when the features column contains SparseVector values.
+
+-------------------------------------------------------------------------
+
+A data team wishes to automatically identify financial fraud patterns by converting an existing large-scale, rule-based detection system into a machine learning model pipeline on Databricks. They decide to use the pre-existing rule results as training labels to train a Decision Tree Classifier using Apache Spark MLlib. They also need to integrate parameter tuning (Cross-Validation) and the feature preparation steps ('StringIndexer' and 'VectorAssembler') to ensure reproducibility. Which Apache Spark MLlib component is the most efficient choice to bundle the sequencing of these steps and apply the resulting complex logic to the training dataset?
+
+The Pipeline class, which chains the feature transformers and includes the CrossValidator wrapper.
+
+Why:
+
+You need to bundle multiple stages into one reproducible ML workflow:
+StringIndexer
+VectorAssembler
+DecisionTreeClassifier
+CrossValidator for tuning
+In Spark MLlib, the Pipeline is the component designed to sequence transformers and estimators into a single workflow that can be fit and then applied consistently to data.
+
+---------------------------------------------------------------------------------------------
+
+A Data Scientist has defined a SparkML Pipeline consisting of preprocessing steps (StringIndexer, VectorAssembler) followed by a LogisticRegression estimator (<code_example>lr</code_example>). To perform 5-fold cross-validation and tune <code_example>lr</code_example>'s <code_example>regParam</code_example>, which code snippet correctly configures the <code_example>CrossValidator</code_example>?
+
+cv = CrossValidator(estimator=pipeline, estimatorParamMaps=paramGrid, evaluator=evaluator, numFolds=5)
+
+Why:
+
+estimator should be the entire pipeline, not just lr, so cross-validation evaluates preprocessing + model together.
+Spark uses estimatorParamMaps, not paramGrid or paramMap, in CrossValidator.
+evaluator must be passed separately.
+numFolds=5 sets 5-fold cross-validation.
+
+So the right option is the one with:
+
+CrossValidator(estimator=pipeline, estimatorParamMaps=paramGrid, evaluator=evaluator, numFolds=5)
+
+-----------------------------------------------------------------------------------------------
+
+A SparkML Pipeline incorporates an <code_example>RFormula</code_example> (aliased <code_example>rForm</code_example>) for feature transformation and a <code_example>LogisticRegression</code_example> model (aliased <code_example>lr</code_example>). A data scientist wants to optimize both the feature definition (<code_example>rForm.formula</code_example>) and the regularization parameter (<code_example>lr.regParam</code_example>). Which syntax correctly defines the hyperparameter combinations using <code_example>ParamGridBuilder</code_example>?
+
+The correct syntax is:
+
+ParamGridBuilder().addGrid(rForm.formula, list_a).addGrid(lr.regParam, list_b).build()
+
+Why:
+
+addGrid() takes a Param object, not a string.
+rForm.formula and lr.regParam are the correct parameter references.
+.build() produces the parameter map combinations for cross-validation or train-validation split.
+
+So the right option is:
+
+ParamGridBuilder().addGrid(rForm.formula, list_a).addGrid(lr.regParam, list_b).build()
+
+--------------------------------------------------------------------------------------------
+
+A SparkML <code_example>CrossValidator</code_example> job involving a large dataset runs slowly, logging frequent 'Shuffle Write' and 'Shuffle Fetch' activity. The computational complexity seems acceptable, but the I/O overhead is massive due to data movement between worker nodes for each fold. Which configuration setting is primarily responsible for tuning data distribution granularity during wide transformations and should be optimized?
+
+
+spark.sql.shuffle.partitions
+
+Frequent Shuffle Write and Shuffle Fetch indicate heavy data exchange during wide transformations.
+spark.sql.shuffle.partitions controls the number of partitions used for shuffle operations, which directly affects data distribution granularity and shuffle overhead.
+Tuning it can reduce excessive small tasks or overly large partitions during cross-validation on large datasets.
+
+------------------------------------------------------------------------------------------------
+
+A Data Scientist successfully uses <code_example>TrainValidationSplit</code_example> (<code_example>tvs</code_example>) to find the optimal Logistic Regression model contained within a Pipeline. The scientist persists the fitted object using <code_example>tvsFitted.write.overwrite().save(path)</code_example>. Which statement accurately describes the object saved and the subsequent loading process?
+
+The entire TrainValidationSplitModel, including the best fitted PipelineModel, is saved and must be loaded using TrainValidationSplitModel.load(path) for seamless prediction.
+
+Why:
+
+After tvs.fit(...), the result is a fitted TrainValidationSplitModel.
+Saving tvsFitted persists the model-selection result, which includes the best model found during validation.
+Since the best model is inside a Pipeline, the saved artifact includes that fitted pipeline model as well, so preprocessing and prediction can be reused directly after loading.
+
+Typical loading pattern:
+
+from pyspark.ml.tuning import TrainValidationSplitModel
+
+loaded_model = TrainValidationSplitModel.load(path)
+
+Then you can use the best fitted model for inference through the loaded object.
+
+So the right answer is:
+
+The entire TrainValidationSplitModel, including the best fitted PipelineModel, is saved and loaded via TrainValidationSplitModel.load(path).
+
+-----------------------------------------------------------------------------------------------------------------------
+
+A Data Scientist is tuning a SparkML model using <code_example>CrossValidator</code_example> to detect credit card fraud (binary classification). Given the high cost associated with False Negatives (missed fraud cases), which metric should the <code_example>BinaryClassificationEvaluator</code_example> be primarily configured to maximize in order to prioritize minimizing False Negatives?
+
+The best metric to maximize is:
+
+recall (or truePositiveRate)
+
+Why:
+
+False Negatives mean actual fraud cases predicted as non-fraud.
+Recall measures how many actual positive cases are correctly identified:
+<img width="254" height="72" alt="image" src="https://github.com/user-attachments/assets/93983e49-1715-4476-90d1-69a4576ae66b" />
+
+Maximizing recall directly helps minimize False Negatives, which is critical in fraud detection.
+
+--------------------------------------------------------------------------------------
+
+A long-running SparkML tuning job preprocesses a massive <code_example>DataFrame</code_example> (<code_example>raw_df</code_example>) using heavy transformations, yielding <code_example>transformed_df</code_example>. The subsequent <code_example>CrossValidator.fit()</code_example> process must repeatedly access this data for numerous trials and folds. To significantly reduce redundant computation, what action should be taken before calling <code_example>cv.fit(transformed_df)</code_example>?
+
+Persist the intermediate DataFrame using transformed_df.cache()
+
+Why:
+
+CrossValidator.fit() will read the same transformed_df repeatedly across multiple parameter combinations and folds.
+If the heavy preprocessing result is not cached or persisted, Spark may recompute the entire lineage many times.
+Caching the transformed dataset avoids repeated expensive transformations and can greatly speed up model tuning.
+
+In practice, it is often even better to materialize the cache right after:
+
+transformed_df.cache()
+transformed_df.count()
+
+The key answer, though, is:
+
+transformed_df.cache()
+
+-----------------------------------------------------------------------------------------------------------
+
+In a sophisticated Spark ML development workflow on Databricks, the Data Science team leverages the <code_example>MLflowClient</code_example> to find the best performing <code_example>TrainValidationSplitModel</code_example> from a long list of runs. Once found, the team extracts the actual fitted model from the tuning output. Which Spark MLlib class or concept must be utilized to correctly load the final trained model artifact embedded within the tuning result?
+
+The desired model is extracted from the fitted tuning output by accessing tvsFitted.bestModel.stages and casting the appropriate stage element to LogisticRegressionModel.
+
+Why:
+
+A fitted TrainValidationSplitModel exposes its winning model through bestModel.
+When the tuned estimator is a Pipeline, that bestModel is typically a PipelineModel, not directly a LogisticRegressionModel.
+So to get the actual trained classifier, you inspect the pipeline stages and extract the final fitted stage, which is the LogisticRegressionModel.
+
+So the key Spark MLlib concept involved is:
+
+PipelineModel / pipeline stages extraction via bestModel.stages
+
+-------------------------------------------------------------------------------------------------
+
+When constructing a reusable and deployable machine learning workflow using SparkML Pipelines and the high-level MLlib framework, which of the following component types are fundamental elements defined within this structure? (Select TWO)
+
+The two fundamental Spark MLlib Pipeline component types are:
+
+Transformers
+Estimators
+
+Why:
+
+Transformers take a DataFrame and return a transformed DataFrame.
+Estimators are algorithms that are fit on data and produce a Transformer (for example, a trained model).
+
+So the correct two are:
+
+Transformers and Estimators
+
+--------------------------------------------------------------------------
+
+A Data Scientist uses the SparkML <code_example>LogisticRegression</code_example> estimator, which has the hyperparameter <code_example>elasticNetParam</code_example> that influences the mixing parameter for L1 (Lasso) and L2 (Ridge) penalties. If the goal is to favor a model with high regularization, simpler structure, and feature selection (Lasso), what value should be chosen for <code_example>elasticNetParam</code_example> during tuning?
+
+
+1.0 (Pure L1/Lasso penalty)
+
+Why:
+
+In SparkML LogisticRegression, elasticNetParam controls the mix:
+0.0 = pure L2 regularization
+1.0 = pure L1 regularization
+0.5 = equal mix of L1 and L2
+If you want feature selection and a simpler sparse model, you favor L1/Lasso.
+
+So the right choice is:
+
+elasticNetParam = 1.0
+
+------------------------------------------------------------------------------------------------------------------
+
+A new fraud classification model is trained in a production workflow on Databricks. The subsequent task in the Databricks Workflow is Model Validation. The model artifact successfully loads, passes checks on format and required metadata, but fails a defined performance threshold check against a mandatory high-risk data slice. What action does the Model Validation pipeline take immediately upon this critical failure, according to the standard Databricks MLOps reference architecture?
+
+The pipeline execution exits immediately, and alerts are configured via Workflows to notify users about the task failure.
+
+In the Databricks MLOps workflow, after training, the model validation task checks the registered model artifact. Databricks states that if the model successfully passes all validation checks, it can be assigned the “Challenger” alias. If the model does not pass all validation checks, the process exits and users can be automatically notified.
+
+So for a critical performance-threshold failure on a mandatory high-risk slice, the standard reference behavior is to stop the pipeline at validation rather than deploy, auto-retrain, or register it as a challenger/staging candidate.
+
+---------------------------------------
+
+A Databricks Workflow task is running an offline evaluation comparing a newly validated Challenger model against the current Champion model using a held-out dataset. The resulting AUC metrics confirm the Challenger outperforms the Champion. Assuming both models are registered in Unity Catalog, how are the precise comparison results typically recorded for detailed analysis within the Databricks platform?
+
+The typical place for those detailed offline comparison results is MLflow Tracking.
+
+In the Databricks MLOps reference workflow, the offline Challenger-vs-Champion comparison is performed on a held-out dataset, and Databricks says the workflow tracks the comparison results using the MLflow Tracking server. More generally, Databricks recommends MLflow to record metrics, parameters, tags, models, and other metadata for runs.
+
+So the correct choice is:
+
+The comparison results, along with model parameters and other artifacts, are tracked to the respective MLflow Tracking server associated with the execution run.
+
+----------------------------------------------------------------------------------
+
+An ML Engineering team needs to implement an A/B test for a high-traffic, low-latency scoring model using Databricks Model Serving. The requirement is to precisely route 50% of incoming production traffic to the new Challenger model version and the remaining 50% to the stable Champion version. Which mechanism is primarily utilized by Databricks Model Serving to facilitate this traffic splitting for continuous online evaluation?
+
+Utilizing Model Aliases (Champion/Challenger) assigned to specific model versions combined with Model Serving endpoint traffic splitting functionality.
+
+Databricks Model Serving supports a single endpoint serving multiple models and lets you configure a traffic split between the served entities, such as 50/50 for online A/B testing.
+
+In the Databricks MLOps reference flow, models are often managed with “Champion” and “Challenger” aliases in Unity Catalog, and Databricks notes that you can create one endpoint with multiple models and specify the endpoint traffic split for Champion-vs-Challenger comparisons.
+
+So the correct answer is the option combining:
+Champion/Challenger aliases + Model Serving traffic splitting.
+
+-----------------------------------------------------------------------------------------
+
+A quality assurance team requires continuous monitoring of a deployed classification model to ensure fair performance across specific demographic segments (subpopulations). These segments represent less than 1% of the total inference traffic. Which best practice allows Databricks Lakehouse Monitoring to specifically evaluate model quality metrics for these small, predefined data slices post-deployment?
+
+Defining custom metrics that specify the criteria for filtering inference data down to the required slice for performance evaluation.
+
+But there is an important nuance: in Databricks Lakehouse Monitoring, the native best-practice mechanism for predefined subpopulations is actually slicing expressions, not custom metrics by themselves. Databricks lets you add “metric slicing expressions” so the monitor computes metrics for those subsets in addition to the full table. For example, an expression can create slices for a predicate and its complement, or one slice per unique value of a column.
+
+Databricks also documents that, for profile creation, you can add custom metrics and slicing expressions in advanced options, and that the profile metrics are computed for each slice.
+
+So, strictly speaking:
+
+Best practice in Databricks: use slicing expressions for those demographic segments.
+From the listed options: the second option is the nearest match.
+
+-------------------------------------------------------------------------------------------------------
+
+A credit scoring model must be deployed via a real-time Model Serving endpoint with a high Service Level Agreement (SLA) requiring the 99th percentile inference latency to be under 50ms. Which crucial form of pre-deployment testing specifically addresses evaluating whether the deployed model's system performance and infrastructure can satisfy this latency requirement?
+
+Load Testing, comprehensively assessing performance, stability, and responsiveness under varying degrees of demand.
+
+Why:
+
+A 99th percentile latency SLA is about how the serving system behaves under realistic and peak traffic.
+Load testing is the pre-deployment test used to measure whether the endpoint, model, and infrastructure can keep inference latency under the required threshold.
+It helps validate tail latency such as p99 < 50ms, not just average response time.
+
+--------------------------------------------------------------------------------------------------------------------
+
+A data scientist needs to incorporate a custom SparkML model artifact, logged using mlflow.spark.log_model, directly into an existing structured streaming pipeline reading from a Delta table named customer_events_stream. The goal is to apply the model continuously to incoming data for real-time risk evaluation before writing results to a downstream table. Assuming the model is correctly registered as models:/risk_classifier/Production, which PySpark code snippet demonstrates the correct way to load and apply this model within the streaming pipeline?
+
+
+model = mlflow.spark.load_model(model_uri="models:/risk_classifier/Production")
+events_stream = spark.readStream.format("delta").table("customer_events_stream")
+predictions = model.transform(events_stream)
+predictions.writeStream.format("delta").start()
+
+Why this one:
+
+A model logged with mlflow.spark.log_model should be loaded with mlflow.spark.load_model. MLflow supports the Spark flavor for loading native Spark ML models.
+Spark ML models are applied to a DataFrame using transform(), since Spark ML pipelines/models follow the Transformer interface.
+A Structured Streaming source created with spark.readStream...table(...) is still a Spark DataFrame interface for transformations before writeStream.
+
+--------------------------------------------------------------------------------------
+
+During the Model Validation phase of the automated production MLOps workflow on Databricks, which checks are essential components of determining if a newly trained model is suitable for deployment and hence should proceed to the next stage in the Workflow? (Select TWO correct answers.)
+
+Confirming the model artifact's format (for example, presence of model signature) and verifying required metadata for downstream deployment and inference.
+Asserting that the model's statistical performance meets or exceeds a predefined threshold, potentially on targeted data slices.
+
+Databricks describes model validation as including basic format and metadata validations plus performance evaluations on selected data slices when needed. If those validation checks pass, the model can proceed; if they fail, the process exits.
+
+format/metadata validation and performance-threshold validation on overall or sliced data.
+
+----------------------------------------------------------------------------------------------------
+
+A pharmaceutical company needs to perform batch inference on 100 million records daily using a custom PyFunc deep learning model registered in Unity Catalog. To ensure the process is scalable and highly performant on a distributed cluster, which standard MLflow method should be used to integrate the Python model logic into the Spark data pipeline?
+
+The standard scalable method is:
+
+Use mlflow.pyfunc.spark_udf and apply it to the Spark DataFrame.
+
+So the correct option is the one equivalent to:
+
+loaded_udf = mlflow.pyfunc.spark_udf(spark, model_uri)
+df_predictions = df.withColumn("prediction", loaded_udf(struct(df.columns)))
+
+Why:
+
+mlflow.pyfunc.spark_udf is the MLflow mechanism for running a PyFunc model distributed inside a Spark pipeline, which is the right pattern for large-scale batch inference on a cluster. Databricks documents batch inference on Spark DataFrames using a registered model, and MLflow documents spark_udf for applying Python-function models in Spark.
+Converting 100 million rows to pandas, iterating with RDD map(), or sending bulk requests to an online serving endpoint are not the standard high-performance distributed Spark approach for this scenario.
+
+mlflow.pyfunc.spark_udf(...) applied with withColumn(...).
+
+--------------------------------------------------------------------------------
+
+A telecommunications company uses Apache Spark Structured Streaming to process high-volume network events in near real-time. They need to continuously score these events using an existing Spark MLlib PipelineModel, which was logged using MLflow's Spark flavor. Which core method ensures that the model is applied correctly and efficiently within the streaming data flow?
+
+The SparkML PipelineModel, being a Transformer, directly implements the distributed .transform() method, which should be applied immediately to the streaming DataFrame before writing to the sink.
+
+Why:
+
+A fitted Spark MLlib PipelineModel is a Transformer.
+In Structured Streaming, you apply Spark ML models to the streaming DataFrame using model.transform(df_stream).
+This keeps scoring distributed and native to Spark, which is the efficient pattern for high-volume streaming inference.
+
+Why the others are not right:
+
+Calling a serving REST endpoint for every micro-batch is not the standard Spark-native approach.
+A row-by-row Python UDF is slower and unnecessary for an existing Spark MLlib model.
+Collecting to a single RDD breaks scalability.
+foreachBatch can be used in some workflows, but for an existing Spark ML Transformer, the core and correct method is still direct transform() on the streaming DataFrame.
+
+So the answer is:
+
+Use model.transform(df_stream) directly in the streaming pipeline.
+
+-----------------------------------------------------------------------------------------------
+
+An investment firm runs a critical daily portfolio valuation job requiring batch predictions against a petabyte-scale dataset stored in a Delta table. Given the massive scale and the non-critical latency (SLA of 8 hours), what is the primary consideration that favors using a dedicated Spark Batch inference job over deploying the model via a Model Serving REST API endpoint for this task?
+
+Spark batch inference is the most cost-effective and resource-efficient solution for handling massive data volumes (high throughput) when ultra-low, sub-second latency is not required.
+
+For Databricks, batch inference is the recommended pattern for large-scale prediction workloads, while Model Serving is built around REST-based online access. Databricks also documents a 16 MB per-request payload limit for Model Serving, which reinforces why a petabyte-scale daily valuation job is a poor fit for a serving endpoint and a natural fit for distributed Spark batch processing instead.
+
+So the best answer is the cost/resource-efficiency and throughput advantage of Spark batch inference for massive offline workloads, not low-latency serving.
+
+-----------------------------------------------------------------------------------------------
+
+A model trained using Databricks Feature Engineering in Unity Catalog automatically handles feature lookup during scoring. A batch inference pipeline uses the FeatureEngineeringClient.score_batch() method to apply this model to a DataFrame. If the prediction dataset contains columns whose names match the features required by the model (e.g., 'age', 'income'), how does the Feature Engineering Client handle the feature retrieval for these specific columns?
+
+
+It prioritizes the existing feature values in the input DataFrame and skips retrieving those specific features from Feature Store.
+
+Databricks documents that by default a model packaged with feature metadata looks up features at inference time, but if you include a feature column in the DataFrame passed to FeatureEngineeringClient.score_batch(), that provided value is used instead. In their example, when the batch DataFrame includes account_creation_date, the API looks up only num_lifetime_purchases from Feature Store and uses the provided account_creation_date values for scoring.
+
+So for columns like age or income that are already present in the prediction DataFrame, the client uses those local values and does not fetch those same features again from the offline store.
+
+-----------------------------------------------------------------------------
+
+A fraud team maintains a complex ML pipeline where the final prediction step requires combining pre-computed features from an online store with an 'on-demand' feature that must be calculated using a Unity Catalog Python UDF (e.g., distance). To ensure distributed scoring calculates and combines these features correctly during batch inference, which entity must encapsulate the feature combination and logic definition?
+
+
+
+
+
+  
 
 
 
