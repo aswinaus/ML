@@ -143,7 +143,7 @@ Model Lifecycle for the above Training Architecture
 
 <img width="975" height="682" alt="image" src="https://github.com/user-attachments/assets/ba236f54-0444-4b05-bb99-29ba8a468cd2" />
 
-The above Model Lifecycle shows how models evolve in this pipeline:
+**The above Model Lifecycle shows how models evolve in this pipeline:**
 
 1.	Pretrained BGE encoder
 2.	SFT + LoRA training with PBT
@@ -159,11 +159,12 @@ The above Model Lifecycle shows how models evolve in this pipeline:
 o	SFT + LoRA best checkpoint saved as a Reference Model
 o	Cloned into a Policy Model
 o	GRPOTrainer uses:
-	Bernoulli log-probs for multi-label outputs
-	Feedback scores (1–5) as rewards from a feedback store
-o	Produces an Updated Policy Model (SFT + GRPO LoRA weights)
-•  Model Lifecycle Diagram
-•	Shows how models evolve in your pipeline:
+   Bernoulli log-probs for multi-label outputs
+   Feedback scores (1–5) as rewards from a feedback store
+   Produces an Updated Policy Model (SFT + GRPO LoRA weights)
+Model Lifecycle Diagram
+•	Shows how models evolve in this pipeline:
+
 1.	Pretrained BGE encoder
 2.	SFT + LoRA training with PBT
 3.	Deploy SFT+LoRA classifier (v1)
@@ -194,7 +195,7 @@ The effectiveness of this training process depends on several factors, including
 
 Code used in this training process is well-designed and the model is being fine-tuned using a suitable pre-trained model and a reasonable set of hyperparameters.
 
-However, to determine whether this training process is effective for your specific use case, you'll need to evaluate the model's performance on a held-out test set and consider the following factors:
+However, to determine whether this training process is effective for this specific use case, we'll need to evaluate the model's performance on a held-out test set and consider the following factors:
 
 **1.	Accuracy:** How accurate is the model in classifying documents as tax questions or tax solutions?
 
@@ -395,7 +396,7 @@ Since these two activation functions are applied at different stages, **they do 
 
 Pooler output → Linear layer → Logits → Sigmoid activation (internal to BCEWithLogitsLoss()) → Probability output → Binary cross-entropy loss
 
-As you can see, the tanh activation function is applied to the pooler_output to produce a vector representation while the sigmoid activation function is applied to the logits to produce a probability output. These two activation functions are not in conflict with each other and they serve different purposes in the model.
+As we can see, the tanh activation function is applied to the pooler_output to produce a vector representation while the sigmoid activation function is applied to the logits to produce a probability output. These two activation functions are not in conflict with each other and they serve different purposes in the model.
 
 Following the above training with Trials running in parallel : 
 
@@ -414,7 +415,7 @@ Plots:
 
 <img width="1354" height="899" alt="image" src="https://github.com/user-attachments/assets/7696410d-72de-4d2f-bfe6-f8f4b3a00d7a" />
 
-As you can see from the above Population-Based Training (PBT) works by periodically perturbing hyperparameters based on performance. The plots confirm this:
+As we can see from the above Population-Based Training (PBT) works by periodically perturbing hyperparameters based on performance. The plots confirm this:
 
 1) lr (learning rate): Starts constant, then jumps significantly after a few iterations.
 2) wd (weight decay): Shows a clear change mid-training.
@@ -662,22 +663,22 @@ tokenized_val = dataset["test"].map(preprocess_function, batched=True)
 
 If val loss keeps dropping and F1_macro climbs past ~0.70+, keep training.
 If val loss stops improving for ~3 evals, stop (early stopping will do it).
-If training loss ↓ but val loss ↑, you’re overfitting → reduce epochs or lower LR (e.g., 1e-5) and add weight_decay.
+If training loss ↓ but val loss ↑, we are overfitting → reduce epochs or lower LR (e.g., 1e-5) and add weight_decay.
 If progress stalls Try more data per class (class balance matters).
 Slightly lower LR (1e-5) or increase warmup_ratio.
 Increase batch size if GPU permits (stabilizes training).
-Check text length—keep max_length=256 unless your chunks are longer.
+Check text length—keep max_length=256 unless the chunks are longer.
 
 **Note: F1_macro is the macro-averaged F1 score. It is the unweighted mean of the F1 scores computed independently for each class(Problem, Solution, Topic, Tax Year) in a multi-class classification problem.**
 
 **Why is it important?** 
 It treats all classes equally, regardless of their frequency in the dataset.
 
-It is especially useful when you have class imbalance, as it does not let dominant classes overshadow minority classes.
+It is especially useful when we have class imbalance, as it does not let dominant classes overshadow minority classes.
 
 It provides a single metric that reflects the model’s ability to correctly classify all classes, not just the most common ones.
 
-In our code: We are using f1_macro as the metric for early stopping and model selection, ensuring your model performs well across all tax-related categories, not just the majority class.
+In our code: We are using f1_macro as the metric for early stopping and model selection, ensuring the model performs well across all tax-related categories, not just the majority class.
 
 Current loss (1.11) shows learning, but it’s not “done.”
 
@@ -690,7 +691,7 @@ Expect clear gains with another 1–3 epochs and proper early stopping.
 The loss is considered to not have improved if the current loss is not less than the previous loss minus a small delta (early_stop_min_delta). This allows for some minor fluctuations in the loss without triggering early stopping.
 
 In other words, the early stopping condition is triggered when the loss has not decreased by at least early_stop_min_delta for early_stop_patience consecutive iterations.
-So, to answer your question, the early stopping kicks in when the loss did not improve by at least early_stop_min_delta for more than three iterations.
+So, to answer the question, the early stopping kicks in when the loss did not improve by at least early_stop_min_delta for more than three iterations.
 
 Here early_stop_min_delta is set to 0.001.
 So the condition is:
@@ -745,7 +746,7 @@ year	"This refers to tax year"	0.12
 **Characteristics**
 Works without supervision — no need for labeled data.
 
-You can compare any text to any other text (universal).
+We can compare any text to any other text (universal).
 
 But classification is approximate; it relies on semantic proximity, not learned decision boundaries.
 
@@ -857,7 +858,7 @@ Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
 
 | Challenge                      | What It Means                                           | How to Solve It                                             |
 | ------------------------------ | ------------------------------------------------------- | ----------------------------------------------------------- |
-| **LLM API Rate Limits**        | You can't call the API millions of times per minute     | Use batching, backoff, and parallelization                  |
+| **LLM API Rate Limits**        | We can't call the API millions of times per minute     | Use batching, backoff, and parallelization                  |
 | **Token Limits per Prompt**    | Each LLM (e.g., GPT-4) has a max token limit (\~128k)   | Limit number/size of docs per batch                         |
 | **Memory & Collection Limits** | `.collect()` pulls all data to driver (can crash Spark) | Avoid `.collect()`; use `mapPartitions`, `foreachPartition` |
 | **Long Job Runtime**           | Serial execution would be slow for millions of rows     | Use Spark’s distributed processing with UDFs or partitions  |
@@ -889,7 +890,7 @@ Notebook : ADLS_AzureSynapse_ApacheSpark.ipynb
 | **Unified Data Processing Engine**   | Supports **batch**, **streaming**, **SQL**, **ML**, **graph**, and **structured data** — all in one engine.  |
 | **In-memory Processing**             | Faster than MapReduce because it keeps intermediate data in memory (vs writing to disk).                     |
 | **Optimized for Big Data Workflows** | Built-in fault tolerance, DAG optimization, task scheduling, and caching.                                    |
-| **Rich SQL Support**                 | Spark SQL lets you run **SQL queries on big data**, with full ANSI compliance and integration with BI tools. |
+| **Rich SQL Support**                 | Spark SQL lets us run **SQL queries on big data**, with full ANSI compliance and integration with BI tools. |
 | **Easy Integration**                 | Reads/writes from: Azure Data Lake Storage                                                                                           |
 
 
@@ -938,7 +939,7 @@ GPU cost	Run summarization/classification in Databricks jobs with low-cost insta
 
 **Assumptions:**
 Each chunk is ~2,000–4,000 words (≈3,000 tokens)
-You summarize each chunk to ~300 tokens
+We summarize each chunk to ~300 tokens
 Total output is ~10,000 tokens per document
 Costs include both input + output tokens
 
@@ -992,7 +993,7 @@ Ingestion steps (01–05) dont depend on each other can be run as parallel in Da
                │10_agent_query      │
                └────────────────────┘
 
-Through the Databricks UI, you can define:
+Through the Databricks UI, we can define:
 
 01–05 = parallel tasks
 
@@ -1006,7 +1007,7 @@ Spark Driver Node — The Brain
 
 The driver node is responsible for:
 
-Running your notebook/job code
+Running the notebook/job code
 
 Creating the SparkSession
 
@@ -1076,7 +1077,7 @@ Think of it as:
 "Run this workflow using Spark or Python"
 
 **2. Spark Driver (Job Coordinator)**
-When your Databricks Job runs Spark code (like reading a DataFrame), the Spark engine spins up a driver node.
+When the Databricks Job runs Spark code (like reading a DataFrame), the Spark engine spins up a driver node.
 The driver is responsible for:
 Parsing the code
 Building the logical plan (DAG)
@@ -1091,7 +1092,7 @@ The worker nodes (executors) are where the actual data processing happens:
 Reading and writing data
 Executing .map(), .filter(), .groupBy() etc.
 Writing Parquet files
-Multiple executors can run in parallel on different nodes in your Databricks cluster.
+Multiple executors can run in parallel on different nodes in the Databricks cluster.
 Think of them as:
 "Data crunchers doing the real work in parallel"
 
@@ -1135,9 +1136,9 @@ The purpose of HashingTF is to take a list of words (like the output from the To
 
 Here is how it works with an example:
 
-Imagine you have a very small vocabulary and numFeatures is set to a small number, say 5, instead of 1000 for simplicity. This means our output vector will have 5 "bins" or dimensions.
+Imagine we have a very small vocabulary and numFeatures is set to a small number, say 5, instead of 1000 for simplicity. This means our output vector will have 5 "bins" or dimensions.
 
-Let's say you have a document with the following words after tokenization: ["the", "cat", "sat", "on", "the", "mat"].
+Let's say we have a document with the following words after tokenization: ["the", "cat", "sat", "on", "the", "mat"].
 
 The HashingTF transformer will:
 
@@ -1170,7 +1171,7 @@ So, the output "rawFeatures" vector for this document would be [0, 1, 3, 1, 1]. 
 
 **Fixed Size:** The output vector size is fixed (numFeatures), regardless of the number of unique words in the entire dataset.
 
-The main drawback is the possibility of hash collisions, where different words map to the same index. This can slightly reduce the model's ability to distinguish between words, but with a sufficiently large numFeatures (like the 1000 you used), the impact is usually minimal for many tasks.
+The main drawback is the possibility of hash collisions, where different words map to the same index. This can slightly reduce the model's ability to distinguish between words, but with a sufficiently large numFeatures (like the 1000 we used), the impact is usually minimal for many tasks.
 
 After HashingTF, the rawFeatures vector goes to the IDF step, which will re-weight these frequencies based on how common words are across all documents.
 
@@ -1181,7 +1182,7 @@ Logistic Regression model a coefficient is a numerical value that represents the
 
 Here's a simple way to think about it:
 
-Imagine you are trying to predict if someone will like a certain fruit based on two features: its sweetness and its color. A simple model might look something like this:
+Imagine we are trying to predict if someone will like a certain fruit based on two features: its sweetness and its color. A simple model might look something like this:
 
 Likelihood of liking the fruit = (Coefficient for Sweetness * Sweetness Score) + (Coefficient for Color * Color Score) + (Intercept)
 
@@ -1227,7 +1228,7 @@ The dual encoder model has some advantages over LLMs with prompts:
 
 Overall, the dual encoder model and LLMs with prompts are both powerful tools for natural language processing tasks, but they have different strengths and weaknesses, and are suited for different applications.
 
-**Here is a code snippet that shows how you can use the dual encoder model for inference:**
+**Here is a code snippet that shows how we can use the dual encoder model for inference:**
 
 <img width="423" height="600" alt="image" src="https://github.com/user-attachments/assets/9a9f1283-2931-48e6-843e-06cb50df1ea5" />
 
@@ -1254,7 +1255,7 @@ A quantized ONNX model (e.g., bert-base-uncased)
 
 An inference endpoint on Azure ML (CPU-based, cost-efficient)
 
-A working API you can call
+A working API we can call
 
 Step 1: Setup Environment
 🔧 Prerequisites
@@ -1269,7 +1270,7 @@ pip install azure-ai-ml onnxruntime optimum[onnxruntime] transformers
  Login to Azure
 az login
 az account set --subscription "YOUR_SUBSCRIPTION_ID"
-Step 2: Prepare and Quantize Your Transformer Model
+Step 2: Prepare and Quantize the Transformer Model
 Let’s use bert-base-uncased as an example.
 
 from transformers import AutoTokenizer
@@ -1399,7 +1400,7 @@ headers = {
 data = {"text": "Azure ML is great for deploying ONNX models!"}
 response = requests.post(endpoint.scoring_uri, headers=headers, json=data)
 print(response.json())
-Done! You now have:
+Done! we now have:
 A quantized BERT ONNX model
 
 Running on Azure ML as a scalable REST API
@@ -1478,7 +1479,7 @@ Python objects: Any Python objects that are not serialized in the checkpoint, su
 External state: Any external state, such as the state of other models or external libraries, will not be restored.
 When using PeftModel.from_pretrained, it only loads the model weights, but not the adapter state. The adapter state including the optimizer and scheduler, is stored in the trainer_state.json file in the checkpoint directory.
 
-By using resume_from_checkpoint, you can ensure that the entire training state, including the adapter state, is properly loaded from the checkpoint.
+By using resume_from_checkpoint, we can ensure that the entire training state, including the adapter state, is properly loaded from the checkpoint.
 
 **Files saved when a trained model is saved in local after a trained with optimal tuned hyperparameters**
 
@@ -1496,7 +1497,7 @@ When we use PeftModel.from_pretrained, it only loads the model weights and confi
 
 To save the trainer_state.json file we need to use the Trainer class from Hugging Face, which saves the trainer state along with the model weights.
 
-In your case, we are using PeftModel to load the model and then you are creating a new Trainer instance with the loaded model. However, when we save the model
+In this case, we are using PeftModel to load the model and then we are creating a new Trainer instance with the loaded model. However, when we save the model
 using model.save_pretrained, it only saves the model weights and configuration, but not the trainer state.
 
 To fix this, we need to use the Trainer instance to save the model which will save the trainer state along with the model weights. We can do this by calling trainer.save_model instead of model.save_pretrained. And this needs to be done after the PBT iteration loop this will ensure that the final model state is saved after the PBT iteration loop completes.
@@ -1556,8 +1557,8 @@ PBT helps avoid overfitting and finds gentler LRs → boosts F1.
 
 **Distributed training (DDP - Distributed Data Parallel/FSDP - Fully Sharded Data Parallel) inside each trial, Ray is still essential for everything else the workflow requires:**
 
-1. Ray gives you CONCURRENT HYPERPARAMETER SEARCH (HPO) using ALL GPUs
-Even without distributed training, Ray Tune lets you run:
+1. Ray gives us CONCURRENT HYPERPARAMETER SEARCH (HPO) using ALL GPUs
+Even without distributed training, Ray Tune lets us run:
 •	4 trials in parallel
 •	each on a dedicated GPU
 •	each with different hyperparameters
@@ -1565,16 +1566,16 @@ This IS NOT POSSIBLE with HuggingFace Trainer alone.
 Without Ray
 HuggingFace can only train one configuration at a time, on a single GPU.
 With Ray
-You run 4 completely independent trainings, each exploring a different hyperparameter region.
+The run 4 completely independent trainings, each exploring a different hyperparameter region.
 That’s the whole purpose of:
 •	PBT
 •	Bayesian optimization
 •	Hyperparam sampling
 •	mutation + exploitation
-You are using Ray not for data parallelism, but for search parallelism.
+We are using Ray not for data parallelism, but for search parallelism.
 ________________________________________
 2. Ray Tune = Population-Based Training (PBT) — which HuggingFace Trainer CANNOT DO
-Your scheduler is:
+The scheduler is:
 pbt = PopulationBasedTraining(...)
 This algorithm requires:
 •	multiple parallel workers
@@ -1582,27 +1583,27 @@ This algorithm requires:
 •	cloning best-performing checkpoints
 •	replacing weaker trials mid-training
 HF Trainer cannot do PBT by itself.
-Ray is the only reason you can use PBT.
+Ray is the only reason we can use PBT.
 ________________________________________
 3. Ray manages GPU allocation better than Databricks
 Databricks has no native GPU queue.
-Ray gives you:
+Ray gives us:
 •	resources_per_trial={"gpu": 1}
 •	guaranteed GPU isolation
 •	trial scheduling
 •	placement groups
 •	resource-aware parallelism
-If you try 4 parallel HF processes without Ray → they will fight for GPU 0, crashing instantly.
+If we try 4 parallel HF processes without Ray → they will fight for GPU 0, crashing instantly.
 Ray eliminates that.
 ________________________________________
 4. Ray Tune handles trial retries, logging, checkpointing
-You get:
+We get:
 •	automatic retries
 •	storage of all trial artifacts under /root/ray_results
 •	TensorBoard dashboard
 •	unified logs per trial
 •	final best-trial selection
-Using pure HF Trainer → you must manually script all this.
+Using pure HF Trainer → we must manually script all this.
 Ray gives it for free.
 ________________________________________
 5. Ray workers are isolated MINIPROCESSES
@@ -1614,21 +1615,21 @@ This matters because:
 This is a MASSIVE stability improvement over multi-threaded pure Python.
 ________________________________________
 6. Ray makes autoscaling possible
-Later, if you move to Ray on Kubernetes or Ray cluster:
-•	you can run 50+ trials on 50 GPUs
+Later, if we move to Ray on Kubernetes or Ray cluster:
+•	We can run 50+ trials on 50 GPUs
 •	perfect for model exploration
-•	nothing changes in your script
-Ray makes your workflow future-proof.
+•	nothing changes in the script
+Ray makes the workflow future-proof.
 ________________________________________
 7. Ray Tune does not require distributed training
 Ray is NOT a distributed training framework.
-Ray gives you task-level parallelism, not gradient parallelism.
-You can have:
+Ray gives us task-level parallelism, not gradient parallelism.
+We can have:
 ✔ All trials run independently
 ✔ Each trial uses 1 GPU
 ✔ No distributed training
 ✔ Still full PBT correctness
-That is exactly the setup you need.
+That is exactly the setup we need.
 ________________________________________
 Analogy
 Think:
@@ -1636,7 +1637,7 @@ Think:
 •	Ray Tune = the scientist running many different experiments in parallel
 Even if the model trains only on 1 GPU, the experiment scheduler (Ray) is still crucial.
 ________________________________________
-So the answer: YES — you still need Ray.
+So the answer: YES — we still need Ray.
 Ray is not about distributed training —
 Ray is about scaling the number of experiments efficiently.
 
@@ -1740,7 +1741,7 @@ Typical Training Workload
 Dataset: 80k train + 10k val (≈ 90k samples)
 Model: local model proposed (1.85B parameters)
 LoRA + PBT training
-Runtime: ≈ 1 hour per full training run (your logs confirm 58–60 min)
+Runtime: ≈ 1 hour per full training run (the logs confirm 58–60 min)
 
 GPU pricing (2025 Databricks on Azure)
 
@@ -1758,7 +1759,7 @@ Databricks Model Serving Example Pricing (2025)
 
 Medium 2×T4 ~$4/hr
 
-Inference Speed (your benchmark)
+Inference Speed (the benchmark)
 
 Local Model forward pass ≈ 5–10 ms per document with 1,000 docs = 10 seconds (batching: <5 seconds)
 
@@ -2041,7 +2042,7 @@ num_samples=2
 Above will cause mutation and perturbation as the number early_stop_patience was set to five meaning five continuous iterations hence early stopping would take long period of time to complete
 
 
-If you want mutation by PBT then make sure early_stop_patience=3. 
+If we want mutation by PBT then make sure early_stop_patience=3. 
 
 
 Early stopping
@@ -2110,7 +2111,7 @@ AUC-ROC interpretation:
 
 AUC-ROC (Area Under the Receiver Operating Characteristic Curve) is indeed an evaluation metric used to assess the performance of a binary classification model. It plots the True Positive Rate (TPR) against the False Positive Rate (FPR) at different classification thresholds, and the area under this curve represents the model's ability to distinguish between the positive and negative classes.
 
-In the context of your code, AUC-ROC is used to evaluate the performance of the model in classifying documents as either related to tax issues or not. The AUC-ROC score ranges from 0 to 1, where:
+In the context of the code, AUC-ROC is used to evaluate the performance of the model in classifying documents as either related to tax issues or not. The AUC-ROC score ranges from 0 to 1, where:
 
 0.9-1.0: Excellent classification performance
 0.7-0.89: Good classification performance
@@ -2156,7 +2157,7 @@ Recall: 0.30 - The model only correctly identified 30% of the samples that were 
 
 F1-score: 0.46 - The harmonic mean of precision and recall for this class.
 
-Overall, the model is performing in terms of recall for the positive class (related to tax issues). This means that the model is missing many samples that are actually related to tax issues. The high precision for the positive class is misleading, as it's due to the fact that there are no false positives. The model is heavily biased towards predicting negative classes, which is why the AUC-ROC score is 1.0. To improve the model's performance, you may need to adjust the threshold or explore other techniques to reduce the bias towards negative classes.
+Overall, the model is performing in terms of recall for the positive class (related to tax issues). This means that the model is missing many samples that are actually related to tax issues. The high precision for the positive class is misleading, as it's due to the fact that there are no false positives. The model is heavily biased towards predicting negative classes, which is why the AUC-ROC score is 1.0. To improve the model's performance, we may need to adjust the threshold or explore other techniques to reduce the bias towards negative classes.
 
 **Here's a step-by-step breakdown:**
 
@@ -2275,7 +2276,7 @@ A Sensor to Respond capability is implemented to automatically mitigate risk whe
 
 **Data Quality**
 
-How do you manage data quality and governance?
+How do we manage data quality and governance?
 
 Sample data is provided by the business team and synthetic data is generated using controlled python scripts to augment coverage while preserving domain validity.
 
@@ -2287,10 +2288,10 @@ Is exploratory data analysis (EDA) performed? When?
 
 EDA is performed to synthetic data generation process using controlled python scripts to ensure that augmented data remains aligned with domain expectations and does not introduce unintended artifacts or inconsistencies.
 
-How do you perform data profiling, check distributions, and correlations? 
+How do we perform data profiling, check distributions, and correlations? 
 We performed Distribution checks mainly to assess class balance value ranges for binary classification problem and to make sure there is consistency between sample data provided by the business team and synthetically generated data created using controlled python scripts.
 
-How do you handle missing data, outliers, duplicates, and class imbalance?
+How do we handle missing data, outliers, duplicates, and class imbalance?
 
 Missing data outliers duplicates and class imbalance are managed primarily during data preparation and exploratory data analysis prior to training. The training dataset is generated internally using controlled python scripts and business provided sample content. No public datasets or dynamic open source data sources are used.
 
@@ -2298,7 +2299,7 @@ What data quality dimensions and measurements are used?
 
 We manage data consistency by verifying alignment between document content labels and derived attributes such as language tags and PII indicators across training validation and test splits. Relevance and representativeness are assessed by reviewing class coverage and distribution across labels including rare cases to ensure alignment with intended business use.
 
-How do you ensure labelling consistency? 
+How do we ensure labelling consistency? 
 Labelling consistency is ensured through deterministic rule based label generation embedded in the data synthesis pipeline Labels are assigned from explicit version controlled rules and validation logic Structural and content indicators are only applied when the corresponding text patterns are present and are automatically reconciled using rule checks and regex based detection We run post generation validation to confirm label to text alignment and reject or regenerate records that violate constraints Since labels are programmatically generated and not manually annotated inter annotator variability is not applicable All outputs are sanitized to the approved character set a-z A-Z 0-9 space - . _ : ( ) ; % & @ ? = /
 Label schema included in the pipeline
 tax_problem
@@ -2533,7 +2534,7 @@ def featurize(iterator):
     
     for batch in iterator:
         # batch contains a Pandas Series of image data/paths
-        images = preprocess(batch)  # your preprocessing logic
+        images = preprocess(batch)  # the preprocessing logic
         features = model.predict(images)
         yield pd.Series(list(features))
 ✅ Key Design Points
@@ -2571,7 +2572,7 @@ Combining:
 Online feature store values
 Incoming request data
 
-They allow you to:
+They allow us to:
 
 Define transformation logic once
 Automatically apply it during inference
@@ -2640,7 +2641,7 @@ Lakeflow Declarative Pipelines utilizing Auto Loader configured with cloudFiles.
 Why this is the right combination:
 
 Auto Loader is the Databricks component designed for incremental, scalable file ingestion from cloud storage, especially for millions of incoming JSON files.
-It supports schema inference and schema evolution, which is exactly what you need for semi-structured IoT JSON data.
+It supports schema inference and schema evolution, which is exactly what we need for semi-structured IoT JSON data.
 Writing into a Bronze Delta table through a streaming table gives reliable, fault-tolerant ingestion with Delta Lake benefits.
 
 -----------------------------------------------------------------------------------------------------------
@@ -2655,7 +2656,7 @@ Why:
 day_of_week is a categorical string column.
 StringIndexer first converts values like "Monday", "Tuesday" into numeric category indices.
 OneHotEncoder then converts those indices into a one-hot vector, which avoids creating a false ordinal meaning between days.
-After that, you use VectorAssembler to combine this encoded vector with the numerical features.
+After that, we use VectorAssembler to combine this encoded vector with the numerical features.
 
 ------------------------------------------------------------
 
@@ -2665,9 +2666,9 @@ A Data Science team has successfully trained an MLflow model that includes a com
 Creating an implementation that inherits from mlflow.pyfunc.PythonModel and overriding the predict() method to include the CustomPreprocessor logic.
 
 Why:
-A custom pyfunc model is the MLflow mechanism intended for packaging arbitrary Python inference logic, including preprocessing, postprocessing, branching, and framework-specific model loading, in a form that Databricks Model Serving can deploy. Databricks explicitly recommends pyfunc when your model requires preprocessing before calling the underlying model.
+A custom pyfunc model is the MLflow mechanism intended for packaging arbitrary Python inference logic, including preprocessing, postprocessing, branching, and framework-specific model loading, in a form that Databricks Model Serving can deploy. Databricks explicitly recommends pyfunc when the model requires preprocessing before calling the underlying model.
 
-This approach keeps the XGBoost artifact separate from your custom Python code while exposing a single deployable inference interface. In a PythonModel, you typically place one-time loading in load_context() and per-request execution in predict(), which is exactly the pattern needed for low-latency serving with custom preprocessing.
+This approach keeps the XGBoost artifact separate from the custom Python code while exposing a single deployable inference interface. In a PythonModel, we typically place one-time loading in load_context() and per-request execution in predict(), which is exactly the pattern needed for low-latency serving with custom preprocessing.
 
 --------------------------------------------------------------------------------
 
@@ -2682,7 +2683,7 @@ Why these three:
 
 Databricks recommends use_gpu=True to enable GPU training with xgboost.spark.
 For distributed training, num_workers should match the number of concurrent Spark tasks, and Databricks specifically recommends sc.defaultParallelism to use all Spark task slots.
-For highly sparse features, Databricks documents that you should enable sparse-data optimization and set missing=0.0 when the features column contains SparseVector values.
+For highly sparse features, Databricks documents that we should enable sparse-data optimization and set missing=0.0 when the features column contains SparseVector values.
 
 -------------------------------------------------------------------------
 
@@ -2692,7 +2693,7 @@ The Pipeline class, which chains the feature transformers and includes the Cross
 
 Why:
 
-You need to bundle multiple stages into one reproducible ML workflow:
+We need to bundle multiple stages into one reproducible ML workflow:
 StringIndexer
 VectorAssembler
 DecisionTreeClassifier
@@ -2763,7 +2764,7 @@ from pyspark.ml.tuning import TrainValidationSplitModel
 
 loaded_model = TrainValidationSplitModel.load(path)
 
-Then you can use the best fitted model for inference through the loaded object.
+Then we can use the best fitted model for inference through the loaded object.
 
 So the right answer is:
 
@@ -2816,7 +2817,7 @@ Why:
 
 A fitted TrainValidationSplitModel exposes its winning model through bestModel.
 When the tuned estimator is a Pipeline, that bestModel is typically a PipelineModel, not directly a LogisticRegressionModel.
-So to get the actual trained classifier, you inspect the pipeline stages and extract the final fitted stage, which is the LogisticRegressionModel.
+So to get the actual trained classifier, we inspect the pipeline stages and extract the final fitted stage, which is the LogisticRegressionModel.
 
 So the key Spark MLlib concept involved is:
 
@@ -2853,7 +2854,7 @@ In SparkML LogisticRegression, elasticNetParam controls the mix:
 0.0 = pure L2 regularization
 1.0 = pure L1 regularization
 0.5 = equal mix of L1 and L2
-If you want feature selection and a simpler sparse model, you favor L1/Lasso.
+If we want feature selection and a simpler sparse model, we favor L1/Lasso.
 
 So the right choice is:
 
@@ -2887,9 +2888,9 @@ An ML Engineering team needs to implement an A/B test for a high-traffic, low-la
 
 Utilizing Model Aliases (Champion/Challenger) assigned to specific model versions combined with Model Serving endpoint traffic splitting functionality.
 
-Databricks Model Serving supports a single endpoint serving multiple models and lets you configure a traffic split between the served entities, such as 50/50 for online A/B testing.
+Databricks Model Serving supports a single endpoint serving multiple models and lets us configure a traffic split between the served entities, such as 50/50 for online A/B testing.
 
-In the Databricks MLOps reference flow, models are often managed with “Champion” and “Challenger” aliases in Unity Catalog, and Databricks notes that you can create one endpoint with multiple models and specify the endpoint traffic split for Champion-vs-Challenger comparisons.
+In the Databricks MLOps reference flow, models are often managed with “Champion” and “Challenger” aliases in Unity Catalog, and Databricks notes that we can create one endpoint with multiple models and specify the endpoint traffic split for Champion-vs-Challenger comparisons.
 
 So the correct answer is the option combining:
 Champion/Challenger aliases + Model Serving traffic splitting.
@@ -2900,9 +2901,9 @@ A quality assurance team requires continuous monitoring of a deployed classifica
 
 Defining custom metrics that specify the criteria for filtering inference data down to the required slice for performance evaluation.
 
-But there is an important nuance: in Databricks Lakehouse Monitoring, the native best-practice mechanism for predefined subpopulations is actually slicing expressions, not custom metrics by themselves. Databricks lets you add “metric slicing expressions” so the monitor computes metrics for those subsets in addition to the full table. For example, an expression can create slices for a predicate and its complement, or one slice per unique value of a column.
+But there is an important nuance: in Databricks Lakehouse Monitoring, the native best-practice mechanism for predefined subpopulations is actually slicing expressions, not custom metrics by themselves. Databricks lets us add “metric slicing expressions” so the monitor computes metrics for those subsets in addition to the full table. For example, an expression can create slices for a predicate and its complement, or one slice per unique value of a column.
 
-Databricks also documents that, for profile creation, you can add custom metrics and slicing expressions in advanced options, and that the profile metrics are computed for each slice.
+Databricks also documents that, for profile creation, us can add custom metrics and slicing expressions in advanced options, and that the profile metrics are computed for each slice.
 
 So, strictly speaking:
 
@@ -2977,7 +2978,7 @@ The SparkML PipelineModel, being a Transformer, directly implements the distribu
 Why:
 
 A fitted Spark MLlib PipelineModel is a Transformer.
-In Structured Streaming, you apply Spark ML models to the streaming DataFrame using model.transform(df_stream).
+In Structured Streaming, we apply Spark ML models to the streaming DataFrame using model.transform(df_stream).
 This keeps scoring distributed and native to Spark, which is the efficient pattern for high-volume streaming inference.
 
 Why the others are not right:
@@ -3008,7 +3009,7 @@ A model trained using Databricks Feature Engineering in Unity Catalog automatica
 
 It prioritizes the existing feature values in the input DataFrame and skips retrieving those specific features from Feature Store.
 
-Databricks documents that by default a model packaged with feature metadata looks up features at inference time, but if you include a feature column in the DataFrame passed to FeatureEngineeringClient.score_batch(), that provided value is used instead. In their example, when the batch DataFrame includes account_creation_date, the API looks up only num_lifetime_purchases from Feature Store and uses the provided account_creation_date values for scoring.
+Databricks documents that by default a model packaged with feature metadata looks up features at inference time, but if we include a feature column in the DataFrame passed to FeatureEngineeringClient.score_batch(), that provided value is used instead. In their example, when the batch DataFrame includes account_creation_date, the API looks up only num_lifetime_purchases from Feature Store and uses the provided account_creation_date values for scoring.
 
 So for columns like age or income that are already present in the prediction DataFrame, the client uses those local values and does not fetch those same features again from the offline store.
 
@@ -3019,7 +3020,7 @@ A fraud team maintains a complex ML pipeline where the final prediction step req
 
 The Feature Store Model Lookup metadata, which links the Unity Catalog Python UDF using a FeatureFunction.
 
-Databricks’ on-demand feature workflow says the feature-combination logic must be defined in the model’s feature lookup metadata during training by passing a FeatureFunction plus any FeatureLookup objects into create_training_set(). That metadata is then preserved when you log the model with fe.log_model(...), which is what allows score_batch() to automatically compute the on-demand UDF feature and combine it with looked-up features during distributed batch inference.
+Databricks’ on-demand feature workflow says the feature-combination logic must be defined in the model’s feature lookup metadata during training by passing a FeatureFunction plus any FeatureLookup objects into create_training_set(). That metadata is then preserved when we log the model with fe.log_model(...), which is what allows score_batch() to automatically compute the on-demand UDF feature and combine it with looked-up features during distributed batch inference.
 
 So the entity that encapsulates the feature combination and logic definition is not the Workflow job or a manually coded PyFunc wrapper. It is the model’s Feature Store / Feature Engineering lookup metadata, specifically the FeatureFunction definition bound into the training set and logged with the model.
 
@@ -3031,7 +3032,7 @@ models:/<catalog>.<schema>.policy_model@Champion
 
 Unity Catalog models use the full three-level name, and Databricks recommends aliases for deployment status. Databricks shows the inference URI format as models:/prod.ml_team.iris_model@Champion, and notes that workloads automatically pick up the new version when the alias is reassigned. It also states that stages are not supported in Unity Catalog, so .../Production is not the right pattern there.
 
-So from your options, the correct one is:
+So from the options, the correct one is:
 
 models:/<catalog>.<schema>.policy_model@Champion
 
@@ -3068,7 +3069,7 @@ Load the model as a distributed function using predict_udf = mlflow.pyfunc.spark
 
 Why:
 
-mlflow.pyfunc.spark_udf is the standard MLflow approach for distributed batch inference on Spark DataFrames, which is exactly what you want for a 10 TB Delta table. It lets Spark execute inference across the cluster instead of forcing scoring onto one machine.
+mlflow.pyfunc.spark_udf is the standard MLflow approach for distributed batch inference on Spark DataFrames, which is exactly what we want for a 10 TB Delta table. It lets Spark execute inference across the cluster instead of forcing scoring onto one machine.
 This is far more scalable than loading the model on the driver, using a row-by-row plain Python UDF, or converting the data to local NumPy/pandas objects. Those approaches do not fit a dataset of this size and would severely limit throughput.
 
 So the correct option is the one using:
@@ -3100,7 +3101,7 @@ Use the native SQL function ai_query directly within a Spark SQL or DataFrame co
 
 Databricks documents AI Functions as the built-in way to apply AI to data stored on Databricks, and specifically says ai_query() can be used for both generative AI and batch inference workloads. It is presented as optimized for batch inference and production workflows, which fits a scheduled, high-throughput classification job over a Delta table.
 
-This is the best fit here because the requirement is to classify 5 billion comments in a unified data pipeline using a Databricks-hosted LLM. AI Functions let you invoke those hosted models directly from SQL over your Delta data rather than building custom driver-side loops, manual sharding, or billions of REST calls. Databricks also notes that Model Serving and AI Functions are tightly integrated for batch inference scenarios.
+This is the best fit here because the requirement is to classify 5 billion comments in a unified data pipeline using a Databricks-hosted LLM. AI Functions let us invoke those hosted models directly from SQL over the Delta data rather than building custom driver-side loops, manual sharding, or billions of REST calls. Databricks also notes that Model Serving and AI Functions are tightly integrated for batch inference scenarios.
 
 ai_query within Spark SQL / DataFrame context.
 
@@ -3127,7 +3128,7 @@ Executing a large-scale, distributed matrix factorization (ALS) model on a 50 TB
 Why these require Spark:
 
 Databricks recommends batch inference with Spark for large offline workloads over tables, which fits the 100 million row weekly scoring case.
-Structured Streaming is the right choice for continuous event processing from sources like Kafka, especially when you need distributed transformations/rules plus model scoring in the stream.
+Structured Streaming is the right choice for continuous event processing from sources like Kafka, especially when we need distributed transformations/rules plus model scoring in the stream.
 A 50 TB ALS recommendation scoring workload is inherently a large-scale distributed Spark ML job, not an online serving pattern. Databricks positions Spark/Databricks Runtime for large batch and streaming workloads, while Model Serving is aimed at online or endpoint-style inference.
 
 Why the other two do not mandate Spark over Model Serving:
