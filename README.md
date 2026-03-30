@@ -1641,7 +1641,6 @@ So the answer: YES — we still need Ray.
 Ray is not about distributed training —
 Ray is about scaling the number of experiments efficiently.
 
-
 **Early stopping alone is not enough**
 Early stopping stops bad models but it does not improve hyperparameters.
 
@@ -1649,9 +1648,7 @@ Early stopping stops bad models but it does not improve hyperparameters.
 
 AUC-ROC stands for Area Under the Receiver Operating Characteristic Curve. It's a metric used to evaluate the performance of a binary classification model.
 
-
 **What does it measure?**
-
 
 AUC-ROC measures the model's ability to distinguish between two classes (e.g., positive and negative, 0 and 1, etc.). It plots the True Positive Rate (TPR) against the False Positive Rate (FPR) at different threshold settings.
 
