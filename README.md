@@ -1667,7 +1667,6 @@ A higher AUC-ROC value indicates better model performance.
 
 **How to interpret AUC-ROC values:**
 
-
 0.9-1: Excellent classification performance
 
 0.7-0.89: Good classification performance
@@ -1677,7 +1676,6 @@ A higher AUC-ROC value indicates better model performance.
 0.4-0.49: Poor classification performance
 
 0-0.39: Very poor classification performance
-
 
 
 In the classification evaluation code, the AUC-ROC value is calculated using the roc_auc_score function from scikit-learn, which takes the true labels and predicted probabilities as input. The resulting AUC-ROC value provides an estimate of the model's ability to distinguish between the two classes.
@@ -1975,7 +1973,7 @@ Assuming 1-2 seconds per batch, the total training time would be around 1-2 hour
 
 **How is Ray tune - num_samples(trials) indicated through the logs in Ray Tune while training ?**
 
-In this three trials were completed and early stopping was triggered as there was no improvement in loss. 
+In this the three trials were completed and early stopping was triggered as there was no improvement in loss. 
 
 **Logs:**
 
@@ -1999,9 +1997,9 @@ Logical resource usage: 2.0/36 CPUs, 1.0/1 GPUs (0.0/1.0 accelerator_type:A10)
 
 After completing certain number of trials within training PBT periodically ranks trials and performs exploit/explore:
 
-Exploit: Copy weights & hyperparameters from best to worst.
+**Exploit:** Copy weights & hyperparameters from best to worst.
 
-Explore: Mutate hyperparameters slightly for diversity.
+**Explore:** Mutate hyperparameters slightly for diversity.
 
 If ranking is unstable (due to noisy metrics or dependency issues) PBT can fail to converge ie. Divergence after Convergence would never happen as a result.
 
@@ -2024,23 +2022,20 @@ In this case PBT has perturbed the hyperparameters from trial 967a0_00001 with t
 
 **Side Notes**
 
-Early stopping
+**Early stopping**
 early_stop_patience=5
 early_stop_min_delta=0.001
 
-
-PBT
+**PBT**
 max_pbt_iters=2
 perturbation_interval=1
 
-Ray Tune config
+**Ray Tune config**
 num_samples=2
 
 Above will cause mutation and perturbation as the number early_stop_patience was set to five meaning five continuous iterations hence early stopping would take long period of time to complete
 
-
 If we want mutation by PBT then make sure early_stop_patience=3. 
-
 
 Early stopping
 early_stop_patience=3
