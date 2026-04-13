@@ -1,16 +1,13 @@
 # Databricks notebook source
 from pyspark.sql import functions as F, types as T
-
 # -----------------------------------------
 # 1. Downstream reads upstream parquet files
 # -----------------------------------------
 input_path = "abfss://stage@account.dfs.core.windows.net/extracted_text_parquet/"
-
+# Spark creates a logical DataFrame, Spark records how to read the parquet files and no real distributed reading happens yet
 df = spark.read.parquet(input_path)
-
 # Expected shape:
 # document_id | page_number | chunk_number | text | image_paths | metadata...
-
 # -----------------------------------------
 # 2. Keep only what is needed for redaction
 # -----------------------------------------
@@ -20,12 +17,10 @@ text_df = df.select(
     "chunk_number",
     "text"
 ).filter(F.col("text").isNotNull())
-
 # -----------------------------------------
 # 3. Repartition for distributed processing
 # -----------------------------------------
 text_df = text_df.repartition(64)
-
 # -----------------------------------------
 # 4. Redact on executors using mapPartitions
 #    so Presidio objects are initialized once
@@ -39,7 +34,6 @@ output_schema = T.StructType([
     T.StructField("redacted_text", T.StringType(), True),
     T.StructField("pii_found", T.BooleanType(), True)
 ])
-
 def redact_partition(rows):
     # Runs inside each executor partition
     from presidio_analyzer import AnalyzerEngine
