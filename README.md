@@ -398,6 +398,20 @@ Pooler output → Linear layer → Logits → Sigmoid activation (internal to BC
 
 As we can see, the tanh activation function is applied to the pooler_output to produce a vector representation while the sigmoid activation function is applied to the logits to produce a probability output. These two activation functions are not in conflict with each other and they serve different purposes in the model.
 
+**The two plots which are empty why?**
+
+Mutating lora_rank during PBT is fundamentally different from mutating continuous hyperparameters like lr or margin, and here's why it destabilizes training:
+
+Rank is architectural, not a training knob. LoRA decomposes weight updates as ΔW = B·A where B is (d × r) and A is (r × d). Changing rank from 32 → 8 means the matrices have incompatible shapes. When PBT tries to exploit (copy weights from a top-performing trial to a bottom trial), it can't transfer LoRA weights between trials with different ranks — the tensors don't match.
+
+Even without exploitation, mutation is destructive. If PBT perturbs rank mid-training, the LoRA adapter must be reinitialized with new dimensions. This instantly erases all learned low-rank adaptations accumulated over previous iterations — effectively resetting that trial's model to near-random LoRA state while the rest of training expects a warm-started model.
+
+Contrast with safe-to-mutate hyperparameters:
+
+lr, wd, warmup — optimizer state adjusts smoothly; no weight destruction
+alpha, margin, contrast_weight — loss scaling changes; gradients shift but model weights remain intact
+Your fix is the standard practice: hardcode r=32 and lora_alpha=32 so all trials share identical architecture, making PBT exploitation (weight copying between trials) safe. The commented line #"lora_rank": [4,8,16,32] would have caused checkpoint-incompatible trials and likely RuntimeError: size mismatch or sudden loss spikes after exploitation events.
+
 Following the above training with Trials running in parallel : 
 
 <img width="789" height="257" alt="image" src="https://github.com/user-attachments/assets/98b897f1-cd3e-46ae-887f-20a141f14f52" />
