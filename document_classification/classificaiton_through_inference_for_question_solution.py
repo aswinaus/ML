@@ -71,7 +71,7 @@ PATH_JSON_OUT  = abfss(container_stage, "extracted_json/")    # DI/Vision JSON h
 PATH_CLEANED   = abfss(container_redacted, "cleaned/")           # PII-clean text
 PATH_EMBED     = abfss(container_stage, "embeddings/")        # parquet with embeddings
 PATH_TEXT_OUT = abfss(container_stage, "text/")
-#PATH_Mistral = abfss(container_model, "Mistral 24B Instruct/")
+PATH_CLASSIFIED = abfss(container_classified, "problem_solution/")
 
 # Mount if not already mounted
 #mount_point = f"/mnt/{container_model}/Mistral 24B Instruct"
@@ -271,8 +271,9 @@ def process_partition_serving(rows_iter):
 
             rd["semantic_score"] = float(round(best_score, 4))
             rd["classification"] = "Problem+Solution" if best_score >= TH else "Other"
-
+            print("Wrote classified outputs to classified:", "problem_classified")
         except Exception:
+            print("Wrote classified outputs to:", "Other")
             rd["semantic_score"] = 0.0
             rd["classification"] = "Other"
 
@@ -308,11 +309,11 @@ df_final = (
 # ---------- Write results back to ADLS as Parquet, partitioned by relative_folder ----------
 (
     df_final
-    .coalesce(200)
+    .coalesce(20)
     .write
     .mode("overwrite")
     .partitionBy("relative_folder")
-    .parquet(PATH_CLASSIFIED)
+    .json(PATH_CLASSIFIED)
 )
 
 # COMMAND ----------
