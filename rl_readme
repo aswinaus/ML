@@ -80,8 +80,8 @@ DPO works with KH specific dataset structure.
 How DPO learns from this:
 DPO doesn't learn what to output for a specific document — it learns the style and quality patterns that distinguish preferred from non-preferred outputs. Across your 10 pairs, the model picks up signals like:
 	• References should be populated (not empty) — reviewer flagged this as "material omission"
-	• Client_Issue should be concise, tax-focused, anonymized (max 120 words per V7.4.10)
-	• EY_Analysis should be substantive (2-3 paragraphs), not transaction-driven
+	• Client_Issue should be concise, tax-focused, anonymized (max 120 words per VX.X.10)
+	• TaxProf_Analysis should be substantive (2-3 paragraphs), not transaction-driven
 	• The structured JSON should prioritize RAG findability over verbatim extraction
 
 The DPO loss function for each pair:
@@ -92,11 +92,11 @@ With 10 pairs (8 train / 2 val), this is a very small dataset. It will nudge the
 Each training sample has this structure
 
 input: [
-  {"role": "system", "content": <GENERATOR_SYSTEM_PROMPT from V7.4.10 — 23,417 chars>},
+  {"role": "system", "content": <GENERATOR_SYSTEM_PROMPT from VX.X.10 — 23,417 chars>},
   {"role": "user", "content": "Text to analyze:\n\"\"\"<source document text>\"\"\""}
 ]
 preferred_output: [
-  {"role": "assistant", "content": <human-corrected Asset/Client_Issue/EY_Analysis/Tax_Years/References>}
+  {"role": "assistant", "content": <human-corrected Asset/Client_Issue/TaxProf_Analysis/Tax_Years/References>}
 ]
 non_preferred_output: [
   {"role": "assistant", "content": <raw o4-mini asset_json>}
@@ -124,14 +124,14 @@ RAG findability of Client_Issue
 
 2. Source Faithfulness (NLI-based) Use a natural language inference model to score whether the generated asset is entailed by the source document — penalizes hallucination:
 
-For each claim in EY_Analysis, check if it's grounded in the source text
+For each claim in TaxProf__Analysis, check if it's grounded in the source text
 Reward = proportion of claims that are entailed
 This directly addresses quality: the model learns not to fabricate legal references or invent tax positions
 
 3. Semantic Distinctiveness Between Fields Your reviewer praised assets where fields have clear, non-overlapping roles. Score:
 
 Client_Issue ≠ paraphrase of Asset (cosine distance > threshold → reward)
-EY_Analysis adds reasoning beyond what's in Asset (information gain → reward)
+TaxProf_Analysis adds reasoning beyond what's in Asset (information gain → reward)
 This teaches the model that each field has a distinct purpose
 
 4. Reference Quality Reward The missing-references issue that caused rejection:
@@ -143,7 +143,7 @@ Unlike schema check (non-empty list), this rewards correct and complete referenc
 5. Conciseness vs Completeness Trade-off
 
 Client_Issue: reward peaks at 80-120 words with high information density
-EY_Analysis: reward for covering all tax themes from source, penalize repetition
+TaxProf_Analysis: reward for covering all tax themes from source, penalize repetition
 Measured via compression ratio (meaning per word)
 
 For each source document:
