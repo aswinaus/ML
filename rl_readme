@@ -40,9 +40,130 @@ You can use this file to document:
 - Evaluation metrics
 - References and learning resources
 
-## Next Steps
+DPO (Direct Preference Optimization) and GRPO (Group Relative Policy Optimization) are both alignment methods for LLMs, but they differ fundamentally in how they learn from feedback:
 
-Consider expanding this README with:
+DPO — Offline, Pairwise Preferences
+Requires a static dataset of preference pairs: (chosen, rejected) for the same input
+Eliminates the reward model entirely — optimizes the policy directly using a closed-form loss derived from the Bradley-Terry preference model
+Training is offline: collect all preference data upfront, then train
+
+Strength: simple pipeline (no reward model, no sampling at train time)
+
+Weakness: needs high-quality human preference pairs; can't self-improve beyond what's in the dataset
+
+
+
+
+GRPO — Online, Self-Generated Rewards
+
+Generates multiple candidate outputs (a "group") from the current policy for each prompt
+Scores each candidate using a reward signal (rule-based, verifier, or model-based)
+Computes relative advantage within the group — no external baseline or critic model needed
+Updates the policy toward higher-reward responses within each group
+
+Training is online/iterative: the model improves by exploring and self-evaluating
+
+Strength: doesn't need pre-collected preference pairs; naturally handles tasks with verifiable correctness (math, code, structured output)
+
+Weakness: needs a reliable reward signal; more compute at train time (multiple rollouts per prompt)
+For your use case (structured tax asset generation), DPO is a good fit because you already have human-corrected (preferred) vs raw LLM (non-preferred) pairs from the HITL pipeline. GRPO would be more appropriate if you had a programmatic verifier (e.g., schema validation, reference completeness check) and wanted the model to self-improve iteratively without human labels.
+
+
+
+
+
+DPO works with KH specific dataset structure.
+
+
+
+
+How DPO learns from this:
+DPO doesn't learn what to output for a specific document — it learns the style and quality patterns that distinguish preferred from non-preferred outputs. Across your 10 pairs, the model picks up signals like:
+	• References should be populated (not empty) — reviewer flagged this as "material omission"
+	• Client_Issue should be concise, tax-focused, anonymized (max 120 words per V7.4.10)
+	• EY_Analysis should be substantive (2-3 paragraphs), not transaction-driven
+	• The structured JSON should prioritize RAG findability over verbatim extraction
+
+The DPO loss function for each pair:
+Increase log P(preferred | input) relative to log P(non_preferred | input)
+Even though each source document is different, the model generalizes the correction patterns — it learns that human reviewers consistently prefer more tax-focused, properly structured, reference-complete outputs over raw o4-mini outputs.
+With 10 pairs (8 train / 2 val), this is a very small dataset. It will nudge the model's behavior but won't dramatically reshape it. As more assets get reviewed (the 33 NULL rows), your dataset grows and the signal strengthens.
+
+Each training sample has this structure
+
+input: [
+  {"role": "system", "content": <GENERATOR_SYSTEM_PROMPT from V7.4.10 — 23,417 chars>},
+  {"role": "user", "content": "Text to analyze:\n\"\"\"<source document text>\"\"\""}
+]
+preferred_output: [
+  {"role": "assistant", "content": <human-corrected Asset/Client_Issue/EY_Analysis/Tax_Years/References>}
+]
+non_preferred_output: [
+  {"role": "assistant", "content": <raw o4-mini asset_json>}
+]
+
+
+
+
+
+
+GRPO - Group Relative Policy Optimization
+
+Schema verification only catches structural issues (valid JSON, fields present). To improve content quality (tax relevance, analytical depth, proper anonymization), you need richer reward signals. Here's how GRPO applies to your asset pipeline:
+
+The core idea: Generate multiple asset candidates for the same source document, score each on quality dimensions, then reinforce the better ones.
+
+Quality reward components for your use case:
+
+1. Reviewer Alignment Reward (learned from KH HITL data) Train a lightweight reward model on your existing review_comment data. The reviewer (Tijn) consistently evaluates along specific axes — you can extract scoring rubrics:
+
+Tax-focus vs transaction-focus (the rejected asset was "too transaction-driven")
+Statutory anchoring (citing specific legislation)
+Analytical separation (clear structure between distinct tax issues)
+RAG findability of Client_Issue
+
+2. Source Faithfulness (NLI-based) Use a natural language inference model to score whether the generated asset is entailed by the source document — penalizes hallucination:
+
+For each claim in EY_Analysis, check if it's grounded in the source text
+Reward = proportion of claims that are entailed
+This directly addresses quality: the model learns not to fabricate legal references or invent tax positions
+
+3. Semantic Distinctiveness Between Fields Your reviewer praised assets where fields have clear, non-overlapping roles. Score:
+
+Client_Issue ≠ paraphrase of Asset (cosine distance > threshold → reward)
+EY_Analysis adds reasoning beyond what's in Asset (information gain → reward)
+This teaches the model that each field has a distinct purpose
+
+4. Reference Quality Reward The missing-references issue that caused rejection:
+
+Extract legislation/regulation mentions from source doc (regex + entity recognition)
+Compare to References field — reward for recall of statutory citations
+Unlike schema check (non-empty list), this rewards correct and complete references
+
+5. Conciseness vs Completeness Trade-off
+
+Client_Issue: reward peaks at 80-120 words with high information density
+EY_Analysis: reward for covering all tax themes from source, penalize repetition
+Measured via compression ratio (meaning per word)
+
+For each source document:
+  1. Generate 8 candidate asset outputs (rollouts)
+  2. Score each with composite reward:
+       R = 0.3 × faithfulness
+         + 0.25 × reviewer_alignment  
+         + 0.2 × reference_completeness
+         + 0.15 × field_distinctiveness
+         + 0.1 × conciseness
+  3. Compute group-relative advantage (no external baseline needed)
+  4. Update policy toward higher-reward candidates
+
+Why this beats DPO alone for quality: DPO is limited to the existing preference pairs (51 rows). GRPO can generate thousands of training signals from the same source documents by exploring diverse outputs and scoring them. The model discovers quality patterns that humans haven't explicitly corrected yet — like "always cite the specific article number" or "separate WHT analysis from CIT analysis into distinct paragraphs."
+
+Practical path for KH:
+
+Start with DPO (you have the data now) — establishes a strong baseline
+Build the reward model from review_comment data (even 51 comments teach meaningful patterns)
+Layer GRPO on top — the model self-improves on quality dimensions which KH reviewer cares about
 
 1. Specific RL algorithms implemented in this repository
 2. Dataset or environment details
