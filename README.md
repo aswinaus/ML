@@ -89,7 +89,7 @@ Semantic-rich descriptions.
 
 Everything will be designed explicitly so that GRPO can continue optimizing LoRA modules on top of the trained semantic encoder.
 
-In nutshell this is what been done
+In nutshell this is what has been done
 
 •	The labels are represented by their full semantic descriptions embedded once.
 
@@ -105,7 +105,7 @@ In nutshell this is what been done
 
 •	Prediction is done by thresholding cosine similarity scores after sigmoid.
 
-**Environment : Databricks Cluser**
+**Environment : Databricks Cluster**
 
 Worker Type: Standard_NV36adms_A10_v5
 Each Worker has 1x NVIDIA A10 GPU with 880 GB RAM
